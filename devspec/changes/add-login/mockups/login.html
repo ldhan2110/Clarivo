@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clarivo — Login mockup</title>
+<style>
+/* ---------------------------------------------------------------
+   Tokens copied verbatim from frontend/app/globals.css (:root / .dark).
+   Nothing invented — if a value is wrong here, it is wrong there.
+----------------------------------------------------------------*/
+:root{
+  --radius:0.625rem;
+  --background:oklch(1 0 0);
+  --foreground:oklch(0.2536 0.0553 266.35);
+  --card:oklch(1 0 0);
+  --card-foreground:oklch(0.2536 0.0553 266.35);
+  --primary:oklch(0.6016 0.2123 263.59);
+  --primary-foreground:oklch(0.984 0.003 247.858);
+  --secondary:oklch(0.968 0.007 247.896);
+  --muted:oklch(0.968 0.007 247.896);
+  --muted-foreground:oklch(0.554 0.046 257.417);
+  --accent:oklch(0.968 0.007 247.896);
+  --destructive:oklch(0.577 0.245 27.325);
+  --border:oklch(0.929 0.013 255.508);
+  --input:oklch(0.929 0.013 255.508);
+  --ring:oklch(0.6016 0.2123 263.59);
+  --chart-3:oklch(0.6392 0.1927 297.3);
+}
+.dark{
+  --background:oklch(0.2536 0.0553 266.35);
+  --foreground:oklch(0.984 0.003 247.858);
+  --card:oklch(0.3 0.05 266.35);
+  --card-foreground:oklch(0.984 0.003 247.858);
+  --primary:oklch(0.6788 0.1756 250.9);
+  --primary-foreground:oklch(0.2536 0.0553 266.35);
+  --secondary:oklch(0.32 0.045 266.35);
+  --muted:oklch(0.32 0.045 266.35);
+  --muted-foreground:oklch(0.704 0.04 256.788);
+  --accent:oklch(0.32 0.045 266.35);
+  --destructive:oklch(0.704 0.191 22.216);
+  --border:oklch(1 0 0 / 10%);
+  --input:oklch(1 0 0 / 15%);
+  --ring:oklch(0.6788 0.1756 250.9);
+  --chart-3:oklch(0.6392 0.1927 297.3);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  background:#eef1f6;color:#0f172a;-webkit-font-smoothing:antialiased;padding:28px 16px 90px}
+
+/* ===== mockup scaffolding — NOT part of the design ===== */
+.note{max-width:1180px;margin:0 auto 26px;font-size:13px;line-height:1.65;color:#475569;
+  background:#fff;border:1px solid #e2e8f0;border-left:3px solid oklch(0.6016 0.2123 263.59);
+  border-radius:10px;padding:16px 20px}
+.note b{color:#0f172a}
+.note code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;background:#f1f5f9;padding:1px 5px;border-radius:4px}
+.note ul{margin:8px 0 0 18px}.note li{margin:3px 0}
+.rail{max-width:1180px;margin:0 auto}
+.hdr{margin:46px 0 14px;display:flex;align-items:center;gap:10px;font-size:11px;font-weight:700;
+  letter-spacing:.09em;text-transform:uppercase;color:#64748b}
+.hdr::after{content:"";flex:1;height:1px;background:#d8dfe9}
+.row{display:flex;gap:26px;align-items:flex-start;flex-wrap:wrap}
+.cap{font-size:11px;color:#94a3b8;margin:0 0 7px 3px;font-family:ui-monospace,Menlo,monospace}
+/* each stage is a real CSS container, so @container queries fire off ITS width —
+   the 390px column renders the genuine phone layout, not a shrunken desktop */
+.stage{container-type:inline-size;border:1px solid #dbe2ec;border-radius:16px;overflow:hidden;
+  box-shadow:0 1px 3px rgb(15 23 42/.05)}
+.w-mobile{width:390px;max-width:100%}
+.w-tablet{width:744px;max-width:100%}
+.w-desktop{width:1180px;max-width:100%}
+
+/* =========================================================
+   THE SCREEN — one centred card at EVERY width.
+   Mobile-first: the base CSS is the phone; wider screens only
+   get more breathing room. No second layout, no background art.
+========================================================= */
+.auth{
+  min-height:640px;
+  padding:24px 16px calc(24px + env(safe-area-inset-bottom,0px));
+  display:flex;align-items:center;justify-content:center;
+  color:var(--card-foreground);
+  /* plain tinted ground — a whisper of brand, nothing that competes with the form */
+  background:
+    radial-gradient(90% 70% at 50% -10%, color-mix(in oklch, var(--primary) 9%, transparent), transparent 70%),
+    var(--secondary);
+}
+.auth.dark{
+  background:
+    radial-gradient(90% 70% at 50% -10%, color-mix(in oklch, var(--primary) 14%, transparent), transparent 70%),
+    var(--background);
+}
+
+.card{
+  width:100%;max-width:440px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:20px;
+  box-shadow:0 1px 2px rgb(15 23 42/.05),0 16px 40px -14px rgb(15 23 42/.18);
+  overflow:hidden;
+}
+
+/* ---- brand: on a phone this is JUST the logo, sitting in the card's top padding ---- */
+.brand{padding:28px 24px 0}
+.brand-art{display:none}          /* the illustration is a desktop-only affordance */
+.lockup{display:flex;align-items:center;gap:9px}
+.lockup img{height:32px;width:auto;display:block}
+.lockup .fb{height:32px;width:32px;border-radius:9px;display:none;
+  background:linear-gradient(135deg,var(--primary),var(--chart-3))}
+.lockup .wm{font-size:24px;font-weight:700;letter-spacing:-.022em;color:var(--card-foreground)}
+
+/* ---- form panel ---- */
+.panel{padding:16px 24px 26px;display:flex;flex-direction:column}
+h1{font-size:16px;font-weight:500;line-height:1.5;color:var(--muted-foreground)}
+h1 b{font-weight:700;color:var(--card-foreground)}
+form{margin-top:24px;display:flex;flex-direction:column;gap:15px}
+.field{display:flex;flex-direction:column;gap:7px}
+label{font-size:14px;font-weight:600}
+.control{position:relative;display:flex;align-items:center}
+.control .lead{position:absolute;left:14px;width:18px;height:18px;color:var(--muted-foreground);
+  pointer-events:none;display:flex}
+.control input{
+  width:100%;height:50px;padding:0 14px 0 44px;
+  /* 16px is deliberate: smaller and iOS Safari zooms the page on focus */
+  font-size:16px;font-family:inherit;
+  color:var(--card-foreground);background:var(--card);
+  border:1px solid var(--input);border-radius:12px;
+  outline:none;transition:border-color .15s,box-shadow .15s;
+}
+.control input::placeholder{color:var(--muted-foreground);opacity:.8}
+.control input:focus{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in oklch,var(--ring) 32%,transparent)}
+.control input:focus ~ .lead{color:var(--ring)}
+.control input[aria-invalid=true]{border-color:var(--destructive)}
+.control input[aria-invalid=true]:focus{box-shadow:0 0 0 3px color-mix(in oklch,var(--destructive) 26%,transparent)}
+.control input:disabled{opacity:.6;cursor:not-allowed}
+.control:has(.eye) input{padding-right:50px}
+.eye{position:absolute;right:3px;width:44px;height:44px;   /* 44px minimum tap target */
+  border:0;background:none;cursor:pointer;color:var(--muted-foreground);
+  display:flex;align-items:center;justify-content:center;border-radius:9px}
+.eye:active{background:var(--accent)}
+.err{font-size:12.5px;color:var(--destructive)}
+
+.between{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.remember{display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer;
+  min-height:44px;user-select:none}        /* the whole label is the tap target */
+.remember input{width:20px;height:20px;accent-color:var(--primary);cursor:pointer;flex:none}
+.link{font-size:14px;font-weight:500;color:var(--primary);text-decoration:none;
+  min-height:44px;display:inline-flex;align-items:center}
+.link:hover{text-decoration:underline}
+
+.btn{height:50px;width:100%;margin-top:2px;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-family:inherit;font-size:15px;font-weight:600;
+  border:0;border-radius:12px;cursor:pointer;
+  background:var(--primary);color:var(--primary-foreground);
+  transition:background .15s,opacity .15s}
+.btn:hover{background:color-mix(in oklch,var(--primary) 90%,black)}
+.btn:disabled{opacity:.5;pointer-events:none}
+.spin{width:16px;height:16px;border-radius:50%;
+  border:2px solid color-mix(in oklch,var(--primary-foreground) 35%,transparent);
+  border-top-color:var(--primary-foreground);animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+.alert{display:flex;gap:9px;align-items:flex-start;padding:11px 13px;border-radius:12px;
+  font-size:13px;line-height:1.45;
+  background:color-mix(in oklch,var(--destructive) 10%,var(--card));
+  border:1px solid color-mix(in oklch,var(--destructive) 35%,transparent);
+  color:var(--destructive)}
+.alert svg{flex:none;margin-top:1px}
+.foot{margin-top:24px;text-align:center;font-size:14px;color:var(--muted-foreground)}
+.foot a{color:var(--primary);font-weight:600;text-decoration:none}
+
+/* ---- >=640px: same single card, more air ---- */
+@container (min-width:640px){
+  .auth{padding:56px 24px}
+  .card{max-width:452px}
+  .brand{padding:34px 34px 0}
+  .panel{padding:18px 34px 30px}
+}
+
+/* =========================================================
+   >= 900px — two panels. The left one holds login-background.png
+   CENTRED and uncropped (contain), so the whole composition reads.
+========================================================= */
+@container (min-width:900px){
+  .auth{padding:56px 24px}
+  .card{max-width:960px;display:grid;grid-template-columns:48% 52%;align-items:stretch}
+
+  .brand{
+    background:var(--secondary);
+    border-right:1px solid var(--border);
+    padding:34px 30px;
+    display:flex;flex-direction:column;gap:22px;
+  }
+  .brand-art{
+    display:flex;flex:1;align-items:center;justify-content:center;min-height:0;
+  }
+  .brand-art img{
+    display:block;
+    width:100%;height:100%;
+    /* contain, not cover: the illustration is never cropped */
+    object-fit:contain;object-position:center;
+    border-radius:14px;
+  }
+
+  .panel{padding:44px 40px 38px;justify-content:center}
+  .control input{height:46px;font-size:15px}
+  .eye{height:42px;width:42px}
+  .btn{height:46px}
+  .remember,.link{min-height:0}
+}
+</style>
+</head>
+<body>
+
+<div class="note">
+  <b>Mockup — static prop, not the build.</b> Change <code>add-login</code>, screen <code>login</code>.
+  Colors, radii and the dark palette are the real tokens from <code>frontend/app/globals.css</code>.
+  Each stage below is a real CSS container, so the 390px column renders the genuine phone layout.
+  <ul>
+    <li><b>Phone / tablet</b> — single centred card, <b>logo only</b> in the header: no tagline, no feature list,
+      no illustration. Card shape, leading input icons and bolder labels follow
+      <code>Screenshot 2026-09-30 at 16.35.52.png</code>.</li>
+    <li><b>Desktop (≥900px)</b> — splits into two panels. The left panel holds <code>login-background.png</code>
+      <b>centred and uncropped</b> (<code>object-fit:contain</code>), so the whole illustration reads — nothing is
+      cut off — with the logo above it on a <code>--secondary</code> ground.</li>
+    <li>Page ground is a plain tinted surface, not a photograph: <code>--secondary</code> with a faint
+      <code>--primary</code> glow. The illustration only loads where it is actually shown.</li>
+    <li><b>Touch</b> — inputs and button 50px; eye toggle and the whole "Remember me" label 44px minimum; inputs at
+      <code>font-size:16px</code> so iOS Safari doesn't zoom on focus. Bottom padding uses
+      <code>env(safe-area-inset-bottom)</code>.</li>
+    <li><b>Cut</b>: "or continue with", Google, Keycloak. <b>Inert</b>: "Forgot password?", "Sign up".</li>
+    <li><b>Asset debt</b>: <code>login-background.png</code> is 1536×1024 / <b>1.4 MB</b>. Ships as WebP
+      (~150–250 KB). Note the mockup hides it on phones with <code>display:none</code>, which does <i>not</i> stop the
+      download — the real build must skip the request on small screens (conditional render, or a
+      <code>&lt;picture&gt;</code>/CSS <code>background-image</code> behind a media query). A task, not a detail.</li>
+  </ul>
+</div>
+
+<div class="rail" id="rail"></div>
+
+<script>
+/* One template, six states — every stage is the same markup. */
+const MARK = 'clarivo-mark.png';
+const ICON = {
+  mail:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>',
+  lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
+  eye:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>',
+  warn:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16.5v.01"/></svg>',
+};
+
+function screen(o){
+  const inv = f => o.invalid === f ? ' aria-invalid="true"' : '';
+  const dis = o.busy ? ' disabled' : '';
+  return `
+<div class="auth${o.dark?' dark':''}">
+  <div class="card">
+    <aside class="brand">
+      <div class="lockup">
+        <img src="${MARK}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <div class="fb"></div>
+        <div class="wm">Clarivo</div>
+      </div>
+      <div class="brand-art"><img src="login-background.png" alt="Turn conversations into clear, structured, and actionable requirements."></div>
+    </aside>
+    <section class="panel">
+    <h1><b>Welcome back</b> — sign in to your workspace.</h1>
+    <form onsubmit="return false">
+      ${o.alert?`<div class="alert" role="alert">${ICON.warn}<span>${o.alert}</span></div>`:''}
+      <div class="field">
+        <label>Email</label>
+        <div class="control">
+          <input type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"
+            value="${o.email||''}"${inv('email')}${dis}>
+          <span class="lead">${ICON.mail}</span>
+        </div>
+        ${o.emailErr?`<span class="err">${o.emailErr}</span>`:''}
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <div class="control">
+          <input type="password" autocomplete="current-password" placeholder="Enter your password"
+            value="${o.pass||''}"${inv('pass')}${dis}>
+          <span class="lead">${ICON.lock}</span>
+          ${o.busy?'':`<button type="button" class="eye" aria-label="Show password">${ICON.eye}</button>`}
+        </div>
+        ${o.passErr?`<span class="err">${o.passErr}</span>`:''}
+      </div>
+      <div class="between">
+        <label class="remember"><input type="checkbox"${o.remember?' checked':''}${dis}> Remember me</label>
+        <a class="link" href="#">Forgot password?</a>
+      </div>
+      <button class="btn" type="submit"${dis}>${o.busy?'<span class="spin"></span>Signing in…':'Sign in'}</button>
+    </form>
+    <p class="foot">Don't have an account? <a href="#">Sign up</a></p>
+    </section>
+  </div>
+</div>`;
+}
+
+const STATES = [
+  {key:'empty',    label:'Empty — first paint', o:{}},
+  {key:'filled',   label:'Filled — remember me checked', o:{email:'an.le@clarivo.local',pass:'correct-horse-battery',remember:true}},
+  {key:'busy',     label:'Submitting — inputs locked, no double-submit', o:{email:'an.le@clarivo.local',pass:'correct-horse-battery',remember:true,busy:true}},
+  {key:'autherr',  label:'Auth error — one generic message, never "which field"', o:{email:'an.le@clarivo.local',pass:'wrongpass',remember:true,alert:'Incorrect email or password.'}},
+  {key:'validate', label:'Field validation — client-side, before any request', o:{email:'an.le@',emailErr:'Enter a valid email address.',passErr:'Password is required.',invalid:'email'}},
+  {key:'dark',     label:'Dark theme — same screen under .dark', o:{dark:true}},
+];
+const W = [
+  {cls:'w-mobile', cap:'390px · phone'},
+  {cls:'w-tablet', cap:'744px · tablet'},
+  {cls:'w-desktop',cap:'1180px · desktop'},
+];
+
+document.getElementById('rail').innerHTML = STATES.map((s,i)=>{
+  const widths = (s.key==='empty'||s.key==='dark') ? W : [W[0], W[2]];
+  return `<div class="hdr">${i+1} · ${s.label}</div>
+  <div class="row">${widths.map(w=>`
+    <div><div class="cap">${w.cap}</div>
+      <div class="stage ${w.cls}">${screen(s.o)}</div></div>`).join('')}</div>`;
+}).join('');
+</script>
+</body>
+</html>

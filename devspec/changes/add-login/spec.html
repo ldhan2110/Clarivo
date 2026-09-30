@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>add-login — DevSpec review</title><style>
+:root{--bg:#f6f7fb;--fg:#0f172a;--mut:#64748b;--line:#e2e8f0;--card:#fff;
+ --brand:#3a75fd;--ok:#16a34a;--bad:#dc2626;--warn:#b45309;--code:#f1f5f9}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:15px/1.65 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+ background:var(--bg);color:var(--fg);-webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:232px minmax(0,1fr);gap:34px;
+ max-width:1220px;margin:0 auto;padding:30px 22px 110px}
+nav{position:sticky;top:22px;align-self:start;font-size:13.5px}
+nav .np{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--mut);margin:0 0 9px 10px}
+nav a{display:block;padding:6px 10px;border-radius:7px;color:#475569;text-decoration:none;border-left:2px solid transparent}
+nav a:hover{background:#eef2f9;color:var(--fg)}
+main{min-width:0}
+header.top{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 26px;margin-bottom:26px}
+header.top h1{font-size:25px;letter-spacing:-.02em}
+header.top .sub{color:var(--mut);margin-top:5px;font-size:14px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip{font-size:12px;font-weight:600;padding:4px 11px;border-radius:999px;background:#eef2f9;color:#475569}
+.chip.b{background:#e8efff;color:#1d4ed8}
+.chip.g{background:#e7f6ec;color:#15803d}
+.chip.r{background:#fdecec;color:#b91c1c}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px 28px;margin-bottom:22px}
+section>h2.sh{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);
+ margin:-4px 0 18px;padding-bottom:11px;border-bottom:1px solid var(--line)}
+h1,h2,h3,h4{letter-spacing:-.012em;line-height:1.3}
+main h1{font-size:21px;margin:18px 0 8px}
+main h2{font-size:18px;margin:24px 0 8px}
+main h3{font-size:15.5px;margin:20px 0 6px}
+main h4{font-size:14px;margin:14px 0 4px;color:#334155}
+p{margin:8px 0}
+ul,ol{margin:8px 0 8px 22px}
+li{margin:4px 0}
+ul.checks{list-style:none;margin-left:0}
+li.chk{display:flex;gap:9px;align-items:flex-start;padding:3px 0}
+li.chk .box{color:var(--mut);flex:none;font-size:15px;line-height:1.5}
+li.chk.done{color:var(--mut);text-decoration:line-through}
+li.chk.done .box{color:var(--ok)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;background:var(--code);
+ padding:1.5px 5px;border-radius:4px}
+pre{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:15px 17px;overflow-x:auto;margin:12px 0}
+pre code{background:none;color:inherit;font-size:12.2px;line-height:1.55;padding:0}
+blockquote{border-left:3px solid var(--brand);background:#f8fafd;padding:9px 15px;margin:12px 0;
+ color:#475569;border-radius:0 7px 7px 0}
+.tw{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
+th{background:#f8fafc;font-weight:600}
+hr{border:0;border-top:1px solid var(--line);margin:22px 0}
+.banner{border-radius:10px;padding:13px 16px;margin:0 0 18px;font-size:14px;font-weight:500}
+.banner.ok{background:#e7f6ec;color:#14532d;border:1px solid #bbf7d0}
+.banner.bad{background:#fdecec;color:#7f1d1d;border:1px solid #fecaca}
+.banner.warn{background:#fff7ed;color:#7c2d12;border:1px solid #fed7aa}
+.absent{color:var(--mut);font-style:italic}
+.mock{margin:14px 0}
+.mock .bar{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--mut);
+ padding:7px 12px;background:#f8fafc;border:1px solid var(--line);border-bottom:0;border-radius:10px 10px 0 0}
+.mock .bar a{color:var(--brand);text-decoration:none;font-weight:600}
+.mock iframe{width:100%;height:640px;border:1px solid var(--line);border-radius:0 0 10px 10px;background:#fff;display:block}
+.grid{display:flex;gap:9px;flex-wrap:wrap;margin:4px 0 2px}
+.stat{background:#f8fafc;border:1px solid var(--line);border-radius:9px;padding:9px 14px;font-size:13px}
+.stat b{display:block;font-size:17px;letter-spacing:-.02em}
+@media(max-width:900px){.wrap{grid-template-columns:1fr;gap:0;padding:18px 14px 80px}nav{position:static;margin-bottom:20px;
+ display:flex;flex-wrap:wrap;gap:4px}nav .np{width:100%;margin-left:0}section{padding:18px 16px}}
+</style></head>
+<body><div class="wrap"><nav><div class="np">add-login</div><a href="#context">Context</a><a href="#proposal">Proposal</a><a href="#architecture">Architecture</a><a href="#impact">Impact Area</a><a href="#database">Database</a><a href="#backend">Backend</a><a href="#frontend">Frontend</a><a href="#tasks">Tasks</a><a href="#coverage">Coverage</a><a href="#board">Board</a></nav><main>
+<header class="top"><h1>Review: add-login</h1>
+<div class="sub">Generated from the artifacts in <code>devspec/changes/add-login/</code>. This page is disposable —
+fix the markdown, re-render. Nothing here is invented; a missing artifact reads "Not captured".</div></header>
+<section id="context"><h2 class="sh">Context</h2><h1>add-login</h1>
+<p class="absent" style="font-style:normal;color:var(--mut)">Login for Clarivo — local email/password authentication,
+JWT in an httpOnly cookie, remember me, first <code>users</code> table and a seeded administrator.</p>
+<div class="chips">
+  <span class="chip b">change: add-login</span>
+  <span class="chip">status: not yet on the board</span>
+  <span class="chip">depends_on: none</span>
+  <span class="chip">artifacts: proposal · design · db · ui · spec · tasks</span>
+</div>
+<div class="grid" style="margin-top:16px">
+  <div class="stat"><b>11</b>requirements</div>
+  <div class="stat"><b>40</b>subtasks</div>
+  <div class="stat"><b>9</b>sections</div>
+  <div class="stat"><b>3</b>[db]</div><div class="stat"><b>18</b>[backend]</div><div class="stat"><b>13</b>[frontend]</div><div class="stat"><b>6</b>[test]</div>
+</div>
+<p style="margin-top:14px;font-size:13.5px;color:var(--mut)">This change is not yet registered on
+<code>devspec/changes/tasks.yml</code> — approving it runs <code>/devspec-plan</code>, which creates the board entry.</p></section><section id="proposal"><h2 class="sh">Proposal</h2><h1 id='proposal-add-login'>Proposal: add-login</h1>
+<h2 id='why'>Why</h2>
+<p>Clarivo has no authentication of any kind. There is no <code>User</code> table, no login endpoint, no guard, and no way to tell one person from another. Every screen on the 15-screen MVP board sits behind a signed-in user — the dashboard greets &quot;Good morning, An&quot;, projects have a BA and members, meetings have participants. None of that can be built until there is a user to attach it to.</p>
+<p>This change is the smallest thing that unblocks the rest: one real account can sign in, stay signed in, and be identified by the API.</p>
+<h2 id='what-it-delivers'>What it delivers</h2>
+<ul>
+<li>A <code>users</code> table — the first domain table in the repo — plus the first migration this project has ever run.</li>
+<li>One seeded administrator account, created by a rerunnable script from environment variables.</li>
+<li><code>POST /auth/login</code>, <code>POST /auth/logout</code>, <code>GET /auth/me</code> on the backend, with the session carried in an httpOnly cookie.</li>
+<li>A login screen at <code>/login</code> built to the approved mockup, working properly on a phone.</li>
+<li>Unauthenticated visitors are redirected to <code>/login</code>.</li>
+</ul>
+<h2 id='scope'>Scope</h2>
+<p><strong>In</strong></p>
+<ul>
+<li>Local email + password authentication only.</li>
+<li>A single JWT, signed by the API, delivered as an httpOnly cookie.</li>
+<li>&quot;Remember me&quot; — checked keeps the session for 30 days across browser restarts; unchecked ends it when the browser closes.</li>
+<li><code>users</code> table, <code>User</code> entity, forward migration, idempotent seed script.</li>
+<li>Login page: responsive (phone-first), field validation, submitting and error states, redirect on success.</li>
+<li>Route protection via Next.js middleware.</li>
+<li>Two configuration fixes this change cannot work without: the frontend dev port, and the <code>CORS_ORIGINS</code> list that currently does not include it.</li>
+</ul>
+<p><strong>Out</strong> — deliberately, each additive later with no migration to undo</p>
+<ul>
+<li>Sign-up / self-registration. There is no sign-up screen in the 15-screen board; accounts are seeded. The &quot;Sign up&quot; link renders but is inert.</li>
+<li>Password reset and the email infrastructure it needs. &quot;Forgot password?&quot; renders but is inert.</li>
+<li>Google and Keycloak SSO. Both appear in the original mockup image and are <strong>cut</strong> — Keycloak is not running anywhere and nothing federates to it today.</li>
+<li>Refresh tokens and rotation. One token, one cookie.</li>
+<li>Token revocation, and therefore forced logout of an existing session.</li>
+<li>Roles and permissions. The board shows a <code>BA</code> chip, but that belongs to project membership, not to login.</li>
+<li>Rate limiting and account lockout.</li>
+</ul>
+<h2 id='accepted-ceilings'>Accepted ceilings</h2>
+<ul>
+<li><strong>A stolen cookie is valid for up to 30 days.</strong> There is no revocation list and no refresh rotation. Acceptable for an internal tool pre-launch; upgrading to short-lived access + refresh tokens is additive and touches no data.</li>
+<li><strong>Accounts exist only by seeding.</strong> Adding a user means running the seed script or writing SQL. Fine while the user count is one.</li>
+<li>The dashboard the login redirects to does not exist yet; success lands on the current placeholder home page.</li>
+</ul></section><section id="architecture"><h2 class="sh">Architecture</h2><p style='font-size:13.5px;color:var(--mut);margin-bottom:6px'>Rendered as the ASCII block from <code>design.md</code>. The <code>archify</code> skill is installed and can redraw this as a proper diagram on request.</p><pre><code>  browser (localhost:3001)                     nest api (localhost:3000)
+ ┌───────────────────────────┐               ┌─────────────────────────────────────┐
+ │ app/(auth)/login/page.tsx │               │ AuthModule                          │
+ │   useMutation ──────────────POST /auth/login──▶ AuthController.login()          │
+ │   {email,password,remember}               │      │ UsersService.findByEmail()   │
+ │                           │               │      │ argon2.verify(hash, pw)      │
+ │                           │               │      │ JwtService.sign({sub,email}) │
+ │   Set-Cookie: clv_at  ◀─────────────────────────┘ res.cookie(httpOnly, lax,     │
+ │     httpOnly · sameSite=lax               │           maxAge = remember?30d:—)  │
+ │     maxAge 30d | session                  │                                     │
+ │                           │               │ AuthController.logout()             │
+ │ middleware.ts             │               │   res.clearCookie(&#x27;clv_at&#x27;)         │
+ │   cookie absent → 307 /login              │                                     │
+ │                           │  GET /auth/me │ JwtAuthGuard → JwtStrategy          │
+ │ lib/api.ts (axios,        │◀─────────────▶│   cookie extractor (NOT header)     │
+ │   withCredentials: true)  │               │   → UserDto {id,email,name,...}     │
+ └───────────────────────────┘               └──────────────┬──────────────────────┘
+                                                            │ TypeORM
+                                                     ┌──────▼──────┐
+                                                     │ users table │  ← first migration
+                                                     └─────────────┘
+                                             seed: pnpm seed → upsert 1 admin from env</code></pre></section><section id="impact"><h2 class="sh">Impact Area</h2><h3 id='1-decision-defaults'>1. Decision Defaults</h3>
+<div class='tw'><table><thead><tr><th>Gray area</th><th>Default decision</th><th>Fallback if the default doesn&#x27;t fit</th></tr></thead><tbody><tr><td>Cookie name</td><td><code>clv_at</code></td><td>any single stable name — it appears in <code>main.ts</code>, the strategy and the middleware; keep the three in sync</td></tr><tr><td>Cookie flags</td><td><code>httpOnly: true</code>, <code>sameSite: &#x27;lax&#x27;</code>, <code>path: &#x27;/&#x27;</code>, <code>secure: NODE_ENV === &#x27;production&#x27;</code></td><td>—</td></tr><tr><td>&quot;Remember me&quot; lifetime</td><td>30 days (<code>maxAge: 30 <em> 24 </em> 60 <em> 60 </em> 1000</code>); unchecked omits <code>maxAge</code> entirely → session cookie</td><td>—</td></tr><tr><td>JWT payload</td><td><code>{ sub: user.id, email: user.email }</code> — nothing else</td><td>never put <code>name</code> or any PII beyond email in the token</td></tr><tr><td>JWT expiry</td><td><code>JWT_EXPIRES_IN</code> env, default <code>30d</code>, matching the remembered cookie</td><td>—</td></tr><tr><td>Where the modules live</td><td><code>backend/src/users/</code> and <code>backend/src/auth/</code>, NestJS-conventional</td><td>mirror whichever domain module exists by then</td></tr><tr><td>Backend file naming</td><td><code>user.entity.ts</code>, <code>auth.controller.ts</code>, <code>login.dto.ts</code>, <code>jwt-auth.guard.ts</code></td><td>follow the <code>*.role.ts</code> suffix pattern in <code>conventions.md</code></td></tr><tr><td>Error codes</td><td><code>defineErrors(&#x27;AUTH&#x27;, { INVALID_CREDENTIALS, UNAUTHENTICATED })</code> → <code>AUTH_INVALID_CREDENTIALS</code></td><td>—</td></tr><tr><td>Error copy</td><td>&quot;Incorrect email or password.&quot; — sentence case, full stop, identical for both causes</td><td>—</td></tr><tr><td>Login route path</td><td><code>frontend/app/(auth)/login/page.tsx</code> — route group keeps the auth layout separate without a URL segment</td><td>plain <code>app/login/page.tsx</code> if the route group fights Next 16 typed routes</td></tr><tr><td>Redirect after login</td><td><code>/</code></td><td>if a <code>?next=</code> param is present and is a relative path, honour it; <strong>reject absolute URLs</strong> (open-redirect)</td></tr><tr><td>Redirect when unauthenticated</td><td>307 to <code>/login</code></td><td>—</td></tr><tr><td>Form state management</td><td>local <code>useState</code> + a TanStack <code>useMutation</code>; no form library</td><td><code>react-hook-form</code> only if the field count grows past this screen</td></tr><tr><td>Client-side validation</td><td>email non-empty and matches a basic address shape; password non-empty. Nothing stronger — the server is the authority</td><td>—</td></tr><tr><td>Missing UI components</td><td>copy <code>input</code>, <code>label</code>, <code>checkbox</code> from ui.shadcn.com by hand into <code>app/components/ui/</code> (the CLI hangs — <code>rules.md</code>)</td><td>if the CLI works by then, use it</td></tr><tr><td><code>cn</code> import in new components</td><td><code>@/lib/utils</code> per <code>components.json</code></td><td>note <code>button.tsx:3</code> imports from the <code>cn</code> <strong>npm package</strong> instead — do <strong>not</strong> copy that; leave the existing line alone (out of scope)</td></tr><tr><td>Frontend dev port</td><td>pin to 3001 (<code>next dev -p 3001</code>) and set <code>CORS_ORIGINS=http://localhost:3001</code></td><td>any port, as long as the two agree</td></tr><tr><td>Illustration format</td><td>WebP at ~1400px wide, PNG kept as the source in <code>assets/</code></td><td>—</td></tr><tr><td>Illustration on phones</td><td>not requested at all below 900px — skip the render, don&#x27;t just <code>display:none</code></td><td>a <code>&lt;picture&gt;</code> with a media-query source</td></tr><tr><td>Unlisted edge case</td><td>fail closed: no cookie set, log server-side, return the standard error envelope</td><td>—</td></tr></tbody></table></div>
+<h3 id='2-blast-radius'>2. Blast Radius</h3>
+<p>Resolved against the code graph and the file tree — the repo has no domain code, so almost everything here is new.</p>
+<p><strong>Backend — new</strong></p>
+<ul>
+<li><code>backend/src/users/user.entity.ts</code>, <code>users.service.ts</code>, <code>users.module.ts</code></li>
+<li><code>backend/src/auth/auth.module.ts</code>, <code>auth.controller.ts</code>, <code>auth.service.ts</code>, <code>auth.errors.ts</code>, <code>jwt.strategy.ts</code>, <code>jwt-auth.guard.ts</code>, <code>dto/login.dto.ts</code>, <code>dto/user.dto.ts</code></li>
+<li><code>backend/src/database/migrations/&lt;timestamp&gt;-CreateUsers.ts</code></li>
+<li><code>backend/src/database/seeds/seed.ts</code></li>
+<li><code>users</code> table</li>
+</ul>
+<p><strong>Backend — adjusted</strong></p>
+<ul>
+<li><code>backend/src/app.module.ts</code> — register <code>UsersModule</code> + <code>AuthModule</code></li>
+<li><code>backend/src/main.ts:9</code> — add <code>cookieParser()</code>; swap <code>.addBearerAuth()</code> → <code>.addCookieAuth(&#x27;clv_at&#x27;)</code></li>
+<li><code>backend/src/config/env.validation.ts</code> — <code>JWT_SECRET</code>, <code>JWT_EXPIRES_IN</code>, <code>SEED_ADMIN_EMAIL/PASSWORD/NAME</code></li>
+<li><code>backend/.env</code>, <code>backend/.env.example</code> — the same vars, plus <code>CORS_ORIGINS</code></li>
+<li><code>backend/package.json</code> — <code>seed</code> script; deps <code>@nestjs/jwt</code>, <code>@nestjs/passport</code>, <code>passport</code>, <code>passport-jwt</code>, <code>argon2</code>, <code>cookie-parser</code> (+ <code>@types/passport-jwt</code>, <code>@types/cookie-parser</code>)</li>
+</ul>
+<p><strong>Frontend — new</strong></p>
+<ul>
+<li><code>frontend/app/(auth)/login/page.tsx</code></li>
+<li><code>frontend/app/components/ui/input.tsx</code>, <code>label.tsx</code>, <code>checkbox.tsx</code></li>
+<li><code>frontend/middleware.ts</code> (project root — Next requires it outside <code>app/</code>)</li>
+<li><code>frontend/public/clarivo-mark.png</code>, <code>frontend/public/login-background.webp</code></li>
+</ul>
+<p><strong>Frontend — adjusted</strong></p>
+<ul>
+<li><code>frontend/package.json</code> — <code>dev</code>/<code>start</code> pinned to port 3001; dep <code>@radix-ui/react-checkbox</code></li>
+<li><code>frontend/app/types/api/types.gen.ts</code> — regenerated from the new endpoints (never hand-edited)</li>
+</ul>
+<p><strong>Nothing existing reads or writes anything this change touches.</strong> No repository, service, controller or query exists to regress; <code>users</code> is not shared with another feature because there is no other feature.</p>
+<h3 id='3-risk-reversibility'>3. Risk + reversibility</h3>
+<pre><code>backend/src/users/**                      — safe/reversible (new)
+backend/src/auth/**                       — safe/reversible (new)
+migrations/&lt;ts&gt;-CreateUsers.ts            — safe/reversible (additive, forward-only, empty DB)
+backend/src/database/seeds/seed.ts        — safe/reversible (idempotent upsert, no delete)
+backend/src/main.ts (cookieParser, swagger)— safe/reversible
+backend/src/app.module.ts (register)      — safe/reversible
+backend/src/config/env.validation.ts      — safe/reversible (new vars have defaults or are dev-only)
+backend/.env + .env.example               — safe/reversible
+frontend/app/(auth)/login/**              — safe/reversible (new)
+frontend/middleware.ts                    — safe/reversible (new), but see below
+frontend/package.json (port pin)          — safe/reversible</code></pre>
+<p>One entry deserves a reviewer&#x27;s eye rather than a tag: <strong><code>frontend/middleware.ts</code> gates every route</strong>. A matcher that is too broad locks the login page itself out and produces a redirect loop; one that is too narrow leaves pages open. The matcher must exclude <code>/login</code>, <code>/_next/*</code>, and static assets. It is trivially revertible, but it is the piece most likely to be wrong on the first run.</p>
+<p>Nothing in this change is destructive. There is no <code>DROP</code>, no <code>DELETE</code>, no data reshape, and the database has no rows to lose.</p></section><section id="database"><h2 class="sh">Database</h2><h1 id='db-add-login'>DB: add-login</h1>
+<p><strong>Source</strong>: <strong>live</strong> — read read-only via <code>docker exec clarivo-postgres-1 psql -U postgres -d clarivo</code> (no Postgres MCP is connected; this is the live container, not migration files).</p>
+<p><strong>Dialect</strong>: postgresql 17.11 · schema <code>public</code> · container <code>clarivo-postgres-1</code>, host port <strong>5437</strong></p>
+<p><strong>Conventions</strong>: <code>devspec/context/schema.md</code> + <code>conventions.md</code> backend block.</p>
+<h2 id='current-state'>Current state</h2>
+<pre><code>public.migrations   ← TypeORM bookkeeping only, 0 rows</code></pre>
+<p><strong>No migration has ever run.</strong> The <code>migrations</code> table exists but is empty, so <code>users</code> is both the first domain table and the first migration this repo executes. Extensions installed: <code>plpgsql</code> only (<code>citext</code>, <code>pgcrypto</code>, <code>uuid-ossp</code> are <em>available</em> but not created).</p>
+<h2 id='tables-touched'>Tables touched</h2>
+<h3 id='users-new'>users  (new)</h3>
+<div class='tw'><table><thead><tr><th>col</th><th>type</th><th>null</th><th>default</th><th>mark</th><th>note</th></tr></thead><tbody><tr><td><code>id</code></td><td><code>uuid</code></td><td>no</td><td>—</td><td>add</td><td>PK. <strong>Generated in the app</strong> (uuid v7, <code>@BeforeInsert</code>) — no DB default, per <code>BaseEntity</code> (<code>backend/src/database/base.entity.ts:9</code>)</td></tr><tr><td><code>email</code></td><td><code>varchar(255)</code></td><td>no</td><td>—</td><td>add</td><td>Unique. Stored <strong>lowercased by the application</strong> — see open question 1</td></tr><tr><td><code>password_hash</code></td><td><code>varchar(255)</code></td><td>no</td><td>—</td><td>add</td><td>argon2id encoded string (<code>$argon2id$v=19$...</code>, ~97 chars). Never <code>@Expose()</code>d</td></tr><tr><td><code>name</code></td><td><code>varchar(255)</code></td><td>no</td><td>—</td><td>add</td><td>Display name for the dashboard greeting / avatar label</td></tr><tr><td><code>created_at</code></td><td><code>timestamptz</code></td><td>no</td><td><code>now()</code></td><td>add</td><td>From <code>BaseEntity</code> <code>@CreateDateColumn</code></td></tr><tr><td><code>updated_at</code></td><td><code>timestamptz</code></td><td>no</td><td><code>now()</code></td><td>add</td><td>From <code>BaseEntity</code> <code>@UpdateDateColumn</code></td></tr></tbody></table></div>
+<p><strong>Indexes</strong></p>
+<div class='tw'><table><thead><tr><th>name</th><th>cols</th><th>kind</th><th>why</th></tr></thead><tbody><tr><td><code>PK_users</code></td><td><code>id</code></td><td>primary</td><td>TypeORM default name</td></tr><tr><td><code>UQ_users_email</code></td><td><code>email</code></td><td>unique</td><td>Login looks up by email; the unique constraint provides the index — no separate one needed</td></tr></tbody></table></div>
+<p>No FKs — <code>users</code> is the root table and nothing references it yet.</p>
+<h2 id='conventions-this-establishes'>Conventions this establishes</h2>
+<p><code>schema.md</code> lists these as &quot;not yet established&quot;. This change decides them, and everything after copies it:</p>
+<div class='tw'><table><thead><tr><th>Decision</th><th>Value</th><th>Rationale</th></tr></thead><tbody><tr><td>Table naming</td><td><strong>snake_case, plural</strong> — <code>users</code></td><td>Matches the column convention already in <code>BaseEntity</code>; plural is the TypeORM/Postgres norm</td></tr><tr><td>Column naming</td><td><strong>snake_case</strong>, set explicitly via <code>name:</code> on the decorator</td><td>Continues <code>base.entity.ts:12</code>; there is no global naming strategy configured, so every multi-word column must name itself</td></tr><tr><td>String columns</td><td><code>varchar(255)</code> unless a real length is known</td><td>Avoids unbounded <code>text</code> for identity fields</td></tr><tr><td>FK naming</td><td><em>deferred</em> — no FK in this change</td><td>First table with an FK decides it</td></tr></tbody></table></div>
+<h2 id='impact'>Impact</h2>
+<p>Blast radius is <strong>empty</strong>. Verified against the code graph and the file tree:</p>
+<ul>
+<li>Zero entities exist (<code>backend/src/database/migrations/</code> holds only <code>.gitkeep</code>; no <code>*.entity.ts</code> anywhere).</li>
+<li>Zero repositories, services, or controllers read or write any table.</li>
+<li>Nothing else in the repo touches <code>users</code>, so there is no shared-table seam and no query to regress.</li>
+</ul>
+<p><strong>Migration verdict: purely additive.</strong> One new table on an empty database. No backfill, no data reshape, no existing row to migrate, no destructive operation. Trivially revertible.</p>
+<p><strong>Real risk is the pipeline, not the schema.</strong> This is the first generate → run cycle in the repo. <code>pnpm migration:generate</code> compiles to <code>dist/</code> first (<code>backend/package.json</code>), so a TS error surfaces as a confusing migration failure, and the glob <code>src/**/<em>.entity{.ts,.js}</code> means a file not named <code></em>.entity.ts</code> is silently invisible to TypeORM (<code>backend/src/config/database.config.ts:21</code>).</p>
+<h2 id='seed'>Seed</h2>
+<p>One admin row, inserted by an idempotent <strong>application script</strong> (<code>pnpm seed</code>), not by a migration:</p>
+<ul>
+<li>Reads <code>SEED_ADMIN_EMAIL</code> / <code>SEED_ADMIN_PASSWORD</code> / <code>SEED_ADMIN_NAME</code> from env (added to <code>env.validation.ts</code> + <code>.env.example</code>).</li>
+<li>Upserts by email, so rerunning is safe and it never duplicates.</li>
+<li>Hashing happens in the script, so <strong>no credential is ever committed</strong> — which a seed migration with a hardcoded hash could not avoid.</li>
+</ul>
+<h2 id='open-questions'>Open questions</h2>
+<ol>
+<li><strong>Email case-insensitivity — <code>citext</code> or application lowercasing?</strong></li>
+</ol>
+<p>   <code>citext</code> is available in this image but not installed; using it means an <code>CREATE EXTENSION</code> step in the migration and a non-standard column type. Recommended default: <strong>plain <code>varchar</code> + lowercase the email in the service before both insert and lookup</strong>, so the unique index does the work with no extension. Flagged because it&#x27;s a one-way-ish decision — switching to <code>citext</code> later is an <code>ALTER TYPE</code> plus a dedupe.</p>
+<ol>
+<li><strong>Length of <code>password_hash</code></strong> — <code>varchar(255)</code> fits argon2id comfortably. Only revisit if the hasher changes.</li>
+</ol>
+<h2 id='suggested-verify-hooks'>Suggested verify hooks</h2>
+<p>For capture&#x27;s <code>tasks.md</code> section <code>Verify:</code> lines:</p>
+<ul>
+<li><strong>Schema assertion</strong> — after <code>migration:run</code>, <code>\d users</code> shows all six columns with the types/nullability above, plus a unique index on <code>email</code>.</li>
+<li><strong>Migration round-trip</strong> — <code>pnpm migration:run</code> then <code>pnpm migration:revert</code> applies and rolls back cleanly against the local DB.</li>
+<li><strong>Seed idempotency</strong> — <code>pnpm seed</code> twice leaves exactly one row (<code>select count(*) from users where email = $SEED_ADMIN_EMAIL</code> → 1).</li>
+<li><strong>Uniqueness</strong> — inserting a second row with the same email raises a unique violation, surfaced as a domain error rather than a 500.</li>
+</ul></section><section id="backend"><h2 class="sh">Backend — behaviour contract</h2><h1 id='spec-add-login'>Spec: add-login</h1>
+<h3 id='requirement-user-record-persistence-req-1'>Requirement: user record persistence [req-1]</h3>
+<p>The system SHALL persist user accounts in a <code>users</code> table created by a forward migration, with a unique email and a hashed password that is never returned by the API.</p>
+<h4 id='scenario-migration-creates-the-table'>Scenario: migration creates the table</h4>
+<ul>
+<li><strong>WHEN</strong> <code>pnpm migration:run</code> is executed against a database without the table</li>
+<li><strong>THEN</strong> a <code>users</code> table exists with <code>id</code> (uuid, primary key), <code>email</code>, <code>password_hash</code>, <code>name</code>, <code>created_at</code> and <code>updated_at</code> (both <code>timestamptz</code>)</li>
+<li><strong>AND</strong> a unique index exists on <code>email</code></li>
+</ul>
+<h4 id='scenario-duplicate-email-is-rejected'>Scenario: duplicate email is rejected</h4>
+<ul>
+<li><strong>WHEN</strong> a second user row is inserted with an email that already exists</li>
+<li><strong>THEN</strong> the database raises a unique-constraint violation</li>
+</ul>
+<h4 id='scenario-the-hash-never-leaves-the-server'>Scenario: the hash never leaves the server</h4>
+<ul>
+<li><strong>WHEN</strong> any endpoint returns a user</li>
+<li><strong>THEN</strong> the response body contains no <code>password_hash</code> field</li>
+</ul>
+<hr>
+<h3 id='requirement-seeded-administrator-account-req-2'>Requirement: seeded administrator account [req-2]</h3>
+<p>The system SHALL provide a rerunnable script that creates exactly one administrator account from environment variables, without committing any credential to the repository.</p>
+<h4 id='scenario-first-run-creates-the-account'>Scenario: first run creates the account</h4>
+<ul>
+<li><strong>WHEN</strong> <code>pnpm seed</code> runs against a database with no matching user</li>
+<li><strong>THEN</strong> one row exists with the email from <code>SEED_ADMIN_EMAIL</code> and a password hash verifying against <code>SEED_ADMIN_PASSWORD</code></li>
+</ul>
+<h4 id='scenario-repeat-run-does-not-duplicate'>Scenario: repeat run does not duplicate</h4>
+<ul>
+<li><strong>WHEN</strong> <code>pnpm seed</code> runs a second time</li>
+<li><strong>THEN</strong> exactly one row still exists for that email</li>
+</ul>
+<hr>
+<h3 id='requirement-credential-authentication-req-3'>Requirement: credential authentication [req-3]</h3>
+<p>The API SHALL authenticate a correct email and password by issuing a signed JWT in an httpOnly cookie.</p>
+<h4 id='scenario-valid-credentials'>Scenario: valid credentials</h4>
+<ul>
+<li><strong>WHEN</strong> <code>POST /auth/login</code> receives an email and password matching a stored user</li>
+<li><strong>THEN</strong> the response is 200 with the user&#x27;s <code>id</code>, <code>email</code> and <code>name</code></li>
+<li><strong>AND</strong> the response sets a <code>clv_at</code> cookie marked <code>HttpOnly</code>, <code>SameSite=Lax</code> and <code>Path=/</code></li>
+<li><strong>AND</strong> the cookie value is a JWT whose <code>sub</code> claim is that user&#x27;s id</li>
+</ul>
+<h4 id='scenario-email-case-is-ignored'>Scenario: email case is ignored</h4>
+<ul>
+<li><strong>WHEN</strong> the submitted email differs only in letter case from the stored email</li>
+<li><strong>THEN</strong> authentication succeeds</li>
+</ul>
+<h4 id='scenario-malformed-request'>Scenario: malformed request</h4>
+<ul>
+<li><strong>WHEN</strong> the request body is missing <code>password</code>, or carries a field the DTO does not declare</li>
+<li><strong>THEN</strong> the response is 400 in the standard error envelope</li>
+</ul>
+<hr>
+<h3 id='requirement-credential-rejection-without-account-disclosure-req-4'>Requirement: credential rejection without account disclosure [req-4]</h3>
+<p>The API SHALL reject bad credentials with one response that does not reveal whether the email exists.</p>
+<h4 id='scenario-wrong-password'>Scenario: wrong password</h4>
+<ul>
+<li><strong>WHEN</strong> <code>POST /auth/login</code> receives a known email with the wrong password</li>
+<li><strong>THEN</strong> the response is 401 with code <code>AUTH_INVALID_CREDENTIALS</code></li>
+<li><strong>AND</strong> no cookie is set</li>
+</ul>
+<h4 id='scenario-unknown-email'>Scenario: unknown email</h4>
+<ul>
+<li><strong>WHEN</strong> <code>POST /auth/login</code> receives an email that is not in the table</li>
+<li><strong>THEN</strong> the response is byte-identical in status, code and message to the wrong-password response</li>
+</ul>
+<hr>
+<h3 id='requirement-session-persistence-choice-req-5'>Requirement: session persistence choice [req-5]</h3>
+<p>The API SHALL keep the session across browser restarts only when the user asked it to.</p>
+<h4 id='scenario-remember-me-checked'>Scenario: remember me checked</h4>
+<ul>
+<li><strong>WHEN</strong> <code>POST /auth/login</code> is called with <code>remember: true</code> and valid credentials</li>
+<li><strong>THEN</strong> the <code>clv_at</code> cookie carries a <code>Max-Age</code> of 30 days</li>
+</ul>
+<h4 id='scenario-remember-me-unchecked'>Scenario: remember me unchecked</h4>
+<ul>
+<li><strong>WHEN</strong> <code>POST /auth/login</code> is called with <code>remember: false</code> or with the field omitted</li>
+<li><strong>THEN</strong> the <code>clv_at</code> cookie carries no <code>Max-Age</code> and no <code>Expires</code>, making it a session cookie</li>
+</ul>
+<hr>
+<h3 id='requirement-current-user-endpoint-req-6'>Requirement: current user endpoint [req-6]</h3>
+<p>The API SHALL identify the signed-in user from the session cookie, and reject requests without a valid one.</p>
+<h4 id='scenario-valid-session'>Scenario: valid session</h4>
+<ul>
+<li><strong>WHEN</strong> <code>GET /auth/me</code> is called carrying a valid <code>clv_at</code> cookie</li>
+<li><strong>THEN</strong> the response is 200 with that user&#x27;s <code>id</code>, <code>email</code>, <code>name</code>, <code>createdAt</code> and <code>updatedAt</code></li>
+</ul>
+<h4 id='scenario-no-cookie'>Scenario: no cookie</h4>
+<ul>
+<li><strong>WHEN</strong> <code>GET /auth/me</code> is called with no <code>clv_at</code> cookie</li>
+<li><strong>THEN</strong> the response is 401</li>
+</ul>
+<h4 id='scenario-expired-or-tampered-token'>Scenario: expired or tampered token</h4>
+<ul>
+<li><strong>WHEN</strong> <code>GET /auth/me</code> is called with a <code>clv_at</code> cookie whose JWT is expired or fails signature verification</li>
+<li><strong>THEN</strong> the response is 401</li>
+</ul>
+<hr>
+<h3 id='requirement-session-termination-req-7'>Requirement: session termination [req-7]</h3>
+<p>The API SHALL end a session on request, so the browser stops sending a usable cookie.</p>
+<h4 id='scenario-logout-clears-the-cookie'>Scenario: logout clears the cookie</h4>
+<ul>
+<li><strong>WHEN</strong> <code>POST /auth/logout</code> is called</li>
+<li><strong>THEN</strong> the response is 200 and instructs the browser to clear <code>clv_at</code></li>
+<li><strong>AND</strong> a subsequent <code>GET /auth/me</code> from that browser returns 401</li>
+</ul>
+<hr>
+<h3 id='requirement-cross-origin-credentialed-access-req-8'>Requirement: cross-origin credentialed access [req-8]</h3>
+<p>The API SHALL accept credentialed browser requests from the frontend&#x27;s development origin.</p>
+<h4 id='scenario-browser-request-from-the-frontend-origin'>Scenario: browser request from the frontend origin</h4>
+<ul>
+<li><strong>WHEN</strong> the frontend, served from its configured dev port, calls <code>POST /auth/login</code> with credentials</li>
+<li><strong>THEN</strong> the response carries <code>Access-Control-Allow-Credentials: true</code> and an <code>Access-Control-Allow-Origin</code> matching that origin</li>
+<li><strong>AND</strong> the browser stores the <code>clv_at</code> cookie</li>
+</ul>
+<hr>
+<h3 id='requirement-login-screen-presentation-req-9'>Requirement: login screen presentation [req-9]</h3>
+<p>The application SHALL present a login screen at <code>/login</code> matching the approved mockup at every supported width.</p>
+<h4 id='scenario-phone-width'>Scenario: phone width</h4>
+<ul>
+<li><strong>WHEN</strong> <code>/login</code> is rendered at 390px wide</li>
+<li><strong>THEN</strong> a single centred card shows the Clarivo logo, the welcome line, the Email and Password fields, a &quot;Remember me&quot; checkbox, a &quot;Forgot password?&quot; link and a &quot;Sign in&quot; button</li>
+<li><strong>AND</strong> no tagline, feature list or illustration is shown</li>
+<li><strong>AND</strong> the inputs and the submit button are at least 48px tall and the inputs render at 16px font size</li>
+</ul>
+<h4 id='scenario-desktop-width'>Scenario: desktop width</h4>
+<ul>
+<li><strong>WHEN</strong> <code>/login</code> is rendered at 1180px wide</li>
+<li><strong>THEN</strong> the card is split into two panels, the left showing the logo above the login illustration uncropped and centred, the right showing the form</li>
+</ul>
+<h4 id='scenario-styled-not-default'>Scenario: styled, not default</h4>
+<ul>
+<li><strong>WHEN</strong> the rendered page is inspected</li>
+<li><strong>THEN</strong> the card, inputs and button carry the project&#x27;s theme values rather than browser-default styling</li>
+</ul>
+<hr>
+<h3 id='requirement-login-screen-behaviour-req-10'>Requirement: login screen behaviour [req-10]</h3>
+<p>The login screen SHALL validate input locally, communicate progress and failure, and navigate away on success.</p>
+<h4 id='scenario-local-validation-blocks-submission'>Scenario: local validation blocks submission</h4>
+<ul>
+<li><strong>WHEN</strong> the form is submitted with an empty password or a malformed email</li>
+<li><strong>THEN</strong> a message appears under the offending field, that field is marked invalid, and no request is sent</li>
+</ul>
+<h4 id='scenario-submitting'>Scenario: submitting</h4>
+<ul>
+<li><strong>WHEN</strong> a valid form is submitted and the request is in flight</li>
+<li><strong>THEN</strong> the inputs, the checkbox and the button are disabled and the button shows a progress indicator</li>
+</ul>
+<h4 id='scenario-rejected-credentials'>Scenario: rejected credentials</h4>
+<ul>
+<li><strong>WHEN</strong> the API responds 401</li>
+<li><strong>THEN</strong> one message, &quot;Incorrect email or password.&quot;, appears above the fields, neither field is marked invalid, and the entered values are preserved</li>
+</ul>
+<h4 id='scenario-success'>Scenario: success</h4>
+<ul>
+<li><strong>WHEN</strong> the API responds 200</li>
+<li><strong>THEN</strong> the browser navigates to <code>/</code></li>
+</ul>
+<hr>
+<h3 id='requirement-protected-route-redirection-req-11'>Requirement: protected route redirection [req-11]</h3>
+<p>The application SHALL send visitors without a session to the login screen, and SHALL NOT redirect the login screen itself.</p>
+<h4 id='scenario-unauthenticated-visit-to-a-protected-route'>Scenario: unauthenticated visit to a protected route</h4>
+<ul>
+<li><strong>WHEN</strong> <code>/</code> is requested with no <code>clv_at</code> cookie</li>
+<li><strong>THEN</strong> the response redirects to <code>/login</code></li>
+</ul>
+<h4 id='scenario-login-page-stays-reachable'>Scenario: login page stays reachable</h4>
+<ul>
+<li><strong>WHEN</strong> <code>/login</code> is requested with no <code>clv_at</code> cookie</li>
+<li><strong>THEN</strong> the login page renders with no redirect</li>
+</ul>
+<h4 id='scenario-authenticated-visit'>Scenario: authenticated visit</h4>
+<ul>
+<li><strong>WHEN</strong> <code>/</code> is requested carrying a <code>clv_at</code> cookie</li>
+<li><strong>THEN</strong> the page renders without redirecting</li>
+</ul></section><section id="frontend"><h2 class="sh">Frontend</h2><h1 id='ui-add-login'>UI: add-login</h1>
+<p><strong>Mockup</strong>: <code>mockups/login.html</code> — approved 2026-09-30 by LE AN (6 states × 3 widths, open by double-click)</p>
+<p><strong>References</strong>: <code>assets/ChatGPT Image Sep 30, 2026, 02_57_53 PM.png</code> panel 1 (original intent) · <code>~/Desktop/Screenshot 2026-09-30 at 16.35.52.png</code> (CareOne — the card shape, leading input icons, bold labels, one-line welcome)</p>
+<p><strong>Style source</strong>: every color, radius and dark value copied verbatim from <code>frontend/app/globals.css</code> (<code>--primary</code>, <code>--secondary</code>, <code>--card</code>, <code>--input</code>, <code>--ring</code>, <code>--destructive</code>, <code>--muted-foreground</code>, and the whole <code>.dark</code> block). Nothing invented.</p>
+<p><strong>Assets</strong>: <code>frontend/public/clarivo-mark.png</code> (mark only — cropped from <code>clarivo-logo.png</code>, which is the <em>stacked</em> lockup and cannot sit inline beside a text wordmark) · <code>frontend/public/login-background.webp</code> (from <code>assets/login-background.png</code>)</p>
+<h2 id='login-route-login'>login  →  route <code>/login</code></h2>
+<p>One card, centred. Mobile-first: the phone layout is the base; <code>≥900px</code> splits it into two panels.</p>
+<pre><code>  PHONE / TABLET  (&lt;900px)              DESKTOP  (&gt;=900px)
+  ┌──────────────────────┐    ┌──────────────────┬────────────────────┐
+  │ (C) Clarivo          │    │ (C) Clarivo      │ Welcome back —     │
+  │ Welcome back —       │    │                  │ sign in to your    │
+  │ sign in to your      │    │  ┌────────────┐  │ workspace.         │
+  │ workspace.           │    │  │            │  │                    │
+  │                      │    │  │   login-   │  │ Email              │
+  │ Email                │    │  │ background │  │ [✉  you@exampl..]  │
+  │ [✉  you@example.com] │    │  │  centred,  │  │ Password           │
+  │ Password             │    │  │ UNcropped  │  │ [🔒 ••••••••   👁] │
+  │ [🔒 ••••••••     👁] │    │  │            │  │                    │
+  │                      │    │  └────────────┘  │ ☐ Remember   Forgot│
+  │ ☐ Remember  Forgot?  │    │                  │ [    Sign in     ] │
+  │ [     Sign in      ] │    │                  │ Don&#x27;t have? Sign up│
+  │ Don&#x27;t have? Sign up  │    └──────────────────┴────────────────────┘
+  └──────────────────────┘        48% --secondary      52% form
+      max-width 440px                   card max-width 960px</code></pre>
+<p><strong>Breakpoints</strong> — <code>&lt;640</code> phone · <code>≥640</code> same card, more padding, max-width 452px · <code>≥900</code> two panels, max-width 960px.</p>
+<p><strong>Brand panel</strong></p>
+<ul>
+<li>Phone/tablet: <strong>logo only</strong>. No tagline, no feature list, no illustration.</li>
+<li>Desktop: logo above <code>login-background</code> at <code>object-fit: contain</code>, <code>border-radius: 14px</code>, centred on a <code>--secondary</code> ground. <strong>Contain, not cover</strong> — the illustration is never cropped.</li>
+</ul>
+<p><strong>States</strong> (all six are rendered in the mockup)</p>
+<div class='tw'><table><thead><tr><th>State</th><th>What it looks like</th></tr></thead><tbody><tr><td>empty</td><td>Placeholders only, button enabled</td></tr><tr><td>filled</td><td>Values present, &quot;Remember me&quot; checked</td></tr><tr><td>submitting</td><td><strong>All inputs, the checkbox and the button disabled</strong>; button shows a spinner + &quot;Signing in…&quot;; the eye toggle is removed</td></tr><tr><td>auth error</td><td>Red alert above the Email field: &quot;Incorrect email or password.&quot; Values preserved. Inputs are <em>not</em> marked invalid — the failure is not attributable to one field</td></tr><tr><td>field validation</td><td>Per-field red text under the offending input + <code>aria-invalid=&quot;true&quot;</code> on it. No alert banner. Fires before any request</td></tr><tr><td>dark</td><td>Same screen under <code>.dark</code>; the illustration keeps its own colors</td></tr></tbody></table></div>
+<p><strong>Interactions</strong></p>
+<ul>
+<li>Enter submits the form.</li>
+<li>Eye button toggles password visibility; hidden entirely while submitting.</li>
+<li>Success → redirect to <code>/</code> (the dashboard route, which does not exist yet — it lands on the existing <code>app/page.tsx</code>).</li>
+<li>&quot;Forgot password?&quot; and &quot;Sign up&quot; render but are <code>href=&quot;#&quot;</code> — neither screen exists in this MVP.</li>
+<li><strong>No</strong> SSO: Google, Keycloak and the &quot;or continue with&quot; divider are cut from the reference image.</li>
+</ul>
+<p><strong>Touch / mobile rules</strong> (the point of the change — this app is used on phones)</p>
+<ul>
+<li>Inputs and the submit button are <strong>50px</strong> tall (46px at <code>≥900px</code>).</li>
+<li>Inputs use <code>font-size: 16px</code> — anything smaller and iOS Safari zooms the page on focus.</li>
+<li>The eye toggle is <strong>44×44</strong>; the whole &quot;Remember me&quot; <em>label</em> is the tap target at 44px tall, not just the 20px box.</li>
+<li>Bottom padding includes <code>env(safe-area-inset-bottom)</code> so the button clears the home indicator.</li>
+<li><code>inputmode=&quot;email&quot;</code> on the email field so the phone keyboard shows <code>@</code>.</li>
+<li><code>autocomplete=&quot;email&quot;</code> / <code>autocomplete=&quot;current-password&quot;</code> so password managers work.</li>
+</ul>
+<p><strong>Components to reuse</strong> — resolved against the real tree, not assumed:</p>
+<div class='tw'><table><thead><tr><th>Need</th><th>Use</th><th>Status</th></tr></thead><tbody><tr><td>Submit button</td><td><code>frontend/app/components/ui/button.tsx:Button</code> (<code>variant=&quot;default&quot;</code>, <code>size</code> overridden for the 50/46px height)</td><td><strong>exists</strong></td></tr><tr><td>Class merge</td><td><code>frontend/app/lib/utils.ts:cn</code></td><td><strong>exists</strong> — note <code>button.tsx:3</code> currently imports <code>cn</code> from the <code>cn</code> <strong>npm package</strong> instead; see design.md</td></tr><tr><td>Text input</td><td><code>components/ui/input.tsx:Input</code></td><td><strong>missing — must be added</strong></td></tr><tr><td>Field label</td><td><code>components/ui/label.tsx:Label</code></td><td><strong>missing — must be added</strong></td></tr><tr><td>Checkbox</td><td><code>components/ui/checkbox.tsx:Checkbox</code></td><td><strong>missing — must be added</strong></td></tr><tr><td>Icons</td><td><code>lucide-react</code> (<code>Mail</code>, <code>Lock</code>, <code>Eye</code>, <code>EyeOff</code>, <code>AlertCircle</code>, <code>Loader2</code>)</td><td><strong>installed</strong></td></tr></tbody></table></div>
+<p>shadcn/ui is the design system (<code>components.json</code>: new-york, slate, CSS variables, RSC). <strong>The shadcn CLI hangs in this environment</strong> — the three missing components are copied in by hand from ui.shadcn.com and their radix dep installed with pnpm.</p>
+<p><strong>Asset note</strong>: <code>assets/login-background.png</code> is 1536×1024 / <strong>1.4 MB</strong>. It must ship as WebP and must <strong>not</strong> be requested on phones at all — <code>display:none</code> still downloads it, so the build skips the request behind a media query or a conditional render.</p>
+<p><strong>Verify</strong>: <code>/devspec-verify add-login</code> — agent-browser drives the running app and checks the regions exist, the styling is not browser-default, the layout is aligned, and the screen behaves at 390px as well as at desktop.</p><div class="mock"><div class="bar"><span>mockups/login.html</span><a href="mockups/login.html" target="_blank">open standalone &#8599;</a></div><iframe src="mockups/login.html" loading="lazy" title="login.html"></iframe></div></section><section id="tasks"><h2 class="sh">Tasks</h2><div class="banner warn">40 open · 0 done. Layer tags: <code>[db]</code> 3, <code>[backend]</code> 18, <code>[frontend]</code> 13, <code>[test]</code> 6</div><h1 id='tasks-add-login'>Tasks: add-login</h1>
+<h2 id='1-environment-contract-and-dependencies-req-8'>1. Environment contract and dependencies [req-8]</h2>
+<ul class="checks">
+<li class="chk"><span class="box">&#9744;</span><span>1.1 [backend] Add to <code>EnvironmentVariables</code> (<code>backend/src/config/env.validation.ts</code>): <code>JWT_SECRET</code> (<code>@IsString @IsNotEmpty</code>, no default), <code>JWT_EXPIRES_IN</code> (<code>@IsString</code>, default <code>&#x27;30d&#x27;</code>), <code>SEED_ADMIN_EMAIL</code> / <code>SEED_ADMIN_PASSWORD</code> / <code>SEED_ADMIN_NAME</code> (<code>@IsString @IsNotEmpty</code>)</span></li>
+<li class="chk"><span class="box">&#9744;</span><span>1.2 [backend] Mirror all five vars in <code>backend/.env.example</code> with placeholder values, and set real dev values in <code>backend/.env</code></span></li>
+<li class="chk"><span class="box">&#9744;</span><span>1.3 [backend] Set <code>CORS_ORIGINS=http://localhost:3001</code> in <code>backend/.env</code> and <code>.env.example</code> — replaces the current <code>http://localhost:3000,http://localhost:5173</code>, which lists the backend&#x27;s own port and a dead Vite port</span></li>
+<li class="chk"><span class="box">&#9744;</span><span>1.4 [frontend] Pin the dev port in <code>frontend/package.json</code>: <code>&quot;dev&quot;: &quot;next dev -p 3001&quot;</code>, <code>&quot;start&quot;: &quot;next start -p 3001&quot;</code> — Next currently collides with the backend on 3000 and silently bumps</span></li>
+<li class="chk"><span class="box">&#9744;</span><span>1.5 [backend] <code>pnpm add @nestjs/jwt @nestjs/passport passport passport-jwt argon2 cookie-parser</code> and <code>pnpm add -D @types/passport-jwt @types/cookie-parser</code> — all ship CommonJS, required by <code>rules.md</code></span></li>
+<li class="chk"><span class="box">&#9744;</span><span>1.6 [frontend] <code>pnpm add @radix-ui/react-checkbox</code></span></li>
+</ul>
+<p>Verify: <code>cd backend &amp;&amp; pnpm build &amp;&amp; pnpm start:dev</code> boots with the new vars validated; unsetting <code>JWT_SECRET</code> kills the process at boot</p>
+<h2 id='2-users-table-and-entity-req-1'>2. Users table and entity [req-1]</h2>
+<ul class="checks">
+<li class="chk"><span class="box">&#9744;</span><span>2.1 [db] New <code>User</code> entity at <code>backend/src/users/user.entity.ts</code> extending <code>BaseEntity</code> (<code>../database/base.entity</code>) — the filename <strong>must</strong> end in <code>.entity.ts</code> or the glob at <code>config/database.config.ts:21</code> will not see it. Columns: <code>email</code> <code>varchar(255)</code> unique not-null, <code>password_hash</code> <code>varchar(255)</code> not-null (<code>@Column({ name: &#x27;password_hash&#x27; })</code>), <code>name</code> <code>varchar(255)</code> not-null. Table name <code>users</code></span></li>
+<li class="chk"><span class="box">&#9744;</span><span>2.2 [db] Generate the migration: <code>pnpm migration:generate src/database/migrations/CreateUsers</code> — <strong>read the generated SQL</strong> before running it; this is the first migration this repo has ever produced</span></li>
+<li class="chk"><span class="box">&#9744;</span><span>2.3 [db] Apply it with <code>pnpm migration:run</code></span></li>
+<li class="chk"><span class="box">&#9744;</span><span>2.4 [backend] New <code>UsersService</code> (<code>backend/src/users/users.service.ts</code>) — <code>findByEmail(email: string)</code> lowercasing the argument before the query, and <code>upsertByEmail(...)</code> for the seed. New <code>UsersModule</code> (<code>users.module.ts</code>) importing <code>TypeOrmModule.forFeature([User])</code> and exporting <code>UsersService</code></span></li>
+<li class="chk"><span class="box">&#9744;</span><span>2.5 [backend] New <code>UserDto</code> (<code>backend/src/users/dto/user.dto.ts</code>) extending <code>AuditDto</code> from <code>../../common/dtos/audit.dto</code>, with <code>@Expose()</code> on <code>email</code> and <code>name</code> only — <strong>no <code>@Expose()</code> on <code>password_hash</code></strong>, which is what keeps it out of every response</span></li>
+<li class="chk"><span class="box">&#9744;</span><span>2.6 [test] <code>backend/src/users/users.service.spec.ts</code> — <code>findByEmail</code> lowercases its argument before querying</span></li>
+</ul>
+<p>Verify: <code>docker exec clarivo-postgres-1 psql -U postgres -d clarivo -c &quot;\d users&quot;</code> shows all six columns with a unique index on <code>email</code>; <code>pnpm migration:revert</code> then <code>pnpm migration:run</code> round-trips cleanly</p>
+<h2 id='3-seed-script-req-2'>3. Seed script [req-2]</h2>
+<ul class="checks">
+<li class="chk"><span class="box">&#9744;</span><span>3.1 [backend] New <code>backend/src/database/seeds/seed.ts</code> — standalone script (boots its own <code>DataSource</code> from <code>database/data-source.ts</code>, the CLI runs outside Nest), hashes <code>SEED_ADMIN_PASSWORD</code> with argon2id and upserts by lowercased <code>SEED_ADMIN_EMAIL</code>. No hardcoded credential anywhere in the file</span></li>
+<li class="chk"><span class="box">&#9744;</span><span>3.2 [backend] Add <code>&quot;seed&quot;: &quot;pnpm build &amp;&amp; node dist/database/seeds/seed.js&quot;</code> to <code>backend/package.json</code> scripts, matching how the <code>migration:*</code> scripts build first</span></li>
+<li class="chk"><span class="box">&#9744;</span><span>3.3 [test] <code>backend/src/database/seeds/seed.spec.ts</code> — hashing a password produces a verifiable argon2 hash, and the same email upserts rather than inserting twice</span></li>
+</ul>
+<p>Verify: <code>pnpm seed &amp;&amp; pnpm seed</code> then <code>docker exec clarivo-postgres-1 psql -U postgres -d clarivo -tAc &quot;select count(*) from users&quot;</code> returns <code>1</code></p>
+<h2 id='4-login-and-logout-endpoints-req-3-req-4-req-5-req-7'>4. Login and logout endpoints [req-3] [req-4] [req-5] [req-7]</h2>
+<ul class="checks">
+<li class="chk"><span class="box">&#9744;</span><span>4.1 [backend] New <code>backend/src/auth/auth.errors.ts</code> — <code>defineErrors(&#x27;AUTH&#x27;, { INVALID_CREDENTIALS: { status: HttpStatus.UNAUTHORIZED, message: &#x27;Incorrect email or password&#x27; }, UNAUTHENTICATED: { status: HttpStatus.UNAUTHORIZED, message: &#x27;Not authenticated&#x27; } })</code>, following <code>common/exceptions/domain-errors.ts:21</code>. Never throw a bare <code>HttpException</code></span></li>
+<li class="chk"><span class="box">&#9744;</span><span>4.2 [backend] New <code>LoginDto</code> (<code>backend/src/auth/dto/login.dto.ts</code>) — <code>email</code> <code>@IsEmail</code>, <code>password</code> <code>@IsString @IsNotEmpty</code>, <code>remember</code> <code>@IsBoolean @IsOptional</code> default <code>false</code>. The global pipe runs <code>forbidNonWhitelisted</code>, so any extra field is already a 400</span></li>
+<li class="chk"><span class="box">&#9744;</span><span>4.3 [backend] New <code>AuthService</code> (<code>backend/src/auth/auth.service.ts</code>) — <code>validate(email, password)</code> looks the user up via <code>UsersService.findByEmail</code>, verifies with <code>argon2.verify</code>, and throws <code>AuthErrors.INVALID_CREDENTIALS()</code> for <strong>both</strong> a missing user and a bad password so the two are indistinguishable; <code>sign(user)</code> issues <code>{ sub, email }</code> via <code>JwtService</code></span></li>
+<li class="chk"><span class="box">&#9744;</span><span>4.4 [backend] New <code>AuthController</code> (<code>backend/src/auth/auth.controller.ts</code>) — <code>POST /auth/login</code> sets the cookie <code>clv_at</code> with <code>httpOnly: true</code>, <code>sameSite: &#x27;lax&#x27;</code>, <code>path: &#x27;/&#x27;</code>, <code>secure</code> only in production, and <code>maxAge: 30 days</code> <strong>only when <code>remember</code> is true</strong> (omitted entirely otherwise, which is what makes it a session cookie); returns a <code>UserDto</code></span></li>
+<li class="chk"><span class="box">&#9744;</span><span>4.5 [backend] <code>POST /auth/logout</code> on the same controller — <code>res.clearCookie(&#x27;clv_at&#x27;, { path: &#x27;/&#x27; })</code>, returns 200</span></li>
+<li class="chk"><span class="box">&#9744;</span><span>4.6 [backend] New <code>AuthModule</code> (<code>backend/src/auth/auth.module.ts</code>) registering <code>JwtModule</code> with <code>JWT_SECRET</code> / <code>JWT_EXPIRES_IN</code> from <code>ConfigService</code>, importing <code>UsersModule</code>; register <code>UsersModule</code> and <code>AuthModule</code> in <code>backend/src/app.module.ts</code></span></li>
+<li class="chk"><span class="box">&#9744;</span><span>4.7 [backend] <code>backend/src/main.ts</code> — <code>app.use(cookieParser())</code> before the global pipe, and change <code>.addBearerAuth()</code> to <code>.addCookieAuth(&#x27;clv_at&#x27;)</code> in the <code>DocumentBuilder</code>, since the API no longer uses a bearer header</span></li>
+<li class="chk"><span class="box">&#9744;</span><span>4.8 [test] <code>backend/src/auth/auth.service.spec.ts</code> — unknown email and wrong password throw the <strong>same</strong> error code; a correct password returns the user</span></li>
+</ul>
+<p>Verify: <code>pnpm test</code> passes, and <code>curl -i -X POST localhost:3000/auth/login -H &#x27;Content-Type: application/json&#x27; -d &#x27;{&quot;email&quot;:&quot;&lt;seed&gt;&quot;,&quot;password&quot;:&quot;&lt;seed&gt;&quot;,&quot;remember&quot;:true}&#x27;</code> returns 200 with a <code>Set-Cookie: clv_at=…; Max-Age=2592000; HttpOnly; SameSite=Lax</code>; the same call with a wrong password and with an unknown email return byte-identical 401 bodies; omitting <code>remember</code> yields a <code>Set-Cookie</code> with no <code>Max-Age</code></p>
+<h2 id='5-session-guard-and-current-user-endpoint-req-6'>5. Session guard and current-user endpoint [req-6]</h2>
+<ul class="checks">
+<li class="chk"><span class="box">&#9744;</span><span>5.1 [backend] New <code>JwtStrategy</code> (<code>backend/src/auth/jwt.strategy.ts</code>) — a passport-jwt strategy whose <code>jwtFromRequest</code> is a <strong>custom cookie extractor reading <code>req.cookies[&#x27;clv_at&#x27;]</code></strong>, not <code>ExtractJwt.fromAuthHeaderAsBearerToken()</code>; <code>validate(payload)</code> loads the user by <code>payload.sub</code> and throws <code>AuthErrors.UNAUTHENTICATED()</code> if the row is gone</span></li>
+<li class="chk"><span class="box">&#9744;</span><span>5.2 [backend] New <code>JwtAuthGuard</code> (<code>backend/src/auth/jwt-auth.guard.ts</code>) extending <code>AuthGuard(&#x27;jwt&#x27;)</code></span></li>
+<li class="chk"><span class="box">&#9744;</span><span>5.3 [backend] <code>GET /auth/me</code> on <code>AuthController</code>, decorated with <code>@UseGuards(JwtAuthGuard)</code>, returning the request&#x27;s user as a <code>UserDto</code></span></li>
+<li class="chk"><span class="box">&#9744;</span><span>5.4 [test] <code>backend/src/auth/jwt.strategy.spec.ts</code> — the extractor returns the cookie value when present and <code>null</code> when absent</span></li>
+</ul>
+<p>Verify: <code>curl -i --cookie &quot;clv_at=&lt;token&gt;&quot; localhost:3000/auth/me</code> returns 200 with <code>id</code>, <code>email</code>, <code>name</code> and <strong>no</strong> <code>password_hash</code>; the same call with no cookie, a truncated token, and an expired token each return 401</p>
+<h2 id='6-frontend-form-components-req-9'>6. Frontend form components [req-9]</h2>
+<ul class="checks">
+<li class="chk"><span class="box">&#9744;</span><span>6.1 [frontend] Add <code>frontend/app/components/ui/input.tsx</code> (<code>Input</code>), <code>label.tsx</code> (<code>Label</code>) and <code>checkbox.tsx</code> (<code>Checkbox</code>) by <strong>copying the source from ui.shadcn.com by hand</strong> — the shadcn CLI hangs in this environment (<code>rules.md</code>). Match <code>components.json</code>: new-york style, CSS variables, <code>@/lib/utils</code> for <code>cn</code></span></li>
+<li class="chk"><span class="box">&#9744;</span><span>6.2 [frontend] Copy the assets into <code>frontend/public/</code>: <code>clarivo-mark.png</code> from <code>devspec/changes/add-login/mockups/clarivo-mark.png</code> (the mark alone — <code>clarivo-logo.png</code> is the stacked lockup and cannot sit beside a text wordmark), and a WebP conversion of <code>assets/login-background.png</code> as <code>login-background.webp</code> at ~1400px wide</span></li>
+</ul>
+<p>Verify: <code>cd frontend &amp;&amp; pnpm build</code> compiles with the three new components imported</p>
+<h2 id='7-login-screen-req-9-req-10'>7. Login screen [req-9] [req-10]</h2>
+<ul class="checks">
+<li class="chk"><span class="box">&#9744;</span><span>7.1 [frontend] New route <code>frontend/app/(auth)/login/page.tsx</code> built to <code>mockups/login.html</code> — one centred card, <code>max-width: 440px</code> on phones and <code>452px</code> from 640px, splitting into a two-panel grid at 900px with the illustration <code>object-fit: contain</code> and centred in the left panel. Brand area is the logo alone below 900px</span></li>
+<li class="chk"><span class="box">&#9744;</span><span>7.2 [frontend] Reuse <code>&lt;Button&gt;</code> from <code>@/components/ui/button</code> (<code>variant=&quot;default&quot;</code>) for Sign in — <strong>not</strong> a new button; reuse the new <code>&lt;Input&gt;</code>, <code>&lt;Label&gt;</code> and <code>&lt;Checkbox&gt;</code>. Leading <code>Mail</code> and <code>Lock</code> icons and the <code>Eye</code>/<code>EyeOff</code> toggle come from <code>lucide-react</code>, already installed</span></li>
+<li class="chk"><span class="box">&#9744;</span><span>7.3 [frontend] Mobile rules from <code>ui.md</code>: inputs and button 50px tall (46px at ≥900px), input <code>font-size: 16px</code> to stop iOS Safari zooming on focus, eye toggle 44×44, the whole &quot;Remember me&quot; label a 44px tap target, <code>env(safe-area-inset-bottom)</code> in the bottom padding, <code>inputmode=&quot;email&quot;</code>, and <code>autocomplete=&quot;email&quot;</code> / <code>&quot;current-password&quot;</code></span></li>
+<li class="chk"><span class="box">&#9744;</span><span>7.4 [frontend] Do <strong>not</strong> request the illustration below 900px — <code>display:none</code> still downloads it; use a conditional render or a <code>&lt;picture&gt;</code> with a media-query source. The file is 1.4 MB as a PNG</span></li>
+<li class="chk"><span class="box">&#9744;</span><span>7.5 [frontend] Wire submission with a TanStack <code>useMutation</code> calling <code>api.post(&#x27;/auth/login&#x27;, { email, password, remember })</code> through <code>@/lib/api</code> (which already sends credentials). Local <code>useState</code> for the fields — no form library</span></li>
+<li class="chk"><span class="box">&#9744;</span><span>7.6 [frontend] States per <code>ui.md</code>: client-side validation blocks the request and marks the offending field with <code>aria-invalid</code>; while in flight, inputs, checkbox and button are disabled and the button shows a spinner; a 401 renders one banner reading &quot;Incorrect email or password.&quot; above the fields with neither field marked invalid and the values preserved; success calls <code>router.push(&#x27;/&#x27;)</code></span></li>
+<li class="chk"><span class="box">&#9744;</span><span>7.7 [frontend] Regenerate API types: with the backend running, <code>pnpm api:types</code>. Never hand-edit <code>app/types/api/</code></span></li>
+</ul>
+<p>Verify: <code>/devspec-verify add-login</code> — agent-browser drives the running app and checks the regions exist, the styling is not browser-default, the layout is aligned at 390px and at desktop, and each state renders</p>
+<h2 id='8-route-protection-req-11'>8. Route protection [req-11]</h2>
+<ul class="checks">
+<li class="chk"><span class="box">&#9744;</span><span>8.1 [frontend] New <code>frontend/middleware.ts</code> at the <strong>project root</strong>, not under <code>app/</code> — redirects to <code>/login</code> when the <code>clv_at</code> cookie is absent</span></li>
+<li class="chk"><span class="box">&#9744;</span><span>8.2 [frontend] Matcher must exclude <code>/login</code>, <code>/_next/*</code>, <code>/favicon.ico</code> and <code>/public</code> assets. Too broad and the login page redirects to itself in a loop; this is the single most likely thing in the change to be wrong on the first run</span></li>
+</ul>
+<p>Verify: <code>/devspec-verify add-login</code> — visiting <code>/</code> with no cookie lands on <code>/login</code>; visiting <code>/login</code> with no cookie renders without redirecting; signing in and revisiting <code>/</code> renders the page</p>
+<h2 id='9-end-to-end-proof-req-3-req-6-req-7-req-8'>9. End-to-end proof [req-3] [req-6] [req-7] [req-8]</h2>
+<ul class="checks">
+<li class="chk"><span class="box">&#9744;</span><span>9.1 [test] <code>backend/test/auth.e2e-spec.ts</code> (vitest e2e config) — seed a user, log in, reuse the returned cookie against <code>GET /auth/me</code>, log out, confirm the next <code>GET /auth/me</code> is 401</span></li>
+<li class="chk"><span class="box">&#9744;</span><span>9.2 [test] Same file: a preflight <code>OPTIONS /auth/login</code> sent with <code>Origin: http://localhost:3001</code> answers <code>Access-Control-Allow-Credentials: true</code> and echoes that origin</span></li>
+</ul>
+<p>Verify: <code>cd backend &amp;&amp; pnpm test:e2e</code></p></section><section id="coverage"><h2 class="sh">Coverage</h2><div class="banner ok">Every requirement is covered — all 11 <code>[req-N]</code> tags in spec.md have a matching task section.</div><div class='tw'><table><thead><tr><th>Req</th><th>Requirement</th><th>Task section</th><th>Status</th></tr></thead><tbody><tr><td><code>[req-1]</code></td><td>user record persistence</td><td>2. Users table and entity</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-2]</code></td><td>seeded administrator account</td><td>3. Seed script</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-3]</code></td><td>credential authentication</td><td>4. Login and logout endpoints · 9. End-to-end proof</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-4]</code></td><td>credential rejection without account disclosure</td><td>4. Login and logout endpoints</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-5]</code></td><td>session persistence choice</td><td>4. Login and logout endpoints</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-6]</code></td><td>current user endpoint</td><td>5. Session guard and current-user endpoint · 9. End-to-end proof</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-7]</code></td><td>session termination</td><td>4. Login and logout endpoints · 9. End-to-end proof</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-8]</code></td><td>cross-origin credentialed access</td><td>1. Environment contract and dependencies · 9. End-to-end proof</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-9]</code></td><td>login screen presentation</td><td>6. Frontend form components · 7. Login screen</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-10]</code></td><td>login screen behaviour</td><td>7. Login screen</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-11]</code></td><td>protected route redirection</td><td>8. Route protection</td><td><span class="chip g">covered</span></td></tr></tbody></table></div></section><section id="board"><h2 class="sh">Board</h2><p class="absent">devspec/changes/tasks.yml does not exist yet — this is the first change in the repo, so there are no cross-change dependencies to resolve. Approval runs /devspec-plan, which creates it.</p></section>
+</main></div></body></html>
