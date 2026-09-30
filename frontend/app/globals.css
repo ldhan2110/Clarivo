@@ -86,6 +86,10 @@
   --sidebar-ring: oklch(0.6788 0.1756 250.9);
 }
 
+/* Short viewports (laptop windows, phones in landscape): the auth card trims
+   its own spacing instead of making the page scroll. */
+@custom-variant short (@media (max-height: 700px));
+
 @theme {
   /* The width at which the auth card splits into two panels. A real breakpoint
      token, not a `min-[900px]:` arbitrary variant — Tailwind emits named
