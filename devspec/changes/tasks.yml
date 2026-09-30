@@ -7,9 +7,14 @@ changes:
     tasks_md: changes/add-login/tasks.md
     depends_on: []
     skills: [frontend-design, typeorm]
-    status: pending
-    owner: ""
+    status: blocked
+    owner: "worker-local"
     notes: >-
+      BLOCKED at section 9 only: `pnpm test:e2e` fails on the PRE-EXISTING
+      test/app.e2e-spec.ts (asserts GET / -> "Hello World!" from an AppController
+      this repo does not have). All 4 tests this change added pass; sections 1-8
+      are verified. See devspec/report/blockers.md and
+      devspec/changes/add-login/verify/fixes.md.
       First change in the repo. Establishes three precedents everything after
       copies: the first domain modules (src/users/, src/auth/), the first
       migration this project has ever run, and the table/column naming recorded

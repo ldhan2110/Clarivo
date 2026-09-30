@@ -3,3 +3,60 @@
 export type ClientOptions = {
     baseUrl: string;
 };
+
+export type LoginDto = {
+    /**
+     * Matched case-insensitively — the service lowercases before lookup.
+     */
+    email: string;
+    password: string;
+    /**
+     * True keeps the session past browser close; false/omitted makes it a session cookie.
+     */
+    remember: boolean;
+};
+
+export type UserDto = {
+    email: string;
+    name: string;
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type AuthControllerLoginData = {
+    body: LoginDto;
+    path?: never;
+    query?: never;
+    url: '/auth/login';
+};
+
+export type AuthControllerLoginResponses = {
+    200: UserDto;
+};
+
+export type AuthControllerLoginResponse = AuthControllerLoginResponses[keyof AuthControllerLoginResponses];
+
+export type AuthControllerLogoutData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/logout';
+};
+
+export type AuthControllerLogoutResponses = {
+    200: unknown;
+};
+
+export type AuthControllerMeData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/me';
+};
+
+export type AuthControllerMeResponses = {
+    200: UserDto;
+};
+
+export type AuthControllerMeResponse = AuthControllerMeResponses[keyof AuthControllerMeResponses];
