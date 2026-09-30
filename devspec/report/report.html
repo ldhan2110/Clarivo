@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clarivo — DevSpec report</title><style>
+:root{--bg:#f6f7fb;--fg:#0f172a;--mut:#64748b;--line:#e2e8f0;--card:#fff;--brand:#3a75fd}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:15px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--fg);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:32px 20px 90px}
+h1{font-size:25px;letter-spacing:-.02em}
+.sub{color:var(--mut);font-size:13.5px;margin-top:4px}
+.counts{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 26px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 18px;min-width:104px}
+.kpi b{display:block;font-size:24px;letter-spacing:-.02em;line-height:1.2}
+.kpi span{font-size:11.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:20px}
+h2{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);padding-bottom:11px;border-bottom:1px solid var(--line);margin-bottom:16px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--mut)}
+tr.notes td{color:var(--mut);font-size:12.5px;padding-top:0;border-bottom:1px solid var(--line)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;background:#f1f5f9;padding:1.5px 6px;border-radius:4px}
+.chip{font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:999px;background:#eef2f9;color:#475569}
+.chip.g{background:#e7f6ec;color:#15803d}.chip.b{background:#e8efff;color:#1d4ed8}
+.chip.r{background:#fdecec;color:#b91c1c}.chip.n{background:#f1f5f9;color:#475569}
+.secs{white-space:nowrap}
+.bar{display:inline-block;width:92px;height:6px;background:#eef2f7;border-radius:99px;overflow:hidden;vertical-align:middle}
+.fill{height:100%;background:var(--brand)}
+.bn{font-size:12px;color:var(--mut);margin-left:8px}
+.dep{color:var(--mut);font-size:12.5px}
+.empty{color:var(--mut);font-style:italic;font-size:13.5px}
+.blk{border-left:3px solid #dc2626;background:#fffafa;border-radius:0 10px 10px 0;padding:12px 16px;margin-bottom:12px}
+.blk-h{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;font-weight:700;color:#b91c1c;margin-bottom:7px}
+.blk-f{display:grid;grid-template-columns:54px 1fr;gap:10px;font-size:13px;margin:3px 0}
+.blk-f b{color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.06em;padding-top:2px}
+.run{border-left:2px solid var(--line);padding:0 0 16px 16px;margin-left:4px;position:relative}
+.run:last-child{padding-bottom:0}
+.run-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:5px}
+.ts{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--mut)}
+.sc{font-size:12px;color:var(--mut)}
+.run p{font-size:13.5px;color:#334155}
+.why{margin-top:5px;font-size:12.5px;color:#b91c1c}
+@media(max-width:700px){.wrap{padding:18px 14px 70px}section{padding:16px}th,td{padding:7px 6px}}
+</style></head><body>
+<div class="wrap">
+  <h1>DevSpec report</h1>
+  <div class="sub">Whole board, every change. Generated 2026-09-30 18:04 — regenerated each run, never hand-edited.</div>
+
+  <div class="counts">
+    <div class="kpi"><b>0</b><span>done</span></div>
+    <div class="kpi"><b>0</b><span>in progress</span></div>
+    <div class="kpi"><b>1</b><span>blocked</span></div>
+    <div class="kpi"><b>1</b><span>total</span></div>
+  </div>
+
+  <section><h2>Open blockers</h2><div class="blk">
+  <div class="blk-h">add-login · 9. End-to-end proof · 2026-09-30T10:14:00Z</div>
+  <div class="blk-f"><b>what</b><span>Section 9&#x27;s `Verify: cd backend &amp;&amp; pnpm test:e2e` exits non-zero, so the section cannot be marked satisfied — even though all four tests this change added (`backend/test/auth.e2e-spec.ts`) pass.</span></div>
+  <div class="blk-f"><b>tried</b><span>No Impact Area default covers it, and it is none of the four hard-block cases. The failing test is `backend/test/auth.e2e-spec.ts`&#x27;s neighbour `backend/test/app.e2e-spec.ts`, which asserts `GET /` returns &quot;Hello World!&quot; from an `AppController`. No such controller exists in this repo — `src/app.module.ts` declared no `controllers` before this change touched it, so the test was already failing when the run started. It is unrelated to add-login, and CLAUDE.md says to mention unrelated dead code rather than delete it, so the worker did not remove or edit it, and did not edit the Verify line to pass around it.</span></div>
+  <div class="blk-f"><b>needs</b><span>A human decision on the pre-existing test — delete `test/app.e2e-spec.ts` as dead (the controller it tests is gone), or restore an `AppController`. Then reset `tasks.yml` status blocked -&gt; pending and re-run. Everything else in the change is built and verified; see devspec/changes/add-login/verify/fixes.md.</span></div>
+</div></section>
+
+  <section><h2>Implemented</h2>
+    <table><thead><tr><th>Change</th><th>Title</th><th>Status</th><th>Sections</th><th>Depends on</th></tr></thead>
+    <tbody><tr><td colspan="5" class="empty">none</td></tr></tbody></table>
+  </section>
+
+  <section><h2>In progress / left</h2>
+    <table><thead><tr><th>Change</th><th>Title</th><th>Status</th><th>Sections</th><th>Depends on</th></tr></thead>
+    <tbody><tr>
+  <td><code>add-login</code></td>
+  <td>login page, JWT cookie session, users table + seeded admin</td>
+  <td><span class="chip r">blocked</span></td>
+  <td class="secs"><div class="bar"><div class="fill" style="width:100%"></div></div><span class="bn">9/9</span></td>
+  <td class="dep">[]</td>
+</tr>
+<tr class="notes"><td></td><td colspan="4">BLOCKED at section 9 only: `pnpm test:e2e` fails on the PRE-EXISTING test/app.e2e-spec.ts (asserts GET / -&gt; &quot;Hello World!&quot; from an AppController this repo does not have). All 4 tests this change added pass; sections 1-8 are verified. See devspec/report/blockers.md and devspec/changes/add-login/verify/fixes.md. First change in the repo. Establishes three precedents everything after copies: the first domain modules (src/users/, src/auth/), the first migration this project has ever run, and the table/column naming recorded in devspec/context/schema.md. Refresh schema.md once the migration lands. Section 1 fixes the frontend dev port and CORS_ORIGINS; nothing in the change works in a browser until it does.</td></tr></tbody></table>
+  </section>
+
+  <section><h2>History</h2><div class="run">
+  <div class="run-h">
+    <span class="ts">2026-09-30T10:15:59Z</span>
+    <span class="chip r">blocked</span>
+    <b>login page, JWT cookie session, users table + seeded admin</b>
+    <span class="sc">8/9 sections</span>
+  </div>
+  <p>Built the whole change: users table (first migration in the repo), idempotent seed script, POST /auth/login + /auth/logout + GET /auth/me with the session in an httpOnly clv_at cookie, and the /login screen plus route-guard middleware. Verified against the approved mockup in a real browser at 390/700/1180px, fixing three genuine drifts (card max-width and input font-size lost to Tailwind&#x27;s breakpoint emission order; radius resolved to the theme scale rather than the mockup&#x27;s 12px). Backend code could not be committed: backend/ is a nested git repository.</p>
+  <p class="why"><b>blocked:</b> section 9 Verify (pnpm test:e2e) exits non-zero because of the pre-existing test/app.e2e-spec.ts, which asserts GET / returns &#x27;Hello World!&#x27; from an AppController this repo does not have; all 4 tests this change added pass</p>
+</div></section>
+</div></body></html>
