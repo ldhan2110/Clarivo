@@ -1,0 +1,18 @@
+# DevSpec board — one entry per change, not per subtask.
+# Subtasks live in each change's tasks.md; this file carries status and
+# cross-change ordering only.
+changes:
+  add-login:
+    title: login page, JWT cookie session, users table + seeded admin
+    tasks_md: changes/add-login/tasks.md
+    depends_on: []
+    skills: [frontend-design, typeorm]
+    status: pending
+    owner: ""
+    notes: >-
+      First change in the repo. Establishes three precedents everything after
+      copies: the first domain modules (src/users/, src/auth/), the first
+      migration this project has ever run, and the table/column naming recorded
+      in devspec/context/schema.md. Refresh schema.md once the migration lands.
+      Section 1 fixes the frontend dev port and CORS_ORIGINS; nothing in the
+      change works in a browser until it does.

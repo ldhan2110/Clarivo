@@ -74,8 +74,9 @@ fix the markdown, re-render. Nothing here is invented; a missing artifact reads 
 JWT in an httpOnly cookie, remember me, first <code>users</code> table and a seeded administrator.</p>
 <div class="chips">
   <span class="chip b">change: add-login</span>
-  <span class="chip">status: not yet on the board</span>
-  <span class="chip">depends_on: none</span>
+  <span class="chip g">status: pending</span>
+  <span class="chip">depends_on: none — runnable now</span>
+  <span class="chip">skills: frontend-design · typeorm</span>
   <span class="chip">artifacts: proposal · design · db · ui · spec · tasks</span>
 </div>
 <div class="grid" style="margin-top:16px">
@@ -84,8 +85,9 @@ JWT in an httpOnly cookie, remember me, first <code>users</code> table and a see
   <div class="stat"><b>9</b>sections</div>
   <div class="stat"><b>3</b>[db]</div><div class="stat"><b>18</b>[backend]</div><div class="stat"><b>13</b>[frontend]</div><div class="stat"><b>6</b>[test]</div>
 </div>
-<p style="margin-top:14px;font-size:13.5px;color:var(--mut)">This change is not yet registered on
-<code>devspec/changes/tasks.yml</code> — approving it runs <code>/devspec-plan</code>, which creates the board entry.</p></section><section id="proposal"><h2 class="sh">Proposal</h2><h1 id='proposal-add-login'>Proposal: add-login</h1>
+<p style="margin-top:14px;font-size:13.5px;color:var(--mut)">Registered on
+<code>devspec/changes/tasks.yml</code>. Approved by <strong>LE AN</strong> on 2026-09-30.</p></section><section id="proposal"><h2 class="sh">Proposal</h2><p>_approved_by: LE AN_ _approved_at: 2026-09-30_</p>
+<h1 id='proposal-add-login'>Proposal: add-login</h1>
 <h2 id='why'>Why</h2>
 <p>Clarivo has no authentication of any kind. There is no <code>User</code> table, no login endpoint, no guard, and no way to tell one person from another. Every screen on the 15-screen MVP board sits behind a signed-in user — the dashboard greets &quot;Good morning, An&quot;, projects have a BA and members, meetings have participants. None of that can be built until there is a user to attach it to.</p>
 <p>This change is the smallest thing that unblocks the rest: one real account can sign in, stay signed in, and be identified by the API.</p>
@@ -541,5 +543,25 @@ frontend/package.json (port pin)          — safe/reversible</code></pre>
 <li class="chk"><span class="box">&#9744;</span><span>9.1 [test] <code>backend/test/auth.e2e-spec.ts</code> (vitest e2e config) — seed a user, log in, reuse the returned cookie against <code>GET /auth/me</code>, log out, confirm the next <code>GET /auth/me</code> is 401</span></li>
 <li class="chk"><span class="box">&#9744;</span><span>9.2 [test] Same file: a preflight <code>OPTIONS /auth/login</code> sent with <code>Origin: http://localhost:3001</code> answers <code>Access-Control-Allow-Credentials: true</code> and echoes that origin</span></li>
 </ul>
-<p>Verify: <code>cd backend &amp;&amp; pnpm test:e2e</code></p></section><section id="coverage"><h2 class="sh">Coverage</h2><div class="banner ok">Every requirement is covered — all 11 <code>[req-N]</code> tags in spec.md have a matching task section.</div><div class='tw'><table><thead><tr><th>Req</th><th>Requirement</th><th>Task section</th><th>Status</th></tr></thead><tbody><tr><td><code>[req-1]</code></td><td>user record persistence</td><td>2. Users table and entity</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-2]</code></td><td>seeded administrator account</td><td>3. Seed script</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-3]</code></td><td>credential authentication</td><td>4. Login and logout endpoints · 9. End-to-end proof</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-4]</code></td><td>credential rejection without account disclosure</td><td>4. Login and logout endpoints</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-5]</code></td><td>session persistence choice</td><td>4. Login and logout endpoints</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-6]</code></td><td>current user endpoint</td><td>5. Session guard and current-user endpoint · 9. End-to-end proof</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-7]</code></td><td>session termination</td><td>4. Login and logout endpoints · 9. End-to-end proof</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-8]</code></td><td>cross-origin credentialed access</td><td>1. Environment contract and dependencies · 9. End-to-end proof</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-9]</code></td><td>login screen presentation</td><td>6. Frontend form components · 7. Login screen</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-10]</code></td><td>login screen behaviour</td><td>7. Login screen</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-11]</code></td><td>protected route redirection</td><td>8. Route protection</td><td><span class="chip g">covered</span></td></tr></tbody></table></div></section><section id="board"><h2 class="sh">Board</h2><p class="absent">devspec/changes/tasks.yml does not exist yet — this is the first change in the repo, so there are no cross-change dependencies to resolve. Approval runs /devspec-plan, which creates it.</p></section>
+<p>Verify: <code>cd backend &amp;&amp; pnpm test:e2e</code></p></section><section id="coverage"><h2 class="sh">Coverage</h2><div class="banner ok">Every requirement is covered — all 11 <code>[req-N]</code> tags in spec.md have a matching task section.</div><div class='tw'><table><thead><tr><th>Req</th><th>Requirement</th><th>Task section</th><th>Status</th></tr></thead><tbody><tr><td><code>[req-1]</code></td><td>user record persistence</td><td>2. Users table and entity</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-2]</code></td><td>seeded administrator account</td><td>3. Seed script</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-3]</code></td><td>credential authentication</td><td>4. Login and logout endpoints · 9. End-to-end proof</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-4]</code></td><td>credential rejection without account disclosure</td><td>4. Login and logout endpoints</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-5]</code></td><td>session persistence choice</td><td>4. Login and logout endpoints</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-6]</code></td><td>current user endpoint</td><td>5. Session guard and current-user endpoint · 9. End-to-end proof</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-7]</code></td><td>session termination</td><td>4. Login and logout endpoints · 9. End-to-end proof</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-8]</code></td><td>cross-origin credentialed access</td><td>1. Environment contract and dependencies · 9. End-to-end proof</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-9]</code></td><td>login screen presentation</td><td>6. Frontend form components · 7. Login screen</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-10]</code></td><td>login screen behaviour</td><td>7. Login screen</td><td><span class="chip g">covered</span></td></tr><tr><td><code>[req-11]</code></td><td>protected route redirection</td><td>8. Route protection</td><td><span class="chip g">covered</span></td></tr></tbody></table></div></section><section id="board"><h2 class="sh">Board</h2><pre><code># DevSpec board — one entry per change, not per subtask.
+# Subtasks live in each change&#x27;s tasks.md; this file carries status and
+# cross-change ordering only.
+changes:
+  add-login:
+    title: login page, JWT cookie session, users table + seeded admin
+    tasks_md: changes/add-login/tasks.md
+    depends_on: []
+    skills: [frontend-design, typeorm]
+    status: pending
+    owner: &quot;&quot;
+    notes: &gt;-
+      First change in the repo. Establishes three precedents everything after
+      copies: the first domain modules (src/users/, src/auth/), the first
+      migration this project has ever run, and the table/column naming recorded
+      in devspec/context/schema.md. Refresh schema.md once the migration lands.
+      Section 1 fixes the frontend dev port and CORS_ORIGINS; nothing in the
+      change works in a browser until it does.
+</code></pre><pre><code>add-login   depends_on: []   status: pending   &lt;- runnable now
+
+(only change on the board)</code></pre></section>
 </main></div></body></html>
