@@ -66,7 +66,7 @@ export default function LoginPage() {
         <aside className="px-4 pt-6 min-[360px]:px-6 min-[360px]:pt-7 sm:px-[34px] sm:pt-[34px] short:pt-4 short:max-panel:pb-0 panel:border-border panel:bg-secondary panel:flex panel:flex-col panel:gap-[22px] panel:border-r panel:p-[34px]">
           <div className="flex items-center gap-2.5">
             <Image
-              src="/clarivo-mark.png"
+              src="/images/clarivo-mark.png"
               alt=""
               width={64}
               height={64}
@@ -84,7 +84,7 @@ export default function LoginPage() {
           */}
           <div
             aria-hidden
-            className="hidden flex-1 rounded-[14px] bg-contain bg-center bg-no-repeat panel:block panel:bg-[url(/login-background.webp)]"
+            className="hidden flex-1 rounded-[14px] bg-contain bg-center bg-no-repeat panel:block panel:bg-[url(/images/login-background.webp)]"
           />
         </aside>
 
