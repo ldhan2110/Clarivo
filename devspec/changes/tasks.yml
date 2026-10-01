@@ -23,7 +23,7 @@ changes:
       change works in a browser until it does.
   add-app-shell:
     title: collapsible sidebar shell, mobile drawer, sample dashboard
-    tasks_md: changes/add-app-shell/tasks.md
+    tasks_md: archive/add-app-shell/tasks.md
     depends_on: []
     skills: [frontend-design]
     status: done
