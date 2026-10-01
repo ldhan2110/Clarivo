@@ -2,7 +2,7 @@
 
 import { Separator } from "@/components/ui/separator";
 import { NavItem } from "./nav-item";
-import { NAV_GROUPS, NAV_ITEMS } from "./nav-items";
+import { NAV_GROUPS, NAV_ITEMS } from "@/constants/nav";
 
 /** The three groups, rendered from the one NAV_ITEMS array. */
 export function NavGroups({

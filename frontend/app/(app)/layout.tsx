@@ -3,7 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { AuthGuard } from "@/components/sidebar/auth-guard";
 import { MobileNav } from "@/components/sidebar/mobile-nav";
-import { SIDEBAR_COOKIE } from "@/components/sidebar/sidebar-cookie";
+import { SIDEBAR_COOKIE } from "@/constants/sidebar";
 import { SidebarProvider } from "@/components/sidebar/sidebar-context";
 
 /**

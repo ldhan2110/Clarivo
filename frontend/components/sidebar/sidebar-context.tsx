@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { SIDEBAR_COOKIE, SIDEBAR_COOKIE_MAX_AGE } from "./sidebar-cookie";
+import { SIDEBAR_COOKIE, SIDEBAR_COOKIE_MAX_AGE } from "@/constants/sidebar";
 
 type SidebarState = {
   open: boolean;

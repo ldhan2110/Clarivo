@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUser } from "@/stores/auth";
 import { cn } from "@/lib/utils";
-import { DATA_STATE, NEXT_MEETING, RECENT_PROJECTS, STATS } from "./dashboard-data";
+import { DATA_STATE, NEXT_MEETING, RECENT_PROJECTS, STATS } from "@/constants/dashboard";
 
 function greeting(hour: number) {
   if (hour < 12) return "Good morning";

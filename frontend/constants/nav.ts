@@ -7,18 +7,8 @@ import {
   ListChecks,
   Scale,
   Settings,
-  type LucideIcon,
 } from "lucide-react";
-
-export type NavGroup = "Workspace" | "Insights" | "Account";
-
-export type NavItemDef = {
-  group: NavGroup;
-  label: string;
-  href: string;
-  icon: LucideIcon;
-  disabled: boolean;
-};
+import type { NavGroup, NavItemDef } from "@/types/nav";
 
 /**
  * The one nav source. The desktop sidebar and the mobile drawer both render

@@ -161,3 +161,7 @@ To build (no existing equivalent): the sidebar itself — the floating card, its
 
 _Post-ship note (2026-10-01): the shell components moved from `components/nav/` to
 `components/sidebar/`. Paths above are as approved; the code is under the new folder._
+
+_Post-ship note (2026-10-01): non-component modules moved out of the component
+folders — types to `types/nav.ts` + `types/dashboard.ts`, values to
+`constants/nav.ts`, `constants/sidebar.ts`, `constants/dashboard.ts`._

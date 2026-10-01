@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import type { NavItemDef } from "./nav-items";
+import type { NavItemDef } from "@/types/nav";
 
 type Props = {
   item: NavItemDef;
