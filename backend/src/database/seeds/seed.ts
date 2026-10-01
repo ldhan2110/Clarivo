@@ -1,18 +1,18 @@
 // Must come first: database.config validates the env at import time, and
 // class-transformer needs the metadata to coerce PORT/DATABASE_PORT to numbers.
 import 'reflect-metadata';
-import * as argon2 from 'argon2';
 import { config as loadEnv } from 'dotenv';
 import { validate } from '../../config/env.validation';
 import { User } from '../../users/user.entity';
-import { normaliseEmail } from '../../users/users.service';
 import dataSource from '../data-source';
+import { memberAccount, upsertAccount } from './seed.helpers';
 
 /**
- * Creates the single administrator account from SEED_ADMIN_* environment
- * variables. Idempotent: reruns update the existing row rather than inserting
- * a second one. No credential is ever committed — the password is read from
- * the environment and hashed here, at run time.
+ * Creates the administrator account from SEED_ADMIN_* environment variables,
+ * plus an optional second account from SEED_MEMBER_* when all three of those
+ * are set. Idempotent: reruns update the existing rows rather than inserting
+ * second ones. No credential is ever committed — passwords are read from the
+ * environment and hashed here, at run time.
  */
 async function seed(): Promise<void> {
   loadEnv();
@@ -21,20 +21,19 @@ async function seed(): Promise<void> {
   await dataSource.initialize();
   try {
     const users = dataSource.getRepository(User);
-    const email = normaliseEmail(env.SEED_ADMIN_EMAIL);
-    const passwordHash = await argon2.hash(env.SEED_ADMIN_PASSWORD, {
-      type: argon2.argon2id,
+    const admin = await upsertAccount(users, {
+      email: env.SEED_ADMIN_EMAIL,
+      password: env.SEED_ADMIN_PASSWORD,
+      name: env.SEED_ADMIN_NAME,
     });
+    console.log(`seed: ${admin} ${env.SEED_ADMIN_EMAIL}`);
 
-    const existing = await users.findOne({ where: { email } });
-    if (existing) {
-      existing.passwordHash = passwordHash;
-      existing.name = env.SEED_ADMIN_NAME;
-      await users.save(existing);
-      console.log(`seed: updated ${email}`);
+    const member = memberAccount(env);
+    if (member) {
+      const outcome = await upsertAccount(users, member);
+      console.log(`seed: ${outcome} ${member.email}`);
     } else {
-      await users.save(users.create({ email, passwordHash, name: env.SEED_ADMIN_NAME }));
-      console.log(`seed: created ${email}`);
+      console.log('seed: SEED_MEMBER_* not fully set, skipping the second account');
     }
   } finally {
     await dataSource.destroy();

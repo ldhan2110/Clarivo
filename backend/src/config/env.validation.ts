@@ -4,6 +4,7 @@ import {
   IsEnum,
   IsInt,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Max,
   Min,
@@ -94,6 +95,25 @@ export class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   SEED_ADMIN_NAME: string;
+
+  /**
+   * Optional second account, for verifying the member-vs-owner states that the
+   * single admin account cannot cover — Clarivo has no signup endpoint, so the
+   * seed is the only way to create one. @IsOptional() on purpose: a required
+   * var would invalidate every existing .env for a local test fixture. Seeded
+   * only when all three are set.
+   */
+  @IsString()
+  @IsOptional()
+  SEED_MEMBER_EMAIL?: string;
+
+  @IsString()
+  @IsOptional()
+  SEED_MEMBER_PASSWORD?: string;
+
+  @IsString()
+  @IsOptional()
+  SEED_MEMBER_NAME?: string;
 }
 
 /** '*' stays a wildcard; anything else becomes the explicit origin list. */
