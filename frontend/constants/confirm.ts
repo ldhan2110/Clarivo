@@ -15,3 +15,36 @@ export function confirmDelete(entity: string, name?: string): ConfirmOptions {
     tone: "error",
   };
 }
+
+/**
+ * Archive, restore and remove-member. None of them reuses `confirmDelete`:
+ * that preset is red and says "permanently deleted. This can't be undone.",
+ * which is false for all three — archive is a status, and a removed member's
+ * contributions stay.
+ */
+export function confirmArchive(projectName: string): ConfirmOptions {
+  return {
+    title: "Archive this project?",
+    description: `“${projectName}” will be hidden from the active list and become read-only. Nothing is deleted, and you can restore it at any time.`,
+    confirmLabel: "Archive project",
+    tone: "warning",
+  };
+}
+
+export function confirmRestore(projectName: string): ConfirmOptions {
+  return {
+    title: "Restore this project?",
+    description: `“${projectName}” moves back into the active list.`,
+    confirmLabel: "Restore project",
+    tone: "confirm",
+  };
+}
+
+export function confirmRemoveMember(memberName: string, projectName: string): ConfirmOptions {
+  return {
+    title: `Remove ${memberName}?`,
+    description: `They lose access to “${projectName}” immediately. Anything they already contributed stays.`,
+    confirmLabel: "Remove",
+    tone: "warning",
+  };
+}

@@ -24,6 +24,148 @@ export type UserDto = {
     updatedAt: string;
 };
 
+export type FileDto = {
+    originalName: string;
+    mimeType: string;
+    sizeBytes: number;
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type CreateProjectDto = {
+    /**
+     * Human handle for the project, e.g. `CLT-DevSpec`. Globally unique.
+     */
+    code: string;
+    /**
+     * Display name.
+     */
+    name: string;
+    /**
+     * Customer or business unit the project belongs to.
+     */
+    customerBu: string;
+    /**
+     * Business domain, free text — e.g. `Logistics`.
+     */
+    domain: string;
+    /**
+     * What the project is trying to achieve. Long prose, optional.
+     */
+    objective?: string;
+    /**
+     * Start date as `YYYY-MM-DD`.
+     */
+    startsOn?: string;
+    /**
+     * End date as `YYYY-MM-DD`. Must be on or after `startsOn`.
+     */
+    endsOn?: string;
+};
+
+export type ProjectDto = {
+    code: string;
+    name: string;
+    customerBu: string;
+    domain: string;
+    objective: string | null;
+    status: 'active' | 'archived';
+    /**
+     * `'YYYY-MM-DD'`, not a Date — wrapping it would re-introduce a timezone.
+     */
+    startsOn: string | null;
+    endsOn: string | null;
+    memberCount: number;
+    createdByName: string;
+    viewerRole: 'owner' | 'member';
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type PaginationDto = {
+    page: number;
+    limit: number;
+};
+
+export type ProjectSortDto = {
+    sortBy: 'updatedAt' | 'createdAt' | 'name' | 'code';
+    sortOrder: 'ASC' | 'DESC';
+};
+
+export type ProjectSummaryDto = {
+    code: string;
+    name: string;
+    customerBu: string;
+    domain: string;
+    status: 'active' | 'archived';
+    memberCount: number;
+    /**
+     * At most three, owner first. `memberCount - memberNames.length` is the +N chip.
+     */
+    memberNames: Array<string>;
+    viewerRole: 'owner' | 'member';
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type ProjectListDto = {
+    items: Array<ProjectSummaryDto>;
+    /**
+     * Matching rows before paging.
+     */
+    total: number;
+    page: number;
+    limit: number;
+};
+
+export type UpdateProjectDto = {
+    /**
+     * Human handle for the project, e.g. `CLT-DevSpec`. Globally unique.
+     */
+    code?: string;
+    /**
+     * Display name.
+     */
+    name?: string;
+    /**
+     * Customer or business unit the project belongs to.
+     */
+    customerBu?: string;
+    /**
+     * Business domain, free text — e.g. `Logistics`.
+     */
+    domain?: string;
+    /**
+     * What the project is trying to achieve. Long prose, optional.
+     */
+    objective?: string;
+    /**
+     * Start date as `YYYY-MM-DD`.
+     */
+    startsOn?: string;
+    /**
+     * End date as `YYYY-MM-DD`. Must be on or after `startsOn`.
+     */
+    endsOn?: string;
+};
+
+export type ProjectMemberDto = {
+    userId: string;
+    name: string;
+    email: string;
+    role: 'owner' | 'member';
+};
+
+export type AddMemberDto = {
+    /**
+     * Email of an existing Clarivo account. No invitation is created.
+     */
+    email: string;
+};
+
 export type AuthControllerLoginData = {
     body: LoginDto;
     path?: never;
@@ -60,3 +202,171 @@ export type AuthControllerMeResponses = {
 };
 
 export type AuthControllerMeResponse = AuthControllerMeResponses[keyof AuthControllerMeResponses];
+
+export type FilesControllerUploadData = {
+    body: {
+        file: Blob | File;
+    };
+    path?: never;
+    query?: never;
+    url: '/files';
+};
+
+export type FilesControllerUploadResponses = {
+    201: FileDto;
+};
+
+export type FilesControllerUploadResponse = FilesControllerUploadResponses[keyof FilesControllerUploadResponses];
+
+export type FilesControllerDownloadData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/files/{id}';
+};
+
+export type FilesControllerDownloadResponses = {
+    200: unknown;
+};
+
+export type ProjectsControllerListData = {
+    body?: never;
+    path?: never;
+    query: {
+        pagination: PaginationDto;
+        sort: ProjectSortDto;
+        /**
+         * Case-insensitive substring match against `code` or `name`.
+         */
+        q?: string;
+        status: 'active' | 'archived' | 'all';
+    };
+    url: '/projects';
+};
+
+export type ProjectsControllerListResponses = {
+    200: ProjectListDto;
+};
+
+export type ProjectsControllerListResponse = ProjectsControllerListResponses[keyof ProjectsControllerListResponses];
+
+export type ProjectsControllerCreateData = {
+    body: CreateProjectDto;
+    path?: never;
+    query?: never;
+    url: '/projects';
+};
+
+export type ProjectsControllerCreateResponses = {
+    201: ProjectDto;
+};
+
+export type ProjectsControllerCreateResponse = ProjectsControllerCreateResponses[keyof ProjectsControllerCreateResponses];
+
+export type ProjectsControllerFindOneData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/projects/{id}';
+};
+
+export type ProjectsControllerFindOneResponses = {
+    200: ProjectDto;
+};
+
+export type ProjectsControllerFindOneResponse = ProjectsControllerFindOneResponses[keyof ProjectsControllerFindOneResponses];
+
+export type ProjectsControllerUpdateData = {
+    body: UpdateProjectDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/projects/{id}';
+};
+
+export type ProjectsControllerUpdateResponses = {
+    200: ProjectDto;
+};
+
+export type ProjectsControllerUpdateResponse = ProjectsControllerUpdateResponses[keyof ProjectsControllerUpdateResponses];
+
+export type ProjectsControllerArchiveData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/projects/{id}/archive';
+};
+
+export type ProjectsControllerArchiveResponses = {
+    201: ProjectDto;
+};
+
+export type ProjectsControllerArchiveResponse = ProjectsControllerArchiveResponses[keyof ProjectsControllerArchiveResponses];
+
+export type ProjectsControllerRestoreData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/projects/{id}/restore';
+};
+
+export type ProjectsControllerRestoreResponses = {
+    201: ProjectDto;
+};
+
+export type ProjectsControllerRestoreResponse = ProjectsControllerRestoreResponses[keyof ProjectsControllerRestoreResponses];
+
+export type ProjectsControllerListMembersData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/projects/{id}/members';
+};
+
+export type ProjectsControllerListMembersResponses = {
+    200: Array<ProjectMemberDto>;
+};
+
+export type ProjectsControllerListMembersResponse = ProjectsControllerListMembersResponses[keyof ProjectsControllerListMembersResponses];
+
+export type ProjectsControllerAddMemberData = {
+    body: AddMemberDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/projects/{id}/members';
+};
+
+export type ProjectsControllerAddMemberResponses = {
+    201: ProjectMemberDto;
+};
+
+export type ProjectsControllerAddMemberResponse = ProjectsControllerAddMemberResponses[keyof ProjectsControllerAddMemberResponses];
+
+export type ProjectsControllerRemoveMemberData = {
+    body?: never;
+    path: {
+        id: string;
+        userId: string;
+    };
+    query?: never;
+    url: '/projects/{id}/members/{userId}';
+};
+
+export type ProjectsControllerRemoveMemberResponses = {
+    204: void;
+};
+
+export type ProjectsControllerRemoveMemberResponse = ProjectsControllerRemoveMemberResponses[keyof ProjectsControllerRemoveMemberResponses];

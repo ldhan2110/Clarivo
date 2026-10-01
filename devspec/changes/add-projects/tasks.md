@@ -86,15 +86,15 @@ Verify: `cd frontend && npx tsc --noEmit && pnpm lint && pnpm build`
 Verify: `cd frontend && npx tsc --noEmit && pnpm lint && pnpm build`
 
 ## 9. Projects list screen and create modal [req-8] [req-9]
-- [ ] 9.1 [frontend] New `frontend/app/(app)/projects/page.tsx` — mirrors `mockups/projects-list.html`: header, search input, status segmented control defaulting to **Active**, `＋ New project` button, table, pager
-- [ ] 9.2 [frontend] Reuse `components/ui/table.tsx` for the list — **not** a hand-rolled `<table>`. Columns per `ui.md`; Timeline is deliberately not a column
-- [ ] 9.3 [frontend] Reuse `components/ui/input.tsx:Input` for search (debounced, drives the query — never client-side filtering), `components/ui/button.tsx:Button` for every action, `components/ui/badge.tsx:Badge variant="outline"` for the status pill, `components/ui/avatar.tsx` for the member stack with a `+N` overflow chip
-- [ ] 9.4 [frontend] Row menu with `components/ui/dropdown-menu.tsx`: `Open` always; `Archive` (warning-coloured) on an active project; `Restore` on an archived one; both **disabled for a non-owner**. **No Delete item**
-- [ ] 9.5 [frontend] Archive and restore go through `hooks/use-confirm.ts:useConfirm` with the new presets from task 11.6 — imperative, no local dialog state, no new JSX
-- [ ] 9.6 [frontend] Two **separate** empty states per `ui.md` — "No projects yet" (with the create CTA, search disabled) and "No projects match …" (with `Clear filters`, no CTA). One component serving both is the usual bug here
-- [ ] 9.7 [frontend] Loading = `components/ui/skeleton.tsx:Skeleton` rows **in the real table shape**; error = the `dashboard-error` card shape from `app/(app)/page.tsx` with `Retry`
-- [ ] 9.8 [frontend] New `frontend/components/projects/create-project-dialog.tsx` — `components/ui/dialog.tsx`, `react-hook-form` + `zodResolver`, schema beside the form with `z.infer`, `components/ui/textarea.tsx` for Objective, a `datalist` of the viewer's existing domains on the Domain input. **Never `watch()`** (React Compiler + `react-hooks/incompatible-library`); busy = `isSubmitting || mutation.isPending`
-- [ ] 9.9 [frontend] Field-level errors via `setError`: duplicate code under the code input, bad date range on the end date, request failure as a banner from `errors.root` **with every typed value kept**. Success → close, `toast.success`, list refetch
+- [x] 9.1 [frontend] New `frontend/app/(app)/projects/page.tsx` — mirrors `mockups/projects-list.html`: header, search input, status segmented control defaulting to **Active**, `＋ New project` button, table, pager
+- [x] 9.2 [frontend] Reuse `components/ui/table.tsx` for the list — **not** a hand-rolled `<table>`. Columns per `ui.md`; Timeline is deliberately not a column
+- [x] 9.3 [frontend] Reuse `components/ui/input.tsx:Input` for search (debounced, drives the query — never client-side filtering), `components/ui/button.tsx:Button` for every action, `components/ui/badge.tsx:Badge variant="outline"` for the status pill, `components/ui/avatar.tsx` for the member stack with a `+N` overflow chip
+- [x] 9.4 [frontend] Row menu with `components/ui/dropdown-menu.tsx`: `Open` always; `Archive` (warning-coloured) on an active project; `Restore` on an archived one; both **disabled for a non-owner**. **No Delete item**
+- [x] 9.5 [frontend] Archive and restore go through `hooks/use-confirm.ts:useConfirm` with the new presets from task 11.6 — imperative, no local dialog state, no new JSX
+- [x] 9.6 [frontend] Two **separate** empty states per `ui.md` — "No projects yet" (with the create CTA, search disabled) and "No projects match …" (with `Clear filters`, no CTA). One component serving both is the usual bug here
+- [x] 9.7 [frontend] Loading = `components/ui/skeleton.tsx:Skeleton` rows **in the real table shape**; error = the `dashboard-error` card shape from `app/(app)/page.tsx` with `Retry`
+- [x] 9.8 [frontend] New `frontend/components/projects/create-project-dialog.tsx` — `components/ui/dialog.tsx`, `react-hook-form` + `zodResolver`, schema beside the form with `z.infer`, `components/ui/textarea.tsx` for Objective, a `datalist` of the viewer's existing domains on the Domain input. **Never `watch()`** (React Compiler + `react-hooks/incompatible-library`); busy = `isSubmitting || mutation.isPending`
+- [x] 9.9 [frontend] Field-level errors via `setError`: duplicate code under the code input, bad date range on the end date, request failure as a banner from `errors.root` **with every typed value kept**. Success → close, `toast.success`, list refetch
 Verify: `/devspec-verify add-projects`
 
 ## 10. Project overview screen [req-10]
@@ -113,7 +113,7 @@ Verify: `/devspec-verify add-projects`
 - [ ] 11.3 [frontend] Members card — `components/ui/avatar.tsx` rows with name, email and a `Badge` role pill; the add-by-email input with its two field errors ("No Clarivo account uses this email address.", "<Name> is already a member of this project."), **never toasts**
 - [ ] 11.4 [frontend] **No `✕` on the owner row**; the viewer's own row is marked `You`. No ownership-transfer control. Solo state shows the "You're the only member…" hint
 - [ ] 11.5 [frontend] Danger zone — warning-bordered card with `Archive project`; archived flips it to primary-bordered `Restore project`, disables the details card and member list, and shows the page ribbon
-- [ ] 11.6 [frontend] Add `confirmArchive`, `confirmRestore`, `confirmRemoveMember` to `frontend/constants/confirm.ts` with the exact copy in `ui.md`, **beside** `confirmDelete` and without touching it. All three route through `useConfirm`; none claims anything is permanently deleted
+- [x] 11.6 [frontend] Add `confirmArchive`, `confirmRestore`, `confirmRemoveMember` to `frontend/constants/confirm.ts` with the exact copy in `ui.md`, **beside** `confirmDelete` and without touching it. All three route through `useConfirm`; none claims anything is permanently deleted
 Verify: `/devspec-verify add-projects`
 
 ## 12. Dashboard reflects real projects [req-13]

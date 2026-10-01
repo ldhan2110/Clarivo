@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import { SESSION_COOKIE } from './auth/auth.constants';
@@ -9,8 +10,14 @@ import { EnvironmentVariables, corsOrigins } from './config/env.validation';
 import { AppExceptionFilter } from './filters/app-exception.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const config = app.get(ConfigService<EnvironmentVariables, true>);
+
+  // Required by the repo's nested query-param convention
+  // (`?pagination[page]=2&sort[sortOrder]=ASC`, src/common/dtos/pagination.dto.ts).
+  // Express 5 defaults to the 'simple' parser, which leaves `pagination[page]`
+  // as a flat key — with forbidNonWhitelisted on, every such request is a 400.
+  app.set('query parser', 'extended');
 
   app.enableCors({
     origin: corsOrigins(config.get('CORS_ORIGINS', { infer: true })),
