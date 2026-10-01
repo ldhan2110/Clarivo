@@ -3,73 +3,78 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>DevSpec board — Clarivo</title>
 <style>
-:root{--bg:#f7f7f6;--card:#fff;--ink:#18181b;--muted:#64748b;--line:#e4e4e7;}
 *{box-sizing:border-box}
-body{margin:0;padding:32px 20px 64px;background:var(--bg);color:var(--ink);
-font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;}
-.wrap{max-width:900px;margin:0 auto}
-h1{font-size:26px;margin:0 0 6px;letter-spacing:-.02em}
-h2{font-size:13px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);
-margin:40px 0 12px;font-weight:600}
-.sub{color:var(--muted);font-size:13px;margin:0 0 4px}
-.counts{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 0}
-.count{background:var(--card);border:1px solid var(--line);border-radius:8px;
-padding:10px 14px;font-size:13px}
-.count b{display:block;font-size:20px;line-height:1.2}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;
-padding:14px 16px;margin-bottom:10px}
-.row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
-.title{font-weight:600}
-.id{font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}
-.pill{color:#fff;border-radius:999px;padding:2px 9px;font-size:11px;
-text-transform:uppercase;letter-spacing:.06em;font-weight:600}
-.sect{font:12px/1.5 ui-monospace,Menlo,monospace;color:var(--muted)}
-.note{margin-top:8px;font-size:13px;color:var(--muted)}
-.blk{border-left:3px solid #b91c1c}
-.blk .head{font:12px/1.5 ui-monospace,Menlo,monospace;color:#b91c1c;margin-bottom:8px}
-dl{margin:0} dt{font-size:11px;text-transform:uppercase;letter-spacing:.07em;
-color:var(--muted);font-weight:600;margin-top:8px}
-dd{margin:2px 0 0;font-size:13px}
-.empty{color:var(--muted);font-size:13px;font-style:italic}
-.hist .meta{font:12px/1.5 ui-monospace,Menlo,monospace;color:var(--muted);margin-bottom:6px}
-.hist p{margin:0;font-size:13px}
-</style></head><body><div class="wrap">
+body{margin:0;padding:32px 20px 64px;background:#f4f6fb;color:#16213d;
+  font:15px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:980px;margin:0 auto}
+h1{font-size:24px;margin:0 0 4px;letter-spacing:-.01em}
+.sub{color:#5b6a86;font-size:13px;margin:0 0 28px}
+.counts{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 30px}
+.count{background:#fff;border:1px solid #e3e8f2;border-radius:12px;padding:10px 16px}
+.count b{display:block;font-size:22px;line-height:1.2}
+.count span{font-size:12px;color:#5b6a86}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:#5b6a86;
+  margin:34px 0 12px;font-weight:600}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e3e8f2;
+  border-radius:14px;overflow:hidden}
+td,th{padding:12px 16px;text-align:left;border-bottom:1px solid #eef1f7;vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.t{font-weight:600}
+td.n{width:92px;color:#5b6a86;font-variant-numeric:tabular-nums}
+.id{display:block;font-weight:400;font-size:12px;color:#8793a8;margin-top:2px}
+.empty{color:#8793a8;font-style:italic}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:11.5px;
+  font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.pill.done{background:#e6f6ec;color:#1b7f44}
+.pill.pending{background:#eef1f7;color:#5b6a86}
+.pill.doing{background:#e7efff;color:#2b5fd9}
+.pill.blocked{background:#fdecec;color:#c0392b}
+.why{color:#8a6414;background:#fff8e6;border-left:3px solid #e9b949;
+  padding:8px 12px;border-radius:0 8px 8px 0;font-size:13px;margin:8px 0 0}
+.blk{background:#fff;border:1px solid #f0d6d6;border-left:4px solid #c0392b;
+  border-radius:0 12px 12px 0;padding:14px 18px;margin-bottom:12px}
+.blk h3{margin:0 0 8px;font-size:13.5px;color:#c0392b;font-family:ui-monospace,Menlo,monospace}
+.blk p{margin:5px 0;font-size:13.5px}
+.blk b{color:#5b6a86;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;margin-right:6px}
+.run{background:#fff;border:1px solid #e3e8f2;border-radius:12px;padding:14px 18px;margin-bottom:10px}
+.rh{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:6px}
+.meta{color:#8793a8;font-size:12px;margin-left:auto}
+.run p{margin:0;font-size:13.5px;color:#3d4a63}
+</style></head><body><main>
 <h1>DevSpec board — Clarivo</h1>
-<p class="sub">Generated 2026-10-01 07:18 UTC</p>
+<p class="sub">Generated 2026-10-01 08:41 UTC</p>
+
 <div class="counts">
-<div class="count"><b>4</b>done</div>
-<div class="count"><b>0</b>in progress</div>
-<div class="count"><b>0</b>blocked</div>
-<div class="count"><b>4</b>total</div>
+  <div class="count"><b>5</b><span>done</span></div>
+  <div class="count"><b>0</b><span>in progress</span></div>
+  <div class="count"><b>0</b><span>blocked</span></div>
+  <div class="count"><b>5</b><span>total</span></div>
+  <div class="count"><b>2</b><span>open blockers</span></div>
 </div>
+
 <h2>Open blockers</h2>
-<div class="card blk"><div class="head">add-file-storage · 6. Prove it against the running API · 2026-10-01T04:06:30Z</div><dl>
-<dt>what</dt><dd>`spec.md` [req-3], scenario &quot;on-disk name ignores the uploaded filename&quot;, asserts that `original_name` stores an uploaded filename **verbatim**. It does not, and cannot. Measured with a hand-built raw multipart body (curl sanitises `filename=` itself, so it does not test the server): a part declaring `filename=&quot;../../../etc/passwd.pdf&quot;` yields `originalName = &quot;passwd.pdf&quot;`. multer/busboy reduces the filename to its basename before the application sees it.</dd>
-<dt>tried</dt><dd>Not one of the four hard-block cases, and no Impact Area default covers a wrong factual assertion in the spec. Implementing the clause literally would mean hand-parsing raw multipart headers to recover the path the library deliberately stripped — strictly worse, and worse for security. The worker does not rewrite specs, so the clause was not silently corrected. Everything the scenario exists to PROVE passes, and passes twice over: `storage_key` was `2026/10/&lt;uuidv7&gt;.pdf` (generated, extension from the validated mime type, never from the name), and nothing was written outside `FILE_STORAGE_PATH`. The spec is wrong in the safe direction.</dd>
-<dt>needs</dt><dd>A one-clause amendment to `spec.md` [req-3] — `original_name` stores the filename multer reports, which is already reduced to a basename. Run `/devspec-amend add-file-storage`. No code change follows from it; the implementation is already correct and stronger than the spec assumed. This did NOT stop the change: every other check in sections 1-7 passes and the change is committed. Measured output is in devspec/changes/add-file-storage/verify/results.md.</dd>
-</dl></div>
-<div class="card blk"><div class="head">add-login · 9. End-to-end proof · 2026-09-30T10:14:00Z</div><dl>
-<dt>what</dt><dd>Section 9&#x27;s `Verify: cd backend &amp;&amp; pnpm test:e2e` exits non-zero, so the section cannot be marked satisfied — even though all four tests this change added (`backend/test/auth.e2e-spec.ts`) pass.</dd>
-<dt>tried</dt><dd>No Impact Area default covers it, and it is none of the four hard-block cases. The failing test is `backend/test/auth.e2e-spec.ts`&#x27;s neighbour `backend/test/app.e2e-spec.ts`, which asserts `GET /` returns &quot;Hello World!&quot; from an `AppController`. No such controller exists in this repo — `src/app.module.ts` declared no `controllers` before this change touched it, so the test was already failing when the run started. It is unrelated to add-login, and CLAUDE.md says to mention unrelated dead code rather than delete it, so the worker did not remove or edit it, and did not edit the Verify line to pass around it.</dd>
-<dt>needs</dt><dd>A human decision on the pre-existing test — delete `test/app.e2e-spec.ts` as dead (the controller it tests is gone), or restore an `AppController`. Then reset `tasks.yml` status blocked -&gt; pending and re-run. Everything else in the change is built and verified; see devspec/changes/add-login/verify/fixes.md.</dd>
-</dl></div>
+<div class="blk"><h3>add-file-storage · 6. Prove it against the running API · 2026-10-01T04:06:30Z</h3><p><b>what</b> `spec.md` [req-3], scenario &quot;on-disk name ignores the uploaded filename&quot;, asserts that `original_name` stores an uploaded filename **verbatim**. It does not, and cannot. Measured with a hand-built raw multipart body (curl sanitises `filename=` itself, so it does not test the server): a part declaring `filename=&quot;../../../etc/passwd.pdf&quot;` yields `originalName = &quot;passwd.pdf&quot;`. multer/busboy reduces the filename to its basename before the application sees it.</p><p><b>tried</b> Not one of the four hard-block cases, and no Impact Area default covers a wrong factual assertion in the spec. Implementing the clause literally would mean hand-parsing raw multipart headers to recover the path the library deliberately stripped — strictly worse, and worse for security. The worker does not rewrite specs, so the clause was not silently corrected. Everything the scenario exists to PROVE passes, and passes twice over: `storage_key` was `2026/10/&lt;uuidv7&gt;.pdf` (generated, extension from the validated mime type, never from the name), and nothing was written outside `FILE_STORAGE_PATH`. The spec is wrong in the safe direction.</p><p><b>needs</b> A one-clause amendment to `spec.md` [req-3] — `original_name` stores the filename multer reports, which is already reduced to a basename. Run `/devspec-amend add-file-storage`. No code change follows from it; the implementation is already correct and stronger than the spec assumed. This did NOT stop the change: every other check in sections 1-7 passes and the change is committed. Measured output is in devspec/changes/add-file-storage/verify/results.md.</p></div>
+<div class="blk"><h3>add-login · 9. End-to-end proof · 2026-09-30T10:14:00Z</h3><p><b>what</b> Section 9&#x27;s `Verify: cd backend &amp;&amp; pnpm test:e2e` exits non-zero, so the section cannot be marked satisfied — even though all four tests this change added (`backend/test/auth.e2e-spec.ts`) pass.</p><p><b>tried</b> No Impact Area default covers it, and it is none of the four hard-block cases. The failing test is `backend/test/auth.e2e-spec.ts`&#x27;s neighbour `backend/test/app.e2e-spec.ts`, which asserts `GET /` returns &quot;Hello World!&quot; from an `AppController`. No such controller exists in this repo — `src/app.module.ts` declared no `controllers` before this change touched it, so the test was already failing when the run started. It is unrelated to add-login, and CLAUDE.md says to mention unrelated dead code rather than delete it, so the worker did not remove or edit it, and did not edit the Verify line to pass around it.</p><p><b>needs</b> A human decision on the pre-existing test — delete `test/app.e2e-spec.ts` as dead (the controller it tests is gone), or restore an `AppController`. Then reset `tasks.yml` status blocked -&gt; pending and re-run. Everything else in the change is built and verified; see devspec/changes/add-login/verify/fixes.md.</p></div>
+
 <h2>Implemented</h2>
-<div class="card"><div class="row"><span class="title">login page, JWT cookie session, users table + seeded admin</span><span class="pill" style="background:#15803d">done</span></div><div class="id">add-login · sections 9/9</div></div>
-<div class="card"><div class="row"><span class="title">collapsible sidebar shell, mobile drawer, sample dashboard</span><span class="pill" style="background:#15803d">done</span></div><div class="id">add-app-shell · sections 8/8</div></div>
-<div class="card"><div class="row"><span class="title">toast notifications and confirm dialogs as reusable frontend scaffold</span><span class="pill" style="background:#15803d">done</span></div><div class="id">add-feedback-layer · sections 11/11</div></div>
-<div class="card"><div class="row"><span class="title">file service + files table, local disk storage behind authenticated upload/download</span><span class="pill" style="background:#15803d">done</span></div><div class="id">add-file-storage · sections 7/7</div></div>
+<table><tbody>
+<tr><td class="t">login page, JWT cookie session, users table + seeded admin<span class="id">add-login</span></td><td class="n">9/9</td></tr>
+<tr><td class="t">collapsible sidebar shell, mobile drawer, sample dashboard<span class="id">add-app-shell</span></td><td class="n">8/8</td></tr>
+<tr><td class="t">toast notifications and confirm dialogs as reusable frontend scaffold<span class="id">add-feedback-layer</span></td><td class="n">11/11</td></tr>
+<tr><td class="t">file service + files table, local disk storage behind authenticated upload/download<span class="id">add-file-storage</span></td><td class="n">7/7</td></tr>
+<tr><td class="t">project list, create, detail, settings and the project sidebar scope<span class="id">add-projects</span></td><td class="n">13/13</td></tr>
+</tbody></table>
+
 <h2>In progress / left</h2>
-<p class="empty">Nothing in progress or left — every change on the board is done.</p>
+<table><tbody>
+<tr><td colspan="3" class="empty">nothing left — every change is done</td></tr>
+</tbody></table>
+
 <h2>History</h2>
-<div class="card hist"><div class="row"><span class="title">login page, JWT cookie session, users table + seeded admin</span><span class="pill" style="background:#15803d">done</span></div><div class="meta">2026-10-01T07:17:16Z · add-login · sections 9/9</div><p>Closed out add-login as done at the user&#x27;s direction. No code was written: sections 1-8 were already verified and all ticks were in place; the only open item was the pre-existing test/app.e2e-spec.ts e2e failure, which the user declared out of scope. Board flipped blocked -&gt; done and the change dir archived.</p>
-</div>
-<div class="card hist"><div class="row"><span class="title">file service + files table, local disk storage behind authenticated upload/download</span><span class="pill" style="background:#15803d">done</span></div><div class="meta">2026-10-01T04:09:43Z · add-file-storage · sections 7/7</div><p>Built the files table (relative storage_key, int size_bytes, FK to users ON DELETE RESTRICT) plus FilesService/FilesController behind JwtAuthGuard, with a required FILE_STORAGE_PATH env var, a mime allowlist excluding SVG, a 100MB cap via multer diskStorage, and streamed downloads carrying nosniff. All 7 sections verified against the running API: 51 backend tests pass, the migration applies and reverts clean, and every status and code in spec.md was measured live. Two deviations: an extra form field was being ignored rather than rejected (fixed with an empty body DTO so the global ValidationPipe returns 400), and spec.md&#x27;s claim that original_name is stored verbatim is false - multer basenames the filename before the app sees it, so that clause needs amending (blocker logged; every security property still holds).</p>
-</div>
-<div class="card hist"><div class="row"><span class="title">toast notifications and confirm dialogs as reusable frontend scaffold</span><span class="pill" style="background:#15803d">done</span></div><div class="meta">2026-10-01T03:05:39Z · add-feedback-layer · sections 11/11</div><p>Built the whole feedback layer: sonner Toaster wrapped to the --popover surface with five inline knockout tone icons, a single imperative ConfirmProvider owning its pending state, and a MutationCache.onError reporting every failed mutation once unless the call site overrides it. Browser verify against the approved mockups found five visual mismatches (two dropped multi-layer shadows, a collapsed toast stack, a mis-positioned close button, and desktop padding at mobile); all five were fixed and re-measured clean, with baselines committed under verify/baseline/.</p>
-</div>
-<div class="card hist"><div class="row"><span class="title">collapsible sidebar shell, mobile drawer, sample dashboard</span><span class="pill" style="background:#15803d">done</span></div><div class="meta">2026-10-01T01:35:45Z · add-app-shell · sections 8/8</div><p>Built the (app) route group with an auth guard, a floating collapsible sidebar (264/72, cookie-persisted, Cmd+B), a mobile Sheet drawer, a footer user block replacing user-chip.tsx, and a sample dashboard replacing the Next.js scaffold; eight shadcn primitives were hand-copied since the CLI hangs here. One real defect was found and fixed during verify: the sidebar cookie constant lived in a &quot;use client&quot; module, so the server layout received a client-reference proxy and the collapse state never survived a reload.</p>
-</div>
-<div class="card hist"><div class="row"><span class="title">login page, JWT cookie session, users table + seeded admin</span><span class="pill" style="background:#b91c1c">blocked</span></div><div class="meta">2026-09-30T10:15:59Z · add-login · sections 8/9</div><p>Built the whole change: users table (first migration in the repo), idempotent seed script, POST /auth/login + /auth/logout + GET /auth/me with the session in an httpOnly clv_at cookie, and the /login screen plus route-guard middleware. Verified against the approved mockup in a real browser at 390/700/1180px, fixing three genuine drifts (card max-width and input font-size lost to Tailwind&#x27;s breakpoint emission order; radius resolved to the theme scale rather than the mockup&#x27;s 12px). Backend code could not be committed: backend/ is a nested git repository.</p>
-<div class="note">blocked: section 9 Verify (pnpm test:e2e) exits non-zero because of the pre-existing test/app.e2e-spec.ts, which asserts GET / returns &#x27;Hello World!&#x27; from an AppController this repo does not have; all 4 tests this change added pass</div>
-</div>
-</div></body></html>
+<div class="run"><div class="rh"><span class="pill done">done</span><b>project list, create, detail, settings and the project sidebar scope</b><span class="meta">13/13 sections · 2026-10-01T08:40:35Z</span></div><p>Built the whole change: projects/project_members tables behind the third migration (round-trip verified, purely additive), ProjectsService with the membership gate (non-member 404, member 403) and a controller with no project-delete route, then the five frontend screens. All 87 subtasks ticked, 116 backend tests green, both builds clean, and devspec-verify passed on all five screens including a real pagination walk past page 1. Two latent repo bugs surfaced and were fixed: Express 5&#x27;s &#x27;simple&#x27; query parser made the repo&#x27;s documented nested query params a 400, and openapi-ts was generating into a directory nothing imported.</p></div>
+<div class="run"><div class="rh"><span class="pill done">done</span><b>login page, JWT cookie session, users table + seeded admin</b><span class="meta">9/9 sections · 2026-10-01T07:17:16Z</span></div><p>Closed out add-login as done at the user&#x27;s direction. No code was written: sections 1-8 were already verified and all ticks were in place; the only open item was the pre-existing test/app.e2e-spec.ts e2e failure, which the user declared out of scope. Board flipped blocked -&gt; done and the change dir archived.</p></div>
+<div class="run"><div class="rh"><span class="pill done">done</span><b>file service + files table, local disk storage behind authenticated upload/download</b><span class="meta">7/7 sections · 2026-10-01T04:09:43Z</span></div><p>Built the files table (relative storage_key, int size_bytes, FK to users ON DELETE RESTRICT) plus FilesService/FilesController behind JwtAuthGuard, with a required FILE_STORAGE_PATH env var, a mime allowlist excluding SVG, a 100MB cap via multer diskStorage, and streamed downloads carrying nosniff. All 7 sections verified against the running API: 51 backend tests pass, the migration applies and reverts clean, and every status and code in spec.md was measured live. Two deviations: an extra form field was being ignored rather than rejected (fixed with an empty body DTO so the global ValidationPipe returns 400), and spec.md&#x27;s claim that original_name is stored verbatim is false - multer basenames the filename before the app sees it, so that clause needs amending (blocker logged; every security property still holds).</p></div>
+<div class="run"><div class="rh"><span class="pill done">done</span><b>toast notifications and confirm dialogs as reusable frontend scaffold</b><span class="meta">11/11 sections · 2026-10-01T03:05:39Z</span></div><p>Built the whole feedback layer: sonner Toaster wrapped to the --popover surface with five inline knockout tone icons, a single imperative ConfirmProvider owning its pending state, and a MutationCache.onError reporting every failed mutation once unless the call site overrides it. Browser verify against the approved mockups found five visual mismatches (two dropped multi-layer shadows, a collapsed toast stack, a mis-positioned close button, and desktop padding at mobile); all five were fixed and re-measured clean, with baselines committed under verify/baseline/.</p></div>
+<div class="run"><div class="rh"><span class="pill done">done</span><b>collapsible sidebar shell, mobile drawer, sample dashboard</b><span class="meta">8/8 sections · 2026-10-01T01:35:45Z</span></div><p>Built the (app) route group with an auth guard, a floating collapsible sidebar (264/72, cookie-persisted, Cmd+B), a mobile Sheet drawer, a footer user block replacing user-chip.tsx, and a sample dashboard replacing the Next.js scaffold; eight shadcn primitives were hand-copied since the CLI hangs here. One real defect was found and fixed during verify: the sidebar cookie constant lived in a &quot;use client&quot; module, so the server layout received a client-reference proxy and the collapse state never survived a reload.</p></div>
+<div class="run"><div class="rh"><span class="pill blocked">blocked</span><b>login page, JWT cookie session, users table + seeded admin</b><span class="meta">8/9 sections · 2026-09-30T10:15:59Z</span></div><p class="why">section 9 Verify (pnpm test:e2e) exits non-zero because of the pre-existing test/app.e2e-spec.ts, which asserts GET / returns &#x27;Hello World!&#x27; from an AppController this repo does not have; all 4 tests this change added pass</p><p>Built the whole change: users table (first migration in the repo), idempotent seed script, POST /auth/login + /auth/logout + GET /auth/me with the session in an httpOnly clv_at cookie, and the /login screen plus route-guard middleware. Verified against the approved mockup in a real browser at 390/700/1180px, fixing three genuine drifts (card max-width and input font-size lost to Tailwind&#x27;s breakpoint emission order; radius resolved to the theme scale rather than the mockup&#x27;s 12px). Backend code could not be committed: backend/ is a nested git repository.</p></div>
+</main></body></html>
