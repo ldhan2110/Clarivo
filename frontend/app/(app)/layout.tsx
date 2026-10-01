@@ -1,10 +1,10 @@
 import { cookies } from "next/headers";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AppSidebar } from "@/components/nav/app-sidebar";
-import { AuthGuard } from "@/components/nav/auth-guard";
-import { MobileNav } from "@/components/nav/mobile-nav";
-import { SIDEBAR_COOKIE } from "@/components/nav/sidebar-cookie";
-import { SidebarProvider } from "@/components/nav/sidebar-context";
+import { AppSidebar } from "@/components/sidebar/app-sidebar";
+import { AuthGuard } from "@/components/sidebar/auth-guard";
+import { MobileNav } from "@/components/sidebar/mobile-nav";
+import { SIDEBAR_COOKIE } from "@/components/sidebar/sidebar-cookie";
+import { SidebarProvider } from "@/components/sidebar/sidebar-context";
 
 /**
  * The shell around every authenticated route. Reading the collapse cookie on

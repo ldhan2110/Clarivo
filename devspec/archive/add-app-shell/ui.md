@@ -156,3 +156,8 @@ To add by hand — **the shadcn CLI hangs in this repo** (`devspec/context/rules
 To build (no existing equivalent): the sidebar itself — the floating card, its collapse state + cookie, the `⌘B` handler, the nav item, the group heading, the rail behaviour. Option B was chosen over vendoring shadcn's `sidebar` block; see `design.md`.
 
 **Deleted**: `frontend/components/auth/user-chip.tsx` — the footer user block absorbs it. `frontend/app/page.tsx`'s Next.js scaffold content is replaced by the dashboard.
+
+---
+
+_Post-ship note (2026-10-01): the shell components moved from `components/nav/` to
+`components/sidebar/`. Paths above are as approved; the code is under the new folder._
