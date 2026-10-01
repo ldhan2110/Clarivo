@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clarivo — Create / edit project + archive confirm (mockup)</title>
+<style>
+/* Tokens copied verbatim from frontend/app/globals.css :root. */
+:root{
+  --radius:0.625rem;
+  --background:oklch(1 0 0);
+  --foreground:oklch(0.2536 0.0553 266.35);
+  --card:oklch(1 0 0);
+  --primary:oklch(0.6016 0.2123 263.59);
+  --primary-foreground:oklch(0.984 0.003 247.858);
+  --secondary:oklch(0.968 0.007 247.896);
+  --muted:oklch(0.968 0.007 247.896);
+  --muted-foreground:oklch(0.554 0.046 257.417);
+  --accent:oklch(0.968 0.007 247.896);
+  --destructive:oklch(0.577 0.245 27.325);
+  --success:oklch(0.58 0.14 157);
+  --warning:oklch(0.70 0.15 75);
+  --border:oklch(0.929 0.013 255.508);
+  --input:oklch(0.929 0.013 255.508);
+  --ring:oklch(0.6016 0.2123 263.59);
+  --chart-1:oklch(0.6016 0.2123 263.59);
+  --chart-2:oklch(0.6788 0.1756 250.9);
+}
+*{box-sizing:border-box;border-color:var(--border)}
+body{margin:0;background:var(--muted);color:var(--foreground);
+  font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.statebar{position:sticky;top:0;z-index:50;background:var(--foreground);color:#fff;
+  padding:9px 18px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.statebar small{float:right;font-weight:500;text-transform:none;letter-spacing:0;opacity:.72}
+.note{max-width:980px;margin:0 auto;padding:14px 18px 0;font-size:12.5px;color:var(--muted-foreground)}
+
+/* overlay stage — the page behind is dimmed, as Radix Dialog does */
+.stage{padding:34px 18px;display:grid;place-items:start center;
+  background:
+    linear-gradient(oklch(0.2536 .0553 266.35/.42),oklch(0.2536 .0553 266.35/.42)),
+    repeating-linear-gradient(135deg,var(--muted) 0 14px,oklch(0.95 .006 247.9) 14px 28px)}
+
+/* ---- dialog ---- */
+.dialog{width:100%;max-width:560px;background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:22px;
+  box-shadow:0 24px 60px -18px oklch(0.2536 .0553 266.35/.35),0 4px 12px -4px oklch(0.2536 .0553 266.35/.14)}
+.dialog h2{margin:0;font-size:16.5px;font-weight:700;letter-spacing:-.01em}
+.dialog .desc{margin:5px 0 18px;font-size:13px;color:var(--muted-foreground)}
+
+/* ---- form ---- */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.field{margin-bottom:13px}
+label{display:block;font-size:12.5px;font-weight:600;margin-bottom:5px}
+label .req{color:var(--destructive);margin-left:2px}
+label .opt{float:right;font-weight:500;color:var(--muted-foreground)}
+input,select,textarea{width:100%;height:36px;padding:0 11px;border:1px solid var(--input);
+  border-radius:10px;background:var(--card);font:inherit;font-size:13.5px;color:inherit}
+textarea{height:78px;padding:9px 11px;resize:vertical;line-height:1.5}
+input::placeholder,textarea::placeholder{color:var(--muted-foreground)}
+input:focus,select:focus,textarea:focus{outline:2px solid color-mix(in oklch,var(--ring) 50%,transparent);
+  outline-offset:1px;border-color:var(--ring)}
+input[aria-invalid=true]{border-color:var(--destructive);
+  outline:2px solid color-mix(in oklch,var(--destructive) 28%,transparent);outline-offset:1px}
+.hint{margin-top:5px;font-size:11.5px;color:var(--muted-foreground)}
+.err{margin-top:5px;font-size:11.5px;font-weight:500;color:var(--destructive)}
+.mono{font-variant-ligatures:none;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.01em}
+
+.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:36px;padding:0 15px;
+  border-radius:10px;border:1px solid transparent;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
+.btn-primary{background:var(--primary);color:var(--primary-foreground)}
+.btn-outline{background:var(--card);border-color:var(--border);color:var(--foreground)}
+.btn-warning{background:var(--warning);color:oklch(0.2536 .0553 266.35)}
+.btn[disabled]{opacity:.6;cursor:not-allowed}
+.spin{width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;
+  border-radius:999px;display:inline-block;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.banner{display:flex;gap:9px;align-items:flex-start;border-radius:10px;padding:10px 12px;margin-bottom:16px;
+  font-size:12.5px;border:1px solid color-mix(in oklch,var(--destructive) 35%,transparent);
+  background:color-mix(in oklch,var(--destructive) 8%,transparent);color:var(--destructive)}
+
+/* ---- confirm dialog (mirrors components/provider/confirm-provider.tsx) ---- */
+.confirm{width:100%;max-width:432px;background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:22px;box-shadow:0 24px 60px -18px oklch(0.2536 .0553 266.35/.35),0 4px 12px -4px oklch(0.2536 .0553 266.35/.14)}
+.confirm .row{display:grid;grid-template-columns:28px 1fr;gap:14px;align-items:start}
+.tone{width:28px;height:28px;border-radius:999px;display:grid;place-items:center;font-size:15px;flex:0 0 28px}
+.tone.warning{background:color-mix(in oklch,var(--warning) 16%,transparent);color:var(--warning)}
+.tone.confirm{background:color-mix(in oklch,var(--primary) 14%,transparent);color:var(--primary)}
+.confirm h3{margin:0;font-size:15px;font-weight:700}
+.confirm p{margin:5px 0 0;font-size:13px;color:var(--muted-foreground)}
+.confirm .actions{margin-top:22px}
+</style>
+</head>
+<body>
+
+<div class="note">
+  <strong>Mockup — create / edit project modal + archive &amp; restore confirms.</strong>
+  Static prop for shape review. Every state stacked down the page. The confirm dialogs mirror the
+  existing <code>components/provider/confirm-provider.tsx</code> layout (28px tone icon, title, description,
+  right-aligned actions) — this change adds <em>presets</em>, not a new dialog.
+</div>
+
+<!-- ===================== 1. CREATE — EMPTY ===================== -->
+<div class="statebar">State 1 · Create — empty <small>opened from “＋ New project”</small></div>
+<div class="stage"><div class="dialog">
+  <h2>New project</h2>
+  <p class="desc">A project is where meeting notes become requirements. You can change any of this later.</p>
+
+  <div class="grid2">
+    <div class="field">
+      <label for="c1">Code <span class="req">*</span></label>
+      <input id="c1" class="mono" placeholder="CLT-DevSpec">
+      <div class="hint">Short unique handle. Letters, numbers and dashes.</div>
+    </div>
+    <div class="field">
+      <label for="n1">Project name <span class="req">*</span></label>
+      <input id="n1" placeholder="e.g. CLT DevSpec">
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="field">
+      <label for="b1">Customer / BU <span class="req">*</span></label>
+      <input id="b1" placeholder="e.g. CLT">
+    </div>
+    <div class="field">
+      <label for="d1">Domain <span class="req">*</span></label>
+      <input id="d1" list="domains" placeholder="e.g. Logistics">
+      <datalist id="domains"><option>Logistics</option><option>Finance</option><option>Human Resources</option></datalist>
+      <div class="hint">Free text — suggestions come from your other projects.</div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="o1">Objective <span class="opt">optional</span></label>
+    <textarea id="o1" placeholder="What is this project meant to achieve?"></textarea>
+  </div>
+
+  <div class="grid2">
+    <div class="field"><label for="s1">Starts on <span class="opt">optional</span></label><input id="s1" type="date"></div>
+    <div class="field"><label for="e1">Ends on <span class="opt">optional</span></label><input id="e1" type="date"></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-outline">Cancel</button>
+    <button class="btn btn-primary" disabled>Create project</button>
+  </div>
+</div></div>
+
+<!-- ===================== 2. CREATE — FILLED ===================== -->
+<div class="statebar">State 2 · Create — filled <small>submit enabled once the four required fields are non-empty</small></div>
+<div class="stage"><div class="dialog">
+  <h2>New project</h2>
+  <p class="desc">A project is where meeting notes become requirements. You can change any of this later.</p>
+  <div class="grid2">
+    <div class="field"><label for="c2">Code <span class="req">*</span></label>
+      <input id="c2" class="mono" value="CRS-LOG"><div class="hint">Short unique handle. Letters, numbers and dashes.</div></div>
+    <div class="field"><label for="n2">Project name <span class="req">*</span></label><input id="n2" value="Caris Logistics"></div>
+  </div>
+  <div class="grid2">
+    <div class="field"><label for="b2">Customer / BU <span class="req">*</span></label><input id="b2" value="Caris"></div>
+    <div class="field"><label for="d2">Domain <span class="req">*</span></label><input id="d2" value="Logistics">
+      <div class="hint">Free text — suggestions come from your other projects.</div></div>
+  </div>
+  <div class="field"><label for="o2">Objective <span class="opt">optional</span></label>
+    <textarea id="o2">Gather and analyse requirements for the Caris logistics rollout, focusing on approval rules and credit-limit handling.</textarea></div>
+  <div class="grid2">
+    <div class="field"><label for="s2">Starts on <span class="opt">optional</span></label><input id="s2" type="date" value="2025-10-01"></div>
+    <div class="field"><label for="e2">Ends on <span class="opt">optional</span></label><input id="e2" type="date" value="2026-01-31"></div>
+  </div>
+  <div class="actions">
+    <button class="btn btn-outline">Cancel</button>
+    <button class="btn btn-primary">Create project</button>
+  </div>
+</div></div>
+
+<!-- ===================== 3. CREATE — SUBMITTING ===================== -->
+<div class="statebar">State 3 · Create — submitting <small>fields disabled, Cancel disabled, spinner in the primary button</small></div>
+<div class="stage"><div class="dialog">
+  <h2>New project</h2>
+  <p class="desc">A project is where meeting notes become requirements. You can change any of this later.</p>
+  <div class="grid2">
+    <div class="field"><label for="c3">Code <span class="req">*</span></label><input id="c3" class="mono" value="CRS-LOG" disabled></div>
+    <div class="field"><label for="n3">Project name <span class="req">*</span></label><input id="n3" value="Caris Logistics" disabled></div>
+  </div>
+  <div class="grid2">
+    <div class="field"><label for="b3">Customer / BU <span class="req">*</span></label><input id="b3" value="Caris" disabled></div>
+    <div class="field"><label for="d3">Domain <span class="req">*</span></label><input id="d3" value="Logistics" disabled></div>
+  </div>
+  <div class="field"><label for="o3">Objective <span class="opt">optional</span></label><textarea id="o3" disabled>Gather and analyse requirements for the Caris logistics rollout…</textarea></div>
+  <div class="actions">
+    <button class="btn btn-outline" disabled>Cancel</button>
+    <button class="btn btn-primary" disabled><span class="spin"></span>Creating…</button>
+  </div>
+</div></div>
+
+<!-- ===================== 4. CREATE — FIELD ERRORS ===================== -->
+<div class="statebar">State 4 · Create — validation errors <small>duplicate code (409) + end date before start date</small></div>
+<div class="stage"><div class="dialog">
+  <h2>New project</h2>
+  <p class="desc">A project is where meeting notes become requirements. You can change any of this later.</p>
+  <div class="grid2">
+    <div class="field"><label for="c4">Code <span class="req">*</span></label>
+      <input id="c4" class="mono" value="CLT-DevSpec" aria-invalid="true">
+      <div class="err">A project with this code already exists.</div></div>
+    <div class="field"><label for="n4">Project name <span class="req">*</span></label><input id="n4" value="CLT DevSpec v2"></div>
+  </div>
+  <div class="grid2">
+    <div class="field"><label for="b4">Customer / BU <span class="req">*</span></label><input id="b4" value="CLT"></div>
+    <div class="field"><label for="d4">Domain <span class="req">*</span></label><input id="d4" value="Logistics"></div>
+  </div>
+  <div class="field"><label for="o4">Objective <span class="opt">optional</span></label><textarea id="o4"></textarea></div>
+  <div class="grid2">
+    <div class="field"><label for="s4">Starts on <span class="opt">optional</span></label><input id="s4" type="date" value="2025-11-01"></div>
+    <div class="field"><label for="e4">Ends on <span class="opt">optional</span></label>
+      <input id="e4" type="date" value="2025-09-01" aria-invalid="true">
+      <div class="err">End date must be on or after the start date.</div></div>
+  </div>
+  <div class="actions">
+    <button class="btn btn-outline">Cancel</button>
+    <button class="btn btn-primary">Create project</button>
+  </div>
+</div></div>
+
+<!-- ===================== 5. CREATE — REQUEST FAILED ===================== -->
+<div class="statebar">State 5 · Create — request failed <small>non-field error: banner inside the dialog, dialog stays open</small></div>
+<div class="stage"><div class="dialog">
+  <h2>New project</h2>
+  <div class="banner"><span>⚠</span><span>Couldn’t create the project. Something went wrong on our side — your details are still here, try again.</span></div>
+  <div class="grid2">
+    <div class="field"><label for="c5">Code <span class="req">*</span></label><input id="c5" class="mono" value="CRS-LOG"></div>
+    <div class="field"><label for="n5">Project name <span class="req">*</span></label><input id="n5" value="Caris Logistics"></div>
+  </div>
+  <div class="grid2">
+    <div class="field"><label for="b5">Customer / BU <span class="req">*</span></label><input id="b5" value="Caris"></div>
+    <div class="field"><label for="d5">Domain <span class="req">*</span></label><input id="d5" value="Logistics"></div>
+  </div>
+  <div class="actions">
+    <button class="btn btn-outline">Cancel</button>
+    <button class="btn btn-primary">Try again</button>
+  </div>
+</div></div>
+
+<!-- ===================== 6. EDIT ===================== -->
+<div class="statebar">State 6 · Edit details <small>same form, different title/CTA — owner only</small></div>
+<div class="stage"><div class="dialog">
+  <h2>Edit project</h2>
+  <p class="desc">Changing the code changes how this project is referenced everywhere.</p>
+  <div class="grid2">
+    <div class="field"><label for="c6">Code <span class="req">*</span></label><input id="c6" class="mono" value="CLT-DevSpec"></div>
+    <div class="field"><label for="n6">Project name <span class="req">*</span></label><input id="n6" value="CLT-DevSpec"></div>
+  </div>
+  <div class="grid2">
+    <div class="field"><label for="b6">Customer / BU <span class="req">*</span></label><input id="b6" value="CLT"></div>
+    <div class="field"><label for="d6">Domain <span class="req">*</span></label><input id="d6" value="Logistics"></div>
+  </div>
+  <div class="field"><label for="o6">Objective <span class="opt">optional</span></label>
+    <textarea id="o6">Gather and analyse requirements for the CLT DevSpec project, focusing on key business processes, user roles and system integrations.</textarea></div>
+  <div class="grid2">
+    <div class="field"><label for="s6">Starts on <span class="opt">optional</span></label><input id="s6" type="date" value="2025-09-01"></div>
+    <div class="field"><label for="e6">Ends on <span class="opt">optional</span></label><input id="e6" type="date" value="2025-11-30"></div>
+  </div>
+  <div class="actions">
+    <button class="btn btn-outline">Cancel</button>
+    <button class="btn btn-primary">Save changes</button>
+  </div>
+</div></div>
+
+<!-- ===================== 7. ARCHIVE CONFIRM ===================== -->
+<div class="statebar">State 7 · Archive confirm <small>warning tone — reversible, so never the destructive red preset</small></div>
+<div class="stage"><div class="confirm">
+  <div class="row">
+    <span class="tone warning">⚠</span>
+    <div>
+      <h3>Archive this project?</h3>
+      <p>“CLT-DevSpec” will be hidden from the active list. Its meetings, requirements and documents are kept, and you can restore it at any time.</p>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn btn-outline">Cancel</button>
+    <button class="btn btn-warning">Archive</button>
+  </div>
+</div></div>
+
+<!-- ===================== 8. ARCHIVE CONFIRM — PENDING ===================== -->
+<div class="statebar">State 8 · Archive confirm — pending <small>both buttons disabled, Esc blocked (existing provider behaviour)</small></div>
+<div class="stage"><div class="confirm">
+  <div class="row">
+    <span class="tone warning">⚠</span>
+    <div><h3>Archive this project?</h3>
+      <p>“CLT-DevSpec” will be hidden from the active list. Its meetings, requirements and documents are kept, and you can restore it at any time.</p></div>
+  </div>
+  <div class="actions">
+    <button class="btn btn-outline" disabled>Cancel</button>
+    <button class="btn btn-warning" disabled><span class="spin"></span>Archiving…</button>
+  </div>
+</div></div>
+
+<!-- ===================== 9. RESTORE CONFIRM ===================== -->
+<div class="statebar">State 9 · Restore confirm <small>confirm tone — plain, non-destructive</small></div>
+<div class="stage" style="padding-bottom:40px"><div class="confirm">
+  <div class="row">
+    <span class="tone confirm">↺</span>
+    <div><h3>Restore this project?</h3>
+      <p>“Legacy Portal” moves back into the active list.</p></div>
+  </div>
+  <div class="actions">
+    <button class="btn btn-outline">Cancel</button>
+    <button class="btn btn-primary">Restore</button>
+  </div>
+</div></div>
+
+<div class="note" style="padding-bottom:40px">
+  <strong>Decisions on this screen</strong><br>
+  • <b>One modal, not a wizard.</b> The reference image’s 3-step wizard (Basic info → Context → Settings) needs a
+  draft project row to attach uploads to; a single modal avoids that whole state machine. Document upload moves to
+  the project’s Context tab in a later change.<br>
+  • <b>Four required fields</b> (code, name, customer / BU, domain). Objective and both dates are optional and nullable in the DB.<br>
+  • <b>Duplicate code is a field error</b>, not a toast — it points at the input the user must change.<br>
+  • <b>A failed request keeps the dialog open</b> with the typed values intact. Losing a filled form to a 500 is the worst outcome here.<br>
+  • <b>Archive uses the warning tone, not the destructive red</b> <code>confirmDelete</code> preset — archiving is reversible,
+  and reusing the “permanently deleted. This can’t be undone.” copy would be a lie.
+</div>
+
+</body>
+</html>

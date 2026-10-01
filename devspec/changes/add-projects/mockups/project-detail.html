@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clarivo — Project detail + sidebar scope switch (mockup)</title>
+<style>
+/* Tokens copied verbatim from frontend/app/globals.css :root. */
+:root{
+  --radius:0.625rem;
+  --background:oklch(1 0 0);
+  --foreground:oklch(0.2536 0.0553 266.35);
+  --card:oklch(1 0 0);
+  --primary:oklch(0.6016 0.2123 263.59);
+  --primary-foreground:oklch(0.984 0.003 247.858);
+  --secondary:oklch(0.968 0.007 247.896);
+  --muted:oklch(0.968 0.007 247.896);
+  --muted-foreground:oklch(0.554 0.046 257.417);
+  --accent:oklch(0.968 0.007 247.896);
+  --destructive:oklch(0.577 0.245 27.325);
+  --success:oklch(0.58 0.14 157);
+  --warning:oklch(0.70 0.15 75);
+  --border:oklch(0.929 0.013 255.508);
+  --input:oklch(0.929 0.013 255.508);
+  --ring:oklch(0.6016 0.2123 263.59);
+  --chart-1:oklch(0.6016 0.2123 263.59);
+  --chart-2:oklch(0.6788 0.1756 250.9);
+  --chart-3:oklch(0.6392 0.1927 297.3);
+  --sidebar:oklch(0.984 0.003 247.858);
+  --sidebar-foreground:oklch(0.2536 0.0553 266.35);
+  --sidebar-primary:oklch(0.6016 0.2123 263.59);
+  --sidebar-accent:oklch(0.968 0.007 247.896);
+  --sidebar-border:oklch(0.929 0.013 255.508);
+}
+*{box-sizing:border-box;border-color:var(--border)}
+body{margin:0;background:var(--muted);color:var(--foreground);
+  font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.statebar{position:sticky;top:0;z-index:50;background:var(--foreground);color:#fff;
+  padding:9px 18px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.statebar small{float:right;font-weight:500;text-transform:none;letter-spacing:0;opacity:.72}
+.note{max-width:1000px;margin:0 auto;padding:14px 18px 0;font-size:12.5px;color:var(--muted-foreground)}
+
+/* ---- shell ---- */
+.shell{display:flex;height:800px;overflow:hidden;background:var(--muted)}
+.sidebar{width:264px;flex:0 0 264px;margin:12px 0 12px 12px;display:flex;flex-direction:column;
+  background:var(--sidebar);color:var(--sidebar-foreground);border:1px solid var(--sidebar-border);
+  border-radius:18px;box-shadow:0 10px 15px -3px oklch(0.2536 .0553 266.35/.09),0 4px 6px -4px oklch(0.2536 .0553 266.35/.09)}
+.brand{height:60px;display:flex;align-items:center;gap:9px;padding:0 14px;flex:0 0 auto}
+.brand .mark{width:28px;height:28px;border-radius:9px;flex:0 0 auto;background:linear-gradient(140deg,var(--chart-2),var(--chart-1))}
+.brand .word{font-size:17px;font-weight:800;letter-spacing:-.02em}
+.brand .panel{margin-left:auto;color:var(--muted-foreground);font-size:15px}
+nav{flex:1;display:flex;flex-direction:column;gap:2px;padding:4px 10px 10px;overflow-y:auto}
+.navgroup{padding:14px 8px 6px;font-size:10.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted-foreground)}
+.navitem{position:relative;display:flex;align-items:center;gap:12px;height:38px;padding:0 10px;border-radius:10px;
+  font-size:14px;font-weight:500;color:var(--sidebar-foreground);text-decoration:none}
+.navitem .ic{width:18px;text-align:center;color:var(--muted-foreground);font-size:15px;flex:0 0 18px}
+.navitem:hover{background:var(--sidebar-accent)}
+.navitem.active{background:color-mix(in oklch,var(--sidebar-primary) 12%,transparent);color:var(--sidebar-primary);font-weight:600}
+.navitem.active .ic{color:var(--sidebar-primary)}
+.navitem.active::before{content:"";position:absolute;left:-10px;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:var(--sidebar-primary)}
+.navitem.disabled{opacity:.55;cursor:default}
+.navitem.disabled:hover{background:transparent}
+.soon{margin-left:auto;border:1px solid var(--border);border-radius:7px;padding:1px 6px;font-size:10px;
+  font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-foreground)}
+.sidefoot{flex:0 0 auto;padding:10px}
+.sep{height:1px;background:var(--sidebar-border);margin-bottom:10px}
+.user{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:10px}
+.avatar{width:32px;height:32px;border-radius:999px;flex:0 0 auto;display:grid;place-items:center;
+  background:linear-gradient(140deg,var(--chart-2),var(--chart-1));color:#fff;font-size:12px;font-weight:700}
+.user b{display:block;font-size:13px;font-weight:600;line-height:1.25}
+.user span{display:block;font-size:11.5px;color:var(--muted-foreground)}
+
+/* --- project-scope sidebar head --- */
+.backrow{display:flex;align-items:center;gap:9px;height:34px;padding:0 10px;margin:2px 0 4px;border-radius:9px;
+  font-size:12.5px;font-weight:600;color:var(--muted-foreground);text-decoration:none}
+.backrow:hover{background:var(--sidebar-accent)}
+.switcher{display:flex;align-items:center;gap:10px;margin:0 10px 4px;padding:8px 10px;border:1px solid var(--sidebar-border);
+  border-radius:11px;background:var(--card);cursor:pointer}
+.switcher .pmark{width:30px;height:30px;flex:0 0 auto;border-radius:9px;display:grid;place-items:center;color:#fff;
+  font-size:11px;font-weight:700;background:linear-gradient(140deg,var(--chart-2),var(--chart-1))}
+.switcher b{display:block;font-size:13px;font-weight:700;line-height:1.25;letter-spacing:-.01em}
+.switcher span{display:block;font-size:11px;color:var(--muted-foreground);font-family:ui-monospace,Menlo,monospace}
+.switcher .chev{margin-left:auto;color:var(--muted-foreground);font-size:11px}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column;overflow-y:auto}
+.content{padding:0 26px 40px}
+.topbar{height:58px;display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted-foreground)}
+.topbar a{color:var(--muted-foreground);text-decoration:none}
+.topbar b{color:var(--foreground);font-weight:600}
+.bell{margin-left:auto;position:relative;width:30px;height:30px;border-radius:8px;display:grid;place-items:center}
+.bell i{position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:999px;background:var(--destructive)}
+
+/* ---- page head ---- */
+.phead{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px}
+.phead .pmark{width:46px;height:46px;flex:0 0 auto;border-radius:14px;display:grid;place-items:center;color:#fff;
+  font-size:15px;font-weight:700;background:linear-gradient(140deg,var(--chart-2),var(--chart-1))}
+.phead h1{margin:0;font-size:22px;font-weight:700;letter-spacing:-.02em;display:flex;align-items:center;gap:9px}
+.phead .meta{margin-top:3px;font-size:12.5px;color:var(--muted-foreground);display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.phead .meta code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
+.phead .acts{margin-left:auto;display:flex;gap:8px}
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:8px;padding:2px 8px;font-size:11.5px;font-weight:600;
+  border:1px solid var(--border);background:var(--card);color:var(--muted-foreground)}
+.badge.active{color:var(--success);border-color:color-mix(in oklch,var(--success) 35%,transparent);
+  background:color-mix(in oklch,var(--success) 10%,transparent)}
+.badge.archived{color:var(--muted-foreground);background:var(--secondary)}
+.badge.owner{color:var(--primary);border-color:color-mix(in oklch,var(--primary) 32%,transparent);
+  background:color-mix(in oklch,var(--primary) 9%,transparent)}
+.badge .dot{width:6px;height:6px;border-radius:999px;background:currentColor}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:34px;padding:0 13px;border-radius:10px;
+  border:1px solid transparent;font:inherit;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none}
+.btn-primary{background:var(--primary);color:var(--primary-foreground)}
+.btn-outline{background:var(--card);border-color:var(--border);color:var(--foreground)}
+.btn-ghost{background:transparent;color:var(--muted-foreground)}
+.btn-sm{height:30px;padding:0 10px;font-size:12.5px}
+
+/* ---- cards ---- */
+.cols{display:grid;grid-template-columns:1.55fr 1fr;gap:16px;align-items:start}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 1px 2px oklch(0.2536 .0553 266.35/.05)}
+.card h2{margin:0;font-size:14px;font-weight:700;letter-spacing:-.01em}
+.chead{display:flex;align-items:center;gap:8px;padding:15px 17px 0}
+.chead .right{margin-left:auto}
+.cbody{padding:13px 17px 17px}
+.prose{font-size:13.5px;line-height:1.62;color:var(--foreground);margin:0}
+.prose.none{color:var(--muted-foreground);font-style:italic}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:9px 18px;margin-top:16px;padding-top:15px;border-top:1px solid var(--border)}
+.kv dt{font-size:12.5px;color:var(--muted-foreground)}
+.kv dd{margin:0;font-size:13px;font-weight:500}
+.member{display:flex;align-items:center;gap:10px;padding:8px 0}
+.member+.member{border-top:1px solid var(--border)}
+.member b{display:block;font-size:13px;font-weight:600;line-height:1.3}
+.member span{display:block;font-size:11.5px;color:var(--muted-foreground)}
+.member .right{margin-left:auto;display:flex;align-items:center;gap:7px}
+.x{width:26px;height:26px;border-radius:8px;border:0;background:transparent;color:var(--muted-foreground);cursor:pointer;font-size:14px}
+.x:hover{background:var(--secondary);color:var(--destructive)}
+.timeline{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--muted-foreground)}
+.bar{flex:1;height:6px;border-radius:999px;background:var(--secondary);overflow:hidden}
+.bar i{display:block;height:100%;width:62%;border-radius:999px;background:linear-gradient(90deg,var(--chart-2),var(--chart-1))}
+
+/* ---- states ---- */
+.sk{background:var(--secondary);border-radius:7px;height:11px;display:block;animation:p 1.4s ease-in-out infinite}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.45}}
+.center{display:grid;place-items:center;gap:10px;text-align:center;padding:76px 20px}
+.center .ico{font-size:36px;opacity:.5}
+.center h2{margin:0;font-size:15px;font-weight:600}
+.center p{margin:0;max-width:42ch;font-size:12.5px;color:var(--muted-foreground)}
+.ribbon{display:flex;align-items:center;gap:9px;border-radius:11px;padding:10px 13px;margin-bottom:17px;font-size:12.5px;
+  border:1px solid color-mix(in oklch,var(--warning) 38%,transparent);
+  background:color-mix(in oklch,var(--warning) 11%,transparent)}
+.ribbon .right{margin-left:auto}
+
+/* ---- stat tiles (mirrors the existing dashboard STATS card) ---- */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.tile{display:flex;align-items:flex-start;gap:10px;background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:15px;box-shadow:0 1px 2px oklch(0.2536 .0553 266.35/.05)}
+.tile .n{font-size:26px;line-height:1.15;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tile .l{margin-top:2px;font-size:12px;color:var(--muted-foreground)}
+.tile .ic{margin-left:auto;width:34px;height:34px;flex:0 0 34px;border-radius:10px;display:grid;place-items:center;font-size:15px}
+.tile.zero .n{color:var(--muted-foreground)}
+.t-blue{background:color-mix(in oklch,var(--chart-1) 12%,transparent);color:var(--chart-1)}
+.t-sky{background:color-mix(in oklch,var(--chart-2) 14%,transparent);color:var(--chart-2)}
+.t-purple{background:color-mix(in oklch,var(--chart-3) 13%,transparent);color:var(--chart-3)}
+.t-warn{background:color-mix(in oklch,var(--warning) 15%,transparent);color:var(--warning)}
+
+/* ---- pipeline stages ---- */
+.stage{display:flex;align-items:center;gap:13px;padding:13px 0}
+.stage+.stage{border-top:1px solid var(--border)}
+.stage .num{width:26px;height:26px;flex:0 0 26px;border-radius:999px;display:grid;place-items:center;
+  font-size:11.5px;font-weight:700;background:var(--secondary);color:var(--muted-foreground)}
+.stage.done .num{background:color-mix(in oklch,var(--success) 15%,transparent);color:var(--success)}
+.stage.now .num{background:var(--primary);color:var(--primary-foreground)}
+.stage .txt{min-width:0}
+.stage .txt b{display:block;font-size:13.5px;font-weight:600;line-height:1.3}
+.stage .txt span{display:block;font-size:11.5px;color:var(--muted-foreground);margin-top:1px}
+.stage .right{margin-left:auto;display:flex;align-items:center;gap:9px;flex:0 0 auto}
+.stage .cnt{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--muted-foreground)}
+.track{height:5px;border-radius:999px;background:var(--secondary);overflow:hidden;margin:4px 0 2px}
+.track i{display:block;height:100%;width:25%;border-radius:999px;background:linear-gradient(90deg,var(--chart-2),var(--chart-1))}
+</style><body>
+
+<div class="note">
+  <strong>Mockup — project detail (<code>/projects/:id</code>) and the sidebar scope switch.</strong>
+  Sections live in the <em>sidebar</em>, not in page tabs: entering a project swaps the global nav for a project-scoped one.
+  <b>Overview</b> and <b>Settings</b> are real in this change; every other row ships disabled with the existing
+  <code>Soon</code> badge (<code>components/sidebar/nav-item.tsx</code>).
+  Overview is the project's <em>plan</em> view — the four pipeline stages with real counts. Every count is
+  <b>0</b> until <code>add-project-context</code>, <code>add-meetings</code> and <code>add-requirements</code> ship.
+  Zero is a true number; the reference image's 78% health ring is not, and is cut.
+</div>
+
+<!-- ===================== 1. SCOPE SWITCH ===================== -->
+<div class="statebar">State 1 · The switch <small>global scope (left) → project scope (right)</small></div>
+<div style="display:flex;gap:28px;padding:24px;align-items:flex-start;flex-wrap:wrap;background:var(--muted)">
+  <div>
+    <div style="font-size:12px;font-weight:700;margin-bottom:9px">Global scope — anywhere outside a project</div>
+    <aside class="sidebar" style="margin:0;height:560px">
+      <div class="brand"><span class="mark"></span><span class="word">Clarivo</span><span class="panel">▤</span></div>
+      <nav>
+        <div class="navgroup">Workspace</div>
+        <a class="navitem" href="#"><span class="ic">▦</span>Dashboard</a>
+        <a class="navitem active" href="#"><span class="ic">▣</span>Projects</a>
+        <div class="navgroup">Account</div>
+        <span class="navitem disabled"><span class="ic">⚙</span>Settings<span class="soon">Soon</span></span>
+      </nav>
+      <div class="sidefoot"><div class="sep"></div>
+        <div class="user"><span class="avatar">AL</span><span><b>An Le</b><span>BA</span></span></div></div>
+    </aside>
+  </div>
+  <div style="align-self:center;font-size:24px;color:var(--muted-foreground)">→</div>
+  <div>
+    <div style="font-size:12px;font-weight:700;margin-bottom:9px">Project scope — inside <code>/projects/:id</code> (viewer is the owner)</div>
+    <aside class="sidebar" style="margin:0;height:560px">
+      <div class="brand"><span class="mark"></span><span class="word">Clarivo</span><span class="panel">▤</span></div>
+      <a class="backrow" href="#">← All projects</a>
+      <div class="switcher"><span class="pmark">CD</span><span><b>CLT-DevSpec</b><span>CLT-DevSpec</span></span></div>
+      <nav style="padding-top:0">
+        <div class="navgroup">Plan</div>
+        <a class="navitem active" href="#"><span class="ic">◎</span>Overview</a>
+        <span class="navitem disabled"><span class="ic">🗎</span>Context<span class="soon">Soon</span></span>
+        <span class="navitem disabled"><span class="ic">✦</span>Discovery Plan<span class="soon">Soon</span></span>
+        <div class="navgroup">Run</div>
+        <span class="navitem disabled"><span class="ic">▤</span>Meetings<span class="soon">Soon</span></span>
+        <div class="navgroup">Output</div>
+        <span class="navitem disabled"><span class="ic">☑</span>Requirements<span class="soon">Soon</span></span>
+        <span class="navitem disabled"><span class="ic">?</span>Questions<span class="soon">Soon</span></span>
+        <span class="navitem disabled"><span class="ic">⚖</span>Decisions<span class="soon">Soon</span></span>
+        <div class="navgroup">Project</div>
+        <a class="navitem" href="#"><span class="ic">⚙</span>Settings</a>
+      </nav>
+      <div class="sidefoot"><div class="sep"></div>
+        <div class="user"><span class="avatar">AL</span><span><b>An Le</b><span>BA</span></span></div></div>
+    </aside>
+  </div>
+</div>
+
+<!-- ===================== 2. OVERVIEW — OWNER ===================== -->
+<div class="statebar">State 2 · Overview — the project plan <small>viewer is the owner · every count genuinely 0 today</small></div>
+<div class="shell" style="height:880px">
+  <aside class="sidebar">
+    <div class="brand"><span class="mark"></span><span class="word">Clarivo</span><span class="panel">▤</span></div>
+    <a class="backrow" href="#">← All projects</a>
+    <div class="switcher"><span class="pmark">CD</span><span><b>CLT-DevSpec</b><span>CLT-DevSpec</span></span></div>
+    <nav style="padding-top:0">
+      <div class="navgroup">Plan</div>
+      <a class="navitem active" href="#"><span class="ic">◎</span>Overview</a>
+      <span class="navitem disabled"><span class="ic">🗎</span>Context<span class="soon">Soon</span></span>
+      <span class="navitem disabled"><span class="ic">✦</span>Discovery Plan<span class="soon">Soon</span></span>
+      <div class="navgroup">Run</div>
+      <span class="navitem disabled"><span class="ic">▤</span>Meetings<span class="soon">Soon</span></span>
+      <div class="navgroup">Output</div>
+      <span class="navitem disabled"><span class="ic">☑</span>Requirements<span class="soon">Soon</span></span>
+      <span class="navitem disabled"><span class="ic">?</span>Questions<span class="soon">Soon</span></span>
+      <span class="navitem disabled"><span class="ic">⚖</span>Decisions<span class="soon">Soon</span></span>
+      <div class="navgroup">Project</div>
+      <a class="navitem" href="#"><span class="ic">⚙</span>Settings</a>
+    </nav>
+    <div class="sidefoot"><div class="sep"></div>
+      <div class="user"><span class="avatar">AL</span><span><b>An Le</b><span>BA</span></span></div></div>
+  </aside>
+
+  <div class="main"><div class="content">
+    <div class="topbar"><a href="#">Projects</a> <span>/</span> <b>CLT-DevSpec</b><span class="bell">🔔<i></i></span></div>
+
+    <div class="phead">
+      <span class="pmark">CD</span>
+      <div>
+        <h1>CLT-DevSpec <span class="badge active"><span class="dot"></span>Active</span></h1>
+        <div class="meta"><code>CLT-DevSpec</code> <span>·</span> CLT <span>·</span> Logistics
+          <span>·</span> 5 members <span class="badge owner">Owner</span></div>
+      </div>
+      <div class="acts"><a class="btn btn-outline" href="#">⚙ Settings</a></div>
+    </div>
+
+    <div class="tiles">
+      <div class="tile zero"><div><div class="n">0</div><div class="l">Context documents</div></div><span class="ic t-sky">🗎</span></div>
+      <div class="tile zero"><div><div class="n">0</div><div class="l">Meetings held</div></div><span class="ic t-blue">▤</span></div>
+      <div class="tile zero"><div><div class="n">0</div><div class="l">Requirements collected</div></div><span class="ic t-purple">☑</span></div>
+      <div class="tile zero"><div><div class="n">0</div><div class="l">Open questions</div></div><span class="ic t-warn">?</span></div>
+    </div>
+
+    <div class="cols">
+      <div class="card">
+        <div class="chead"><h2>Project plan</h2><span class="badge right">Stage 1 of 4</span></div>
+        <div class="cbody" style="padding-top:8px">
+          <div class="track"><i></i></div>
+          <p style="margin:6px 0 2px;font-size:12px;color:var(--muted-foreground)">
+            Each stage unlocks the next. Everything after Context arrives in a later release.</p>
+
+          <div class="stage now">
+            <span class="num">1</span>
+            <span class="txt"><b>Add context documents</b>
+              <span>Upload the material the AI reads before suggesting a meeting plan.</span></span>
+            <span class="right"><span class="cnt">0 files</span><span class="soon">Soon</span></span>
+          </div>
+          <div class="stage">
+            <span class="num">2</span>
+            <span class="txt"><b>Generate the discovery plan</b>
+              <span>A suggested set of meetings and topics, derived from the context.</span></span>
+            <span class="right"><span class="cnt">—</span><span class="soon">Soon</span></span>
+          </div>
+          <div class="stage">
+            <span class="num">3</span>
+            <span class="txt"><b>Run the meetings</b>
+              <span>Capture each transcript and let the analysis pull findings out of it.</span></span>
+            <span class="right"><span class="cnt">0 of 0 held</span><span class="soon">Soon</span></span>
+          </div>
+          <div class="stage">
+            <span class="num">4</span>
+            <span class="txt"><b>Draft the requirements</b>
+              <span>Land meeting output in the repository, with conflicts and gaps flagged.</span></span>
+            <span class="right"><span class="cnt">0 drafted</span><span class="soon">Soon</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="chead"><h2>Project summary</h2></div>
+        <div class="cbody">
+          <p class="prose">Gather and analyse requirements for the CLT DevSpec project, focusing on key business
+            processes, user roles and system integrations.</p>
+          <dl class="kv">
+            <dt>Customer / BU</dt><dd>CLT</dd>
+            <dt>Domain</dt><dd>Logistics</dd>
+            <dt>Timeline</dt><dd>Sep 1 – Nov 30, 2025</dd>
+            <dt>Members</dt><dd>5</dd>
+            <dt>Created</dt><dd>Sep 1, 2025 by An Le</dd>
+            <dt>Last updated</dt><dd>2 hours ago</dd>
+          </dl>
+          <div class="timeline" style="margin-top:15px"><span>Sep 1</span><span class="bar"><i></i></span><span>Nov 30</span></div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<!-- ===================== 3. OVERVIEW — MEMBER ===================== -->
+<div class="statebar">State 3 · Overview — viewer is a member, not the owner <small>no Settings row in the sidebar, no Settings button</small></div>
+<div class="shell" style="height:560px">
+  <aside class="sidebar">
+    <div class="brand"><span class="mark"></span><span class="word">Clarivo</span><span class="panel">▤</span></div>
+    <a class="backrow" href="#">← All projects</a>
+    <div class="switcher"><span class="pmark">CD</span><span><b>CLT-DevSpec</b><span>CLT-DevSpec</span></span></div>
+    <nav style="padding-top:0">
+      <div class="navgroup">Plan</div>
+      <a class="navitem active" href="#"><span class="ic">◎</span>Overview</a>
+      <span class="navitem disabled"><span class="ic">🗎</span>Context<span class="soon">Soon</span></span>
+      <span class="navitem disabled"><span class="ic">✦</span>Discovery Plan<span class="soon">Soon</span></span>
+      <div class="navgroup">Run</div>
+      <span class="navitem disabled"><span class="ic">▤</span>Meetings<span class="soon">Soon</span></span>
+    </nav>
+    <div class="sidefoot"><div class="sep"></div>
+      <div class="user"><span class="avatar">TN</span><span><b>Thu Nguyen</b><span>BA</span></span></div></div>
+  </aside>
+  <div class="main"><div class="content">
+    <div class="topbar"><a href="#">Projects</a> <span>/</span> <b>CLT-DevSpec</b><span class="bell">🔔<i></i></span></div>
+    <div class="phead">
+      <span class="pmark">CD</span>
+      <div><h1>CLT-DevSpec <span class="badge active"><span class="dot"></span>Active</span></h1>
+        <div class="meta"><code>CLT-DevSpec</code> <span>·</span> CLT <span>·</span> Logistics
+          <span>·</span> 5 members <span class="badge">Member</span></div></div>
+    </div>
+    <div class="tiles">
+      <div class="tile zero"><div><div class="n">0</div><div class="l">Context documents</div></div><span class="ic t-sky">🗎</span></div>
+      <div class="tile zero"><div><div class="n">0</div><div class="l">Meetings held</div></div><span class="ic t-blue">▤</span></div>
+      <div class="tile zero"><div><div class="n">0</div><div class="l">Requirements collected</div></div><span class="ic t-purple">☑</span></div>
+      <div class="tile zero"><div><div class="n">0</div><div class="l">Open questions</div></div><span class="ic t-warn">?</span></div>
+    </div>
+    <div class="cols">
+      <div class="card"><div class="chead"><h2>Project plan</h2><span class="badge right">Stage 1 of 4</span></div>
+        <div class="cbody" style="padding-top:8px"><div class="track"><i></i></div>
+          <div class="stage now"><span class="num">1</span>
+            <span class="txt"><b>Add context documents</b><span>Upload the material the AI reads first.</span></span>
+            <span class="right"><span class="cnt">0 files</span><span class="soon">Soon</span></span></div>
+          <div class="stage"><span class="num">2</span>
+            <span class="txt"><b>Generate the discovery plan</b><span>Suggested meetings and topics.</span></span>
+            <span class="right"><span class="cnt">—</span><span class="soon">Soon</span></span></div>
+        </div></div>
+      <div class="card"><div class="chead"><h2>Project summary</h2></div>
+        <div class="cbody"><p class="prose">Gather and analyse requirements for the CLT DevSpec project…</p>
+          <dl class="kv"><dt>Customer / BU</dt><dd>CLT</dd><dt>Domain</dt><dd>Logistics</dd>
+            <dt>Timeline</dt><dd>Sep 1 – Nov 30, 2025</dd><dt>Members</dt><dd>5</dd></dl></div></div>
+    </div>
+  </div></div>
+</div>
+
+<!-- ===================== 4. ARCHIVED ===================== -->
+<div class="statebar">State 4 · Archived project <small>read-only ribbon; the plan card freezes where it stopped</small></div>
+<div class="shell" style="height:530px">
+  <aside class="sidebar">
+    <div class="brand"><span class="mark"></span><span class="word">Clarivo</span><span class="panel">▤</span></div>
+    <a class="backrow" href="#">← All projects</a>
+    <div class="switcher" style="opacity:.75"><span class="pmark" style="background:var(--secondary);color:var(--muted-foreground)">LP</span>
+      <span><b>Legacy Portal</b><span>LGC-PRT</span></span></div>
+    <nav style="padding-top:0">
+      <div class="navgroup">Plan</div>
+      <a class="navitem active" href="#"><span class="ic">◎</span>Overview</a>
+      <span class="navitem disabled"><span class="ic">🗎</span>Context<span class="soon">Soon</span></span>
+      <div class="navgroup">Project</div>
+      <a class="navitem" href="#"><span class="ic">⚙</span>Settings</a>
+    </nav>
+    <div class="sidefoot"><div class="sep"></div>
+      <div class="user"><span class="avatar">AL</span><span><b>An Le</b><span>BA</span></span></div></div>
+  </aside>
+  <div class="main"><div class="content">
+    <div class="topbar"><a href="#">Projects</a> <span>/</span> <b>Legacy Portal</b><span class="bell">🔔<i></i></span></div>
+    <div class="ribbon"><span>🗄</span><span>This project is archived. It is hidden from the active list and read-only.</span>
+      <span class="right"><button class="btn btn-outline btn-sm">Restore</button></span></div>
+    <div class="phead">
+      <span class="pmark" style="background:var(--secondary);color:var(--muted-foreground)">LP</span>
+      <div><h1>Legacy Portal <span class="badge archived">Archived</span></h1>
+        <div class="meta"><code>LGC-PRT</code> <span>·</span> CLT <span>·</span> Finance
+          <span>·</span> 2 members <span class="badge owner">Owner</span></div></div>
+    </div>
+    <div class="tiles">
+      <div class="tile zero"><div><div class="n">0</div><div class="l">Context documents</div></div><span class="ic t-sky">🗎</span></div>
+      <div class="tile zero"><div><div class="n">0</div><div class="l">Meetings held</div></div><span class="ic t-blue">▤</span></div>
+      <div class="tile zero"><div><div class="n">0</div><div class="l">Requirements collected</div></div><span class="ic t-purple">☑</span></div>
+      <div class="tile zero"><div><div class="n">0</div><div class="l">Open questions</div></div><span class="ic t-warn">?</span></div>
+    </div>
+    <div class="cols">
+      <div class="card"><div class="chead"><h2>Project plan</h2><span class="badge right">Stopped at stage 1</span></div>
+        <div class="cbody" style="padding-top:8px"><div class="track"><i style="background:var(--muted-foreground);opacity:.45"></i></div>
+          <div class="stage"><span class="num">1</span>
+            <span class="txt"><b>Add context documents</b><span>Upload the material the AI reads first.</span></span>
+            <span class="right"><span class="cnt">0 files</span></span></div>
+        </div></div>
+      <div class="card"><div class="chead"><h2>Project summary</h2></div>
+        <div class="cbody"><p class="prose none">No objective was set for this project.</p>
+          <dl class="kv"><dt>Customer / BU</dt><dd>CLT</dd><dt>Domain</dt><dd>Finance</dd>
+            <dt>Timeline</dt><dd>Mar 1 – Jun 30, 2025</dd><dt>Members</dt><dd>2</dd></dl></div></div>
+    </div>
+  </div></div>
+</div>
+
+<!-- ===================== 5. LOADING ===================== -->
+<div class="statebar">State 5 · Loading <small>sidebar shows the id-less shell until the project resolves</small></div>
+<div class="shell" style="height:470px">
+  <aside class="sidebar">
+    <div class="brand"><span class="mark"></span><span class="word">Clarivo</span><span class="panel">▤</span></div>
+    <a class="backrow" href="#">← All projects</a>
+    <div class="switcher"><span class="pmark" style="background:var(--secondary)"></span>
+      <span style="flex:1"><span class="sk" style="width:104px"></span><span class="sk" style="width:62px;margin-top:6px;height:9px"></span></span></div>
+    <nav style="padding-top:0">
+      <div class="navgroup">Plan</div>
+      <a class="navitem active" href="#"><span class="ic">◎</span>Overview</a>
+      <span class="navitem disabled"><span class="ic">🗎</span>Context<span class="soon">Soon</span></span>
+    </nav>
+    <div class="sidefoot"><div class="sep"></div>
+      <div class="user"><span class="avatar">AL</span><span><b>An Le</b><span>BA</span></span></div></div>
+  </aside>
+  <div class="main"><div class="content">
+    <div class="topbar"><a href="#">Projects</a> <span>/</span> <span class="sk" style="width:92px"></span></div>
+    <div class="phead"><span class="pmark" style="background:var(--secondary)"></span>
+      <div style="flex:1"><span class="sk" style="width:188px;height:19px"></span>
+        <span class="sk" style="width:256px;margin-top:9px;height:10px"></span></div></div>
+    <div class="tiles">
+      <div class="tile"><div style="flex:1"><span class="sk" style="width:34px;height:22px"></span><span class="sk" style="width:94px;margin-top:8px;height:9px"></span></div></div>
+      <div class="tile"><div style="flex:1"><span class="sk" style="width:34px;height:22px"></span><span class="sk" style="width:80px;margin-top:8px;height:9px"></span></div></div>
+      <div class="tile"><div style="flex:1"><span class="sk" style="width:34px;height:22px"></span><span class="sk" style="width:110px;margin-top:8px;height:9px"></span></div></div>
+      <div class="tile"><div style="flex:1"><span class="sk" style="width:34px;height:22px"></span><span class="sk" style="width:86px;margin-top:8px;height:9px"></span></div></div>
+    </div>
+    <div class="cols">
+      <div class="card"><div class="cbody">
+        <span class="sk" style="width:94px;height:13px"></span>
+        <span class="sk" style="width:100%;margin-top:16px;height:38px"></span>
+        <span class="sk" style="width:100%;margin-top:8px;height:38px"></span>
+        <span class="sk" style="width:100%;margin-top:8px;height:38px"></span></div></div>
+      <div class="card"><div class="cbody">
+        <span class="sk" style="width:94px;height:13px"></span>
+        <span class="sk" style="width:100%;margin-top:14px"></span>
+        <span class="sk" style="width:88%;margin-top:8px"></span>
+        <span class="sk" style="width:62%;margin-top:8px"></span></div></div>
+    </div>
+  </div></div>
+</div>
+
+<!-- ===================== 6. NOT FOUND ===================== -->
+<div class="statebar">State 6 · Not found <small>identical for a bad id AND for a project you are not a member of — a 404, never a 403</small></div>
+<div class="shell" style="height:400px">
+  <aside class="sidebar">
+    <div class="brand"><span class="mark"></span><span class="word">Clarivo</span><span class="panel">▤</span></div>
+    <nav>
+      <div class="navgroup">Workspace</div>
+      <a class="navitem" href="#"><span class="ic">▦</span>Dashboard</a>
+      <a class="navitem active" href="#"><span class="ic">▣</span>Projects</a>
+      <div class="navgroup">Account</div>
+      <span class="navitem disabled"><span class="ic">⚙</span>Settings<span class="soon">Soon</span></span>
+    </nav>
+    <div class="sidefoot"><div class="sep"></div>
+      <div class="user"><span class="avatar">AL</span><span><b>An Le</b><span>BA</span></span></div></div>
+  </aside>
+  <div class="main"><div class="content">
+    <div class="topbar"><a href="#">Projects</a><span class="bell">🔔<i></i></span></div>
+    <div class="card"><div class="center">
+      <span class="ico">🔍</span>
+      <h2>Project not found</h2>
+      <p>This project doesn’t exist, or you don’t have access to it. Ask the project owner to add you.</p>
+      <a class="btn btn-outline btn-sm" href="#" style="margin-top:4px">← Back to projects</a>
+    </div></div>
+  </div></div>
+</div>
+
+<div class="note" style="padding-bottom:40px">
+  <strong>Decisions on this screen</strong><br>
+  • <b>Sections live in the sidebar, not in page tabs.</b> A BA works inside one project at a time, so the global
+  Meetings / Requirements / Questions / Decisions rows become project-scoped. Keeping both would mean two routes,
+  two query shapes and two screens per entity.<br>
+  • <b>Overview is the plan.</b> Four pipeline stages — Context → Discovery plan → Meetings → Requirements — with real
+  counts, plus four counters at the top. <b>Every count is genuinely 0 today</b> and each stage carries
+  <code>Soon</code>; the later changes fill them in without the page shape changing. The reference image's
+  <b>78% health ring is cut</b> — nothing in the database can produce it, and a fake number survives into a demo.<br>
+  • <b>Members moved out of Overview into Project Settings</b>, together with Edit details and Archive. One place
+  to administer a project; the edit-details modal is gone.<br>
+  • <b>Settings is owner-only.</b> A member sees no Settings row and no Settings button — nothing on that page is
+  useful read-only.<br>
+  • <b>The project switcher has no dropdown.</b> <code>← All projects</code> already covers it; a dropdown would be a
+  second list query for no new capability.<br>
+  • <b>Documents is gone from the global nav</b> — it is the project's Context section.
+  <b>Conflicts &amp; Gaps gets no nav row</b>; it is an analysis view over requirements, not an entity.<br>
+  • <b>Non-member sees “Project not found”, identical to a bad id.</b> A 403 would confirm the project exists.
+</div>
+
+</body>
+</html>

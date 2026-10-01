@@ -162,3 +162,117 @@ changes:
       from test leftovers, and any authenticated user can download any file by id.
       The first consuming feature adds its own `file_id` FK and the ownership model
       a per-resource check needs. Nothing enforces that it does.
+  add-projects:
+    title: project list, create, detail, settings and the project sidebar scope
+    tasks_md: changes/add-projects/tasks.md
+    depends_on: []
+    skills: [frontend-design, typeorm]
+    status: pending
+    owner: ""
+    notes: >-
+      Approved by LE AN on 2026-10-01. Artifacts complete: proposal.md, design.md,
+      spec.md, tasks.md, ui.md, db.md (live-schema grounded), 5 approved mockups,
+      spec.html. Req coverage is clean — req-1..req-14 each have a tasks.md
+      section, all 13 sections carry a runnable Verify: line, and there is NO
+      MANUAL gate anywhere, so the worker never stalls on a human tick.
+      First domain spine in the repo. Everything downstream (context documents,
+      discovery plan, meetings, requirements, questions, decisions) hangs off a
+      project, so this change is what unblocks add-project-context, add-meetings
+      and add-requirements — each fills one disabled sidebar row and one Overview
+      stage.
+      `depends_on: []` on purpose. This change consumes add-login's output (the
+      `users` table, JwtAuthGuard, SESSION_COOKIE) and add-app-shell's sidebar,
+      plus add-feedback-layer's confirm provider and toasts — all four are now
+      status done and archived, and their code is in the working tree. Nothing is
+      waiting on anything.
+      THE NAV REWRITE IS THE ONE HIGH-RISK EDIT. `frontend/constants/nav.ts`
+      currently feeds BOTH the desktop sidebar (`nav-groups.tsx`) and the mobile
+      drawer (`mobile-nav.tsx`) from one `NAV_ITEMS` array, so the two cannot
+      drift. Section 8 splits it into two scopes behind one `useNavScope()` hook;
+      the single-source property must survive. Both renderers keep rendering one
+      `<NavGroups>` — giving the drawer its own source is the defect to watch for.
+      `types/nav.ts` loses "Insights" with the four global rows that used it; a
+      leftover union member renders an empty group header. Land section 8 as its
+      own commit — it is the only edit that is awkward to revert piecemeal.
+      Second biggest defect risk is transcription, not design: section 7
+      hand-copies three missing primitives (`dialog.tsx`, `table.tsx`,
+      `textarea.tsx`) because the shadcn CLI hangs in this environment
+      (devspec/context/rules.md). No new dependency is needed — the installed
+      `radix-ui` umbrella package exports the namespace objects, so dialog.tsx
+      imports `{ Dialog as DialogPrimitive } from "radix-ui"` exactly as
+      `sheet.tsx` and `alert-dialog.tsx` already do. `alert-dialog.tsx` is NOT a
+      substitute for `dialog.tsx`: no close button, outside-click dismissal
+      blocked by design, and owned by the confirm provider. tsc + eslint + actually
+      rendering each one is the check.
+      Third migration this repo has ever run, and purely additive: two new tables,
+      three FKs, two unique constraints, one index, two CHECK constraints. No
+      column on an existing table is added, altered or dropped, there is no
+      backfill, and NO destructive database operation appears anywhere in this
+      change. It reverts clean by dropping the two tables in FK order. There is no
+      hard delete in the service and none in the UI — archive is `status='archived'`.
+      `pnpm migration:*` builds first and runs against `dist/`, so compile clean
+      before generating or a TypeScript error surfaces as a confusing migration
+      failure.
+      Entity registration is the same trap add-file-storage documented:
+      `app.module.ts` passes `entities: []` + `autoLoadEntities: true` on purpose
+      (the raw-.ts glob breaks vitest), so `TypeOrmModule.forFeature([Project,
+      ProjectMember])` inside ProjectsModule is the ONLY thing that registers
+      either entity. Registering them anywhere else is a silent no-op.
+      THREE ACCESS DECISIONS A REVIEWER SHOULD CHECK AGAINST THE CODE, because the
+      UI must not be the only thing enforcing them. (1) A non-member gets 404
+      PROJECT_NOT_FOUND, never 403 — a 403 confirms the project exists. (2) A
+      member attempting an owner-only write gets 403 PROJECT_NOT_OWNER, because
+      they already know it exists; collapsing both into 404 would read as a bug.
+      (3) PATCH and member add/remove on an archived project return 409
+      PROJECT_ARCHIVED — ui.md renders those controls disabled and the API agrees
+      independently. The membership gate lives in ProjectsService, not the
+      controller, and the list query starts FROM `project_members WHERE user_id =
+      viewer` and joins outward — keep that join direction if the query is ever
+      rewritten, it is the security property. Creation writes the project row and
+      the owner membership row in ONE transaction; a project with no owner row
+      would be unreachable through every endpoint.
+      ONE SCOPE ADDITION beyond proposal.md's scope-in table, flagged to and
+      accepted by LE AN: section 5 gives `pnpm seed` an optional second account
+      (SEED_MEMBER_EMAIL / _PASSWORD / _NAME, the first @IsOptional() vars in the
+      env contract). Verification needs it — member-vs-owner and non-member are
+      three of this change's states and devspec/improve/testing.md records only
+      admin@clarivo.local, while Clarivo has no signup endpoint. Optional on
+      purpose: a required var would invalidate every existing .env, the cost
+      FILE_STORAGE_PATH already imposed once. Credentials go in the gitignored
+      devspec/improve/testing.md; .env.example gets empty commented rows and no
+      password is ever committed.
+      The four Overview stage counts (Context documents / Meetings held /
+      Requirements collected / Open questions) are FRONTEND CONSTANTS in
+      `constants/project-stages.ts`, not API fields. An API returning
+      `requirementsCount: 0` from a table that does not exist is a field that lies
+      by construction, and the first change to add requirements would have to
+      decide whether the old zero was real. `memberCount` IS a real API field
+      because project_members exists. Same honest-zero rule on the dashboard. The
+      reference image's 78% health ring and its Known/Unknown/Conflicts/Questions
+      counters are deliberately cut — ui.md records why.
+      design.md carries 28 Decision Defaults under ## Impact Area. That is what
+      lets the worker decide instead of blocking, so read them before treating any
+      gray area as underspecified.
+      Two cleanups ride along and must land with their replacements: section 12
+      deletes `FeedbackDemoCard` from `app/(app)/page.tsx` (add-feedback-layer left
+      a `ponytail:` comment asking for exactly this and nothing else enforces it)
+      and removes RECENT_PROJECTS / NEXT_MEETING / the projects Stat from
+      `constants/dashboard.ts` plus the orphaned types in `types/dashboard.ts`.
+      Those orphans are created by this change, so they go; nothing else in those
+      files is touched.
+      Do NOT run `pnpm test:e2e` and do not touch `backend/test/app.e2e-spec.ts`.
+      It asserts GET / -> "Hello World!" against an AppController this repo does
+      not have, it was already failing before any DevSpec change started, and it is
+      logged in devspec/report/blockers.md. `pnpm test` is this change's backend
+      gate. add-login was closed as done with that item explicitly out of scope.
+      devspec/context/conventions.md is STALE for the frontend — it still describes
+      `@/*` -> ./app/* with everything under app/. `frontend/CLAUDE.md` is
+      authoritative: `@/*` resolves from the frontend root, and it also carries the
+      layer law (component -> hooks/ -> services/ -> lib/api), the react-hook-form
+      + zod rule and the never-`watch()` constraint. Refreshing the context pack is
+      a separate job. Task 13.2 does refresh devspec/context/schema.md, which this
+      change settles four open items in: enums as varchar + CHECK, the first
+      composite unique, the first `date` columns (serialised as 'YYYY-MM-DD'
+      strings, not Date), and the first ON DELETE CASCADE — recorded WITH the
+      reasoning that keeps RESTRICT the default, so the next change does not read
+      one CASCADE as blanket permission.

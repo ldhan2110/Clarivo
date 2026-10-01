@@ -1,0 +1,1079 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spec review — add-projects</title>
+<style>
+:root{--bg:#f6f6f5;--card:#fff;--ink:#17171a;--muted:#6b7280;--line:#e3e3e7;
+--accent:#3a75fd;--ok:#15803d;--bad:#b91c1c;--warn:#b45309;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;}
+.layout{display:flex;align-items:flex-start;max-width:1180px;margin:0 auto;padding:28px 20px 80px;gap:28px}
+nav.toc{position:sticky;top:28px;width:176px;flex:0 0 176px;font-size:13px}
+nav.toc a{display:block;padding:5px 9px;border-radius:7px;color:var(--muted);text-decoration:none}
+nav.toc a:hover{background:#ececf0;color:var(--ink)}
+main{flex:1;min-width:0}
+h1{font-size:27px;margin:0 0 4px;letter-spacing:-.02em}
+.sub{color:var(--muted);font-size:13px;margin:0 0 22px}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;
+padding:20px 22px;margin-bottom:18px}
+section>h2:first-child{margin-top:0}
+h2{font-size:19px;margin:28px 0 10px;letter-spacing:-.01em}
+h3{font-size:16px;margin:22px 0 8px}
+h4{font-size:14px;margin:16px 0 6px;color:#374151}
+h5,h6{font-size:13px;margin:14px 0 6px;color:var(--muted)}
+p{margin:9px 0}
+code{background:#f1f1f4;border-radius:4px;padding:1px 5px;
+font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}
+pre.code,pre.arch{background:#15171c;color:#e6e8ee;border-radius:10px;padding:14px 16px;
+overflow-x:auto;font:12.5px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace}
+pre.arch{background:#101826}
+.tw{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:#f4f4f7;font-weight:600}
+ul,ol{margin:9px 0;padding-left:22px}
+ul.checks{list-style:none;padding-left:0}
+ul.checks li{margin:5px 0;padding-left:2px}
+ul.checks .box{color:var(--muted);margin-right:4px}
+ul.checks li.done .box{color:var(--ok)}
+blockquote{margin:10px 0;padding:8px 14px;border-left:3px solid var(--line);color:var(--muted)}
+hr{border:0;border-top:1px solid var(--line);margin:22px 0}
+.verify{background:#f4f7ff;border:1px solid #d8e2ff;border-radius:8px;padding:8px 11px;
+font-size:13px;margin:10px 0 0}
+.vlabel{display:inline-block;background:var(--accent);color:#fff;border-radius:999px;
+padding:1px 8px;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;font-weight:600;margin-right:7px}
+.banner{border-radius:10px;padding:12px 15px;margin:0 0 16px;font-size:14px;border:1px solid}
+.banner.ok{background:#f0fdf4;border-color:#bbf7d0;color:#14532d}
+.banner.bad{background:#fef2f2;border-color:#fecaca;color:#7f1d1d}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}
+.chip{background:#f1f1f4;border:1px solid var(--line);border-radius:999px;padding:3px 11px;font-size:12px}
+.chip b{font-weight:600}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:5px 14px;font-size:13.5px;margin:6px 0}
+.kv dt{color:var(--muted)} .kv dd{margin:0}
+.empty{color:var(--muted);font-style:italic}
+.mock{margin:18px 0}
+.mock header{display:flex;align-items:baseline;gap:10px;margin-bottom:7px}
+.mock h4{margin:0;font:13px/1.4 ui-monospace,Menlo,monospace}
+.mock a{font-size:12px;color:var(--accent)}
+iframe{width:100%;height:560px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.tsec{border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin:12px 0}
+.tsec h4{margin:0 0 4px;font-size:14.5px}
+.tsec .reqs{font-size:11.5px;color:var(--muted)}
+@media (max-width:860px){.layout{flex-direction:column}nav.toc{position:static;width:100%;flex:none;display:flex;flex-wrap:wrap}}
+</style></head><body><div class="layout">
+<nav class="toc">
+<a href="#context">Context</a>
+<a href="#proposal">Proposal</a>
+<a href="#architecture">Architecture</a>
+<a href="#impact">Impact Area</a>
+<a href="#backend">Backend</a>
+<a href="#database">Database</a>
+<a href="#frontend">Frontend</a>
+<a href="#tasks">Tasks</a>
+<a href="#coverage">Coverage</a>
+<a href="#board">Board</a>
+</nav><main>
+<h1>add-projects</h1>
+<p class='sub'>Spec review page — rendered from the committed artifacts. Fixes go to the markdown, never to this file.</p>
+<div class='banner ok'><strong>Every requirement is covered.</strong> 14 requirements, 13 task sections, 87 subtasks, every section carries a <code>Verify:</code>.</div>
+<section id="context"><h2>Context</h2>
+<dl class='kv'>
+<dt>change id</dt><dd><code>add-projects</code></dd>
+<dt>title</dt><dd>project list, create, detail, settings and the project sidebar scope</dd>
+<dt>board entry</dt><dd>present</dd>
+<dt>depends_on</dt><dd><code>[]</code> — consumes add-login and add-app-shell output, both already built (see proposal.md)</dd>
+<dt>skills</dt><dd><code>frontend-design</code>, <code>typeorm</code></dd>
+<dt>artifacts</dt><dd><code>proposal.md</code>, <code>design.md</code>, <code>spec.md</code>, <code>tasks.md</code>, <code>ui.md</code>, <code>db.md</code>, <code>mockups/</code> (5 screens)</dd>
+</dl>
+<div class='chips'>
+<span class='chip'><b>6</b> db</span>
+<span class='chip'><b>21</b> backend</span>
+<span class='chip'><b>8</b> service</span>
+<span class='chip'><b>46</b> frontend</span>
+<span class='chip'><b>6</b> test</span>
+<span class='chip'><b>0/87</b> subtasks ticked</span>
+</div></section>
+<section id="proposal"><h2>Proposal</h2>
+<p>_approved_by: LE AN_ _approved_at: 2026-10-01_</p>
+<h3>Why</h3>
+<p>Clarivo turns meeting conversations into structured requirements. <strong>Every one of those artifacts hangs off a project</strong> — context documents, the AI discovery plan, meetings, requirements, questions, decisions. Nothing downstream can be built until the container exists.</p>
+<p>Today the repository has <code>users</code> and <code>files</code> and nothing else. The sidebar&#x27;s <code>Projects</code> row is disabled with a <code>Soon</code> badge, the dashboard&#x27;s &quot;Recent Projects&quot; card is hardcoded sample data, and <code>files</code> sits with no consumer at all. This change is the first domain spine: it creates the project, decides who can see it, and establishes the navigation every later feature plugs into.</p>
+<h3>What it delivers</h3>
+<p><strong>Backend</strong></p>
+<ul>
+<li><code>projects</code> and <code>project_members</code> tables, one additive migration.</li>
+<li>Membership-scoped CRUD: a project is visible only to its owner and the people added to it.</li>
+<li>Archive and restore as a status transition. <strong>Nothing is ever hard-deleted.</strong></li>
+<li>Member management: add an existing account by email, remove, owner fixed.</li>
+</ul>
+<p><strong>Frontend</strong></p>
+<ul>
+<li><code>/projects</code> — searchable, filterable, paginated list with a create modal.</li>
+<li><code>/projects/:id</code> — the project&#x27;s <strong>plan</strong>: four pipeline stages (Context → Discovery plan →</li>
+</ul>
+<p>Meetings → Requirements) with real counts, plus a summary card.</p>
+<ul>
+<li><code>/projects/:id/settings</code> — owner-only: details, members, archive / restore.</li>
+<li><strong>A second sidebar scope.</strong> Entering a project swaps the global nav for that project&#x27;s sections,</li>
+</ul>
+<p>all of which ship disabled with the existing <code>Soon</code> badge except Overview and Settings.</p>
+<ul>
+<li>Dashboard: the <code>ponytail:</code> demo card is deleted, <code>Total projects</code> and <code>Recent projects</code> become</li>
+</ul>
+<p>real, the Next Meeting card is removed.</p>
+<h3>Scope — in</h3>
+<div class='tw'><table>
+<tbody>
+<tr><td><code>projects</code> table</td><td>code (globally unique), name, customer/BU, domain, objective, status, start/end dates, created_by</td></tr>
+<tr><td><code>project_members</code> table</td><td>project ↔ user with an <code>owner</code> / <code>member</code> role and a composite unique</td></tr>
+<tr><td>Endpoints</td><td>list (paginated, searchable, status-filtered), get one, create, update, archive, restore, list members, add member, remove member</td></tr>
+<tr><td>Access model</td><td>membership-scoped everywhere; a non-member gets <strong>404, never 403</strong></td></tr>
+<tr><td>Screens</td><td>list, create modal, detail/overview, settings, dashboard edits</td></tr>
+<tr><td>Navigation</td><td>global ↔ project scope switch, one source for desktop and mobile</td></tr>
+<tr><td>Schema conventions</td><td>first enum (varchar + CHECK), first composite unique, first <code>date</code> columns — all recorded in <code>devspec/context/schema.md</code></td></tr>
+</tbody></table></div>
+<h3>Scope — out</h3>
+<ul>
+<li><strong>Document upload.</strong> The Context section ships as a disabled <code>Soon</code> row; <code>files</code> stays unconsumed</li>
+</ul>
+<p>until <code>add-project-context</code>.</p>
+<ul>
+<li><strong>Meetings, requirements, questions, decisions, discovery plan.</strong> Their nav rows exist and are</li>
+</ul>
+<p>disabled. Their counts on Overview are genuinely <code>0</code>.</p>
+<ul>
+<li><strong>Project health %, and the Known / Unknown / Conflicts / Questions counters</strong> from the reference</li>
+</ul>
+<p>image. No data source exists; an invented percentage survives into a demo.</p>
+<ul>
+<li><strong>Ownership transfer.</strong> The owner row has no remove control.</li>
+<li><strong>Invite flow.</strong> A member is added by matching an existing Clarivo account&#x27;s email. No email is</li>
+</ul>
+<p>sent, and an unknown address is a validation error, not a pending invitation.</p>
+<ul>
+<li><strong>Hard delete.</strong> Not reachable from the UI and not implemented in the service.</li>
+<li><strong>Cross-project views</strong> of meetings or requirements. Those nouns are project-scoped by design.</li>
+</ul>
+<h3>Decisions already settled</h3>
+<p>Carried in from exploration so they are not relitigated. The <em>why</em> for each lives in <code>design.md</code> and <code>db.md</code>.</p>
+<div class='tw'><table>
+<thead><tr><th>Decision</th><th></th></tr></thead>
+<tbody>
+<tr><td>Create is a <strong>single modal</strong>, not the reference image&#x27;s 3-step wizard</td><td>the wizard&#x27;s upload step needs a draft project row</td></tr>
+<tr><td>Delete is <strong>archive</strong> (<code>status=&#x27;archived&#x27;</code>), not a soft-delete column</td><td>the repo has no soft delete anywhere</td></tr>
+<tr><td>Project <code>code</code> is <strong>globally unique</strong></td><td>one index, one error message, no coupling to customer</td></tr>
+<tr><td>Visibility is <strong>membership-scoped</strong></td><td>you see a project you own or were added to</td></tr>
+<tr><td>A non-member gets <strong>404</strong></td><td>a 403 confirms the project exists</td></tr>
+<tr><td>Enums are <strong>varchar + CHECK</strong>, not a pg enum type or a lookup table</td><td>sets the precedent for every enum after it</td></tr>
+<tr><td><code>domain</code> gets <strong>no CHECK</strong></td><td>it is customer data that grows; a constraint makes each new vertical a migration</td></tr>
+<tr><td>Sections live in the <strong>sidebar</strong>, not in page tabs</td><td>a BA works inside one project at a time</td></tr>
+<tr><td>Overview is a <strong>plan view with honest zeros</strong></td><td>zero is true; 78% is not</td></tr>
+<tr><td>Settings is <strong>owner-only</strong> and absorbs editing</td><td>one place to administer a project</td></tr>
+</tbody></table></div>
+<h3>Risk</h3>
+<ul>
+<li><strong>The nav rewrite is the one shared-surface change.</strong> <code>constants/nav.ts</code> currently feeds both the</li>
+</ul>
+<p>desktop sidebar and the mobile drawer from a single array; splitting it into two scopes must keep that single-source property or the two will drift.</p>
+<ul>
+<li><strong>Three UI primitives must be hand-copied</strong> (<code>dialog</code>, <code>table</code>, <code>textarea</code>) because the shadcn CLI</li>
+</ul>
+<p>hangs in this environment. Transcription error is the most likely defect in this change.</p>
+<ul>
+<li><strong>Verification needs a second user account.</strong> <code>devspec/improve/testing.md</code> records only</li>
+</ul>
+<p><code>admin@clarivo.local</code>, which cannot exercise the member, non-owner or non-member states.</p>
+<h3>Relationship to other changes</h3>
+<p><code>depends_on: []</code>. This change consumes <code>add-login</code>&#x27;s output (the <code>users</code> table, <code>JwtAuthGuard</code>, <code>SESSION_COOKIE</code>) and <code>add-app-shell</code>&#x27;s sidebar, both already built and verified in the working tree. <code>add-login</code> sits at <code>status: blocked</code> only on the pre-existing <code>test/app.e2e-spec.ts</code> failure, which has nothing to do with projects — the same reasoning <code>add-app-shell</code>, <code>add-feedback-layer</code> and <code>add-file-storage</code> each recorded.</p>
+<p>It <strong>unblocks</strong> <code>add-project-context</code> (the first <code>files</code> consumer), <code>add-meetings</code> and <code>add-requirements</code>, each of which fills one disabled sidebar row and one Overview stage.</p>
+</section>
+<section id="architecture"><h2>Architecture</h2>
+<pre class='arch'>BROWSER                                        API (NestJS)
+
+/projects              ProjectsListPage        GET    /projects                  ┐
+  └ use-projects.ts ──► services/projects.ts   POST   /projects                  │
+/projects/:id          ProjectOverviewPage     GET    /projects/:id              │
+  └ use-project.ts  ──►        │               PATCH  /projects/:id              ├─► ProjectsController
+/projects/:id/settings ProjectSettingsPage     POST   /projects/:id/archive      │     @UseGuards(JwtAuthGuard)
+  └ use-project-members.ts ────┘               POST   /projects/:id/restore      │
+                                               GET    /projects/:id/members      │
+          all through lib/api.ts (axios,       POST   /projects/:id/members      │
+          withCredentials: true)               DELETE /projects/:id/members/:userId ┘
+                                                              │
+                                                              ▼
+                                                      ProjectsService
+                                        ┌─────────────────────┼──────────────────────┐
+                                        ▼                     ▼                      ▼
+                              Repository&lt;Project&gt;   Repository&lt;ProjectMember&gt;   UsersService
+                                 (projects)           (project_members)        (findByEmail)
+
+SIDEBAR (one source, two scopes)
+  constants/nav.ts ── GLOBAL_NAV_ITEMS ───┐
+                   └─ projectNavItems() ──┴─► hooks/use-nav-scope.ts ─┬─► components/sidebar/nav-groups.tsx  (desktop)
+                                                                      └─► components/sidebar/mobile-nav.tsx  (drawer)</pre>
+<p>Every request enters through <code>JwtAuthGuard</code>, so <code>req.user</code> is a <code>User</code> before any handler body runs — the same shape <code>FilesController</code> already relies on. <code>ProjectsService</code> is the only place that touches either repository, and the membership gate below is applied inside it, not in the controller, so no future caller can route around it.</p>
+<hr>
+<p class='sub'>Rendered as the ASCII block from <code>design.md</code>; no diagram renderer was invoked for this page.</p>
+</section>
+<section id="impact"><h2>Impact Area</h2>
+<h5>Decision Defaults</h5>
+<p>Pre-decided so the worker proceeds instead of stalling. Each is a human decision already made.</p>
+<div class='tw'><table>
+<thead><tr><th>#</th><th>Gray area</th><th>Default</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Backend file layout for the new domain</td><td><code>backend/src/projects/</code> mirroring <code>src/files/</code> exactly: <code>project.entity.ts</code>, <code>project-member.entity.ts</code>, <code>projects.service.ts</code>, <code>projects.controller.ts</code>, <code>projects.errors.ts</code>, <code>projects.module.ts</code>, <code>dto/</code>, and <code>*.spec.ts</code> <strong>next to the source</strong></td></tr>
+<tr><td>2</td><td>Entity class names</td><td><code>Project</code> and <code>ProjectMember</code>. Neither shadows a Node global, so the <code>FileEntity</code> workaround does not apply</td></tr>
+<tr><td>3</td><td>Entity registration</td><td><code>TypeOrmModule.forFeature([Project, ProjectMember])</code> inside <code>ProjectsModule</code> <strong>only</strong> — <code>app.module.ts</code> passes <code>entities: []</code> + <code>autoLoadEntities: true</code>, so registering anywhere else is a silent no-op</td></tr>
+<tr><td>4</td><td>Error codes</td><td><code>defineErrors(&#x27;PROJECT&#x27;, …)</code>: <code>NOT_FOUND</code> (404), <code>NOT_OWNER</code> (403), <code>CODE_TAKEN</code> (409), <code>INVALID_DATE_RANGE</code> (400), <code>MEMBER_NOT_FOUND</code> (404 — no account with that email), <code>ALREADY_MEMBER</code> (409), <code>OWNER_NOT_REMOVABLE</code> (409)</td></tr>
+<tr><td>5</td><td>Duplicate <code>code</code> detection</td><td>Pre-check with a <code>findOne({ where: { code } })</code> and throw <code>CODE_TAKEN</code>; also catch the unique-violation (<code>23505</code>) from the insert and map it to the same error. The pre-check gives the message, the catch closes the race</td></tr>
+<tr><td>6</td><td>Archive / restore verb</td><td><code>POST /projects/:id/archive</code> and <code>/restore</code>. Not a <code>PATCH { status }</code> — the status transition is the operation, and a general status write invites a client inventing a third value</td></tr>
+<tr><td>7</td><td>Archiving an already-archived project (and restore of an active one)</td><td><strong>Idempotent 200</strong>, returning the project unchanged. Not an error: the UI can double-submit and the end state is what was asked for</td></tr>
+<tr><td>8</td><td>Can an archived project still be updated?</td><td><strong>No.</strong> <code>PATCH</code> and member add/remove on an archived project return <code>PROJECT_ARCHIVED</code> (409). <code>ui.md</code> renders those controls disabled; the API must agree rather than trust the UI</td></tr>
+<tr><td>9</td><td>Search <code>q</code> semantics</td><td>Case-insensitive <code>ILIKE &#x27;%q%&#x27;</code> against <code>code</code> <strong>or</strong> <code>name</code>. No full-text index, no trigram — <code>ponytail:</code> comment naming the ceiling</td></tr>
+<tr><td>10</td><td>Sort whitelist + default</td><td><code>@IsIn([&#x27;updatedAt&#x27;,&#x27;createdAt&#x27;,&#x27;name&#x27;,&#x27;code&#x27;])</code>, default <code>updatedAt DESC</code></td></tr>
+<tr><td>11</td><td>Avatar stack data</td><td><code>ProjectSummaryDto.memberNames: string[]</code>, at most 3, ordered by <code>project_members.created_at</code> (owner first, since the owner row is written first). The frontend derives initials; <code>memberCount - memberNames.length</code> is the <code>+N</code> overflow</td></tr>
+<tr><td>12</td><td>Where <code>viewerRole</code> comes from</td><td>The membership row the gate already loaded. No second query</td></tr>
+<tr><td>13</td><td>Member add matching</td><td><code>UsersService.findByEmail</code> (already normalises case). No match → <code>MEMBER_NOT_FOUND</code>; existing membership → <code>ALREADY_MEMBER</code>. <strong>No invite is created and no email is sent</strong></td></tr>
+<tr><td>14</td><td>Removing the owner</td><td><code>OWNER_NOT_REMOVABLE</code> (409). The UI renders no <code>✕</code> on that row; the API enforces it independently</td></tr>
+<tr><td>15</td><td>Removing yourself as a member</td><td>Not reachable — remove is owner-only, and an owner cannot remove the owner row. No self-leave endpoint in this change</td></tr>
+<tr><td>16</td><td>Frontend service / hook placement</td><td><code>services/projects.ts</code> (one function per endpoint, returns unwrapped <code>data</code>), <code>hooks/use-projects.ts</code> (list), <code>hooks/use-project.ts</code> (detail + mutations), <code>hooks/use-project-members.ts</code>. Layer law from <code>frontend/CLAUDE.md</code>: component → hooks → services → <code>lib/api</code></td></tr>
+<tr><td>17</td><td>Query keys</td><td><code>[&#x27;projects&#x27;, params]</code> for the list, <code>[&#x27;project&#x27;, id]</code> for the detail, <code>[&#x27;project&#x27;, id, &#x27;members&#x27;]</code> for members. Mutations invalidate the narrowest key that changed, plus <code>[&#x27;projects&#x27;]</code> when a row&#x27;s list appearance changed</td></tr>
+<tr><td>18</td><td>Form library</td><td><code>react-hook-form</code> + <code>zodResolver</code>, schema beside the form, <code>z.infer</code> for the type, server errors via <code>setError</code>. Mandated by <code>frontend/CLAUDE.md</code>; <strong>never <code>watch()</code></strong> (React Compiler + <code>react-hooks/incompatible-library</code>)</td></tr>
+<tr><td>19</td><td>Where a field error vs a toast goes</td><td>Duplicate code → field error under the code input. Bad date range → field error on the end date. Unknown email / already a member → field error under the email input. Anything else → the global <code>MutationCache</code> toast, which means <strong>do not define a local <code>onError</code></strong> on those mutations unless the intent is to stand the toast down</td></tr>
+<tr><td>20</td><td>Detail page 400 vs 404</td><td>A malformed uuid is a 400 from <code>ParseUUIDPipe</code>, a missing-or-not-mine project is a 404. The detail page renders the <strong>same</strong> &quot;Project not found&quot; screen for both — to a user they are one situation</td></tr>
+<tr><td>21</td><td>Sidebar scope while the detail query is in flight</td><td>Project scope with a skeleton label (<code>ui.md</code> loading state), chosen from the <strong>pathname</strong>, not from loaded data. Rendering global scope first would flash the wrong nav</td></tr>
+<tr><td>22</td><td>A member hitting <code>/projects/:id/settings</code> directly</td><td>Render the shared &quot;Project not found&quot; screen (<code>ui.md</code>). The API still answers <code>GET /projects/:id</code> for them — this is a route-level presentation choice, and the owner-only writes are enforced server-side regardless</td></tr>
+<tr><td>23</td><td>New confirm presets</td><td><code>confirmArchive</code> / <code>confirmRestore</code> / <code>confirmRemoveMember</code> added <strong>beside</strong> <code>confirmDelete</code> in <code>constants/confirm.ts</code>, with the copy in <code>ui.md</code>. <code>confirmDelete</code> is not reused — its &quot;permanently deleted. This can&#x27;t be undone.&quot; is false for all three</td></tr>
+<tr><td>24</td><td>The three hand-copied primitives</td><td><code>components/ui/dialog.tsx</code>, <code>table.tsx</code>, <code>textarea.tsx</code>, copied from shadcn/ui <strong>new-york</strong> to match <code>components.json</code>. The CLI hangs in this environment (<code>rules.md</code>); install any missing radix dep with pnpm</td></tr>
+<tr><td>25</td><td>Where the Overview stage counts live</td><td><code>constants/project-stages.ts</code> — label, href, <code>Soon</code> flag and the literal <code>0</code>. One constant per stage so a later change swaps one line for one query</td></tr>
+<tr><td>26</td><td>Dashboard data source</td><td>The existing list endpoint (Default 6 above). <code>constants/dashboard.ts</code> loses <code>RECENT_PROJECTS</code>, <code>NEXT_MEETING</code> and the projects <code>Stat</code>; the other three tiles keep their constants and gain a <code>Soon</code> marker</td></tr>
+<tr><td>27</td><td>Generated API types</td><td><code>pnpm api:types</code> in <code>frontend/</code> with the backend running, <strong>after</strong> the controller is final. <code>frontend/app/types/api/**</code> is generated — never hand-edited (<code>rules.md</code>)</td></tr>
+<tr><td>28</td><td><code>schema.md</code> refresh</td><td>Part of this change, not a follow-up. It records enums (varchar + CHECK), the first composite unique, the first <code>date</code> columns, and the <code>ON DELETE CASCADE</code> exception <strong>with its reasoning</strong>, so the next change does not read one CASCADE as blanket permission</td></tr>
+</tbody></table></div>
+<h5>Blast Radius</h5>
+<p>Resolved against the live tree.</p>
+<p><strong>New — nothing reads these yet</strong> <code>backend/src/projects/<strong></code> · <code>backend/src/database/migrations/&lt;ts&gt;-CreateProjects.ts</code> · <code>frontend/services/projects.ts</code> · <code>frontend/hooks/use-projects.ts</code> · <code>use-project.ts</code> · <code>use-project-members.ts</code> · <code>use-nav-scope.ts</code> · <code>frontend/types/project.ts</code> · <code>frontend/constants/project-stages.ts</code> · <code>frontend/components/ui/{dialog,table,textarea}.tsx</code> · <code>frontend/components/projects/</strong></code> · <code>frontend/app/(app)/projects/**</code></p>
+<p><strong>Shared surfaces — where a reviewer should look hardest</strong></p>
+<div class='tw'><table>
+<thead><tr><th>File</th><th>Change</th><th>Risk</th></tr></thead>
+<tbody>
+<tr><td><code>frontend/constants/nav.ts</code></td><td>single array → two scopes + a function</td><td><strong>high.</strong> It feeds desktop and mobile; the single-source property must survive</td></tr>
+<tr><td><code>frontend/types/nav.ts</code></td><td><code>NavGroup</code> union: <code>&quot;Insights&quot;</code> out, four project groups in</td><td>medium. A stale <code>&quot;Insights&quot;</code> renders an empty group header</td></tr>
+<tr><td><code>frontend/components/sidebar/nav-groups.tsx</code></td><td>items/groups from <code>useNavScope()</code> instead of the constant import</td><td>medium. The one renderer both shells use</td></tr>
+<tr><td><code>frontend/constants/confirm.ts</code></td><td>three presets added</td><td>low. Additive; <code>confirmDelete</code> untouched</td></tr>
+<tr><td><code>frontend/app/(app)/page.tsx</code></td><td>delete <code>FeedbackDemoCard</code>, delete the Next Meeting card, wire two real tiles</td><td>medium. Deleting the demo card is intended (<code>add-feedback-layer</code> left a <code>ponytail:</code> note asking for exactly this)</td></tr>
+<tr><td><code>frontend/constants/dashboard.ts</code></td><td><code>RECENT_PROJECTS</code>, <code>NEXT_MEETING</code>, projects <code>Stat</code> removed</td><td>low, but <code>types/dashboard.ts</code> must drop the orphaned types in the same commit</td></tr>
+<tr><td><code>backend/src/app.module.ts</code></td><td>one import line: <code>ProjectsModule</code></td><td>low. Same shape <code>FilesModule</code> added</td></tr>
+<tr><td><code>backend/src/config/env.validation.ts</code></td><td>three <strong>optional</strong> <code>SEED_MEMBER_*</code> vars</td><td>low — optional, so no existing <code>.env</code> breaks</td></tr>
+<tr><td><code>backend/src/database/seeds/seed.ts</code></td><td>seeds the second account when those vars are set</td><td>low. Guarded; admin path unchanged</td></tr>
+<tr><td><code>backend/.env.example</code></td><td><code>SEED_MEMBER_*</code> rows, empty + commented</td><td>low</td></tr>
+<tr><td><code>devspec/context/schema.md</code></td><td>refreshed with both tables and four settled conventions</td><td>documentation</td></tr>
+</tbody></table></div>
+<p><strong>Untouched on purpose</strong>: <code>backend/src/users/<strong></code> (two new FKs point at <code>users.id</code>; <code>User</code> gains no inverse relation — no existing entity declares one), <code>backend/src/files/</strong></code> (the first <code>file_id</code> FK lands in <code>add-project-context</code>), <code>backend/src/auth/**</code>, <code>backend/test/app.e2e-spec.ts</code> (the pre-existing failure logged in <code>devspec/report/blockers.md</code> — out of scope, do not touch).</p>
+<p><strong>No existing query reads either new table, so nothing can regress on the backend.</strong> The real regression surface is the sidebar: every authenticated route renders it.</p>
+<h5>Risk / reversibility</h5>
+<div class='tw'><table>
+<tbody>
+<tr><td><strong>Migration</strong></td><td>Purely additive — two new tables, three FKs, two unique constraints, one index, two CHECKs. No column on an existing table is added, altered or dropped. No backfill. <strong>Reverts clean</strong> by dropping the two tables in FK order. No destructive operation anywhere in this change</td></tr>
+<tr><td><strong>Data loss risk</strong></td><td><strong>None.</strong> There is no hard delete in the service and none in the UI. Archive is a status value; removing a member deletes one <code>project_members</code> row, which holds no content</td></tr>
+<tr><td><strong>Reversibility</strong></td><td>High. Backend code is new files plus one import line. The frontend nav rewrite is the only edit that is awkward to revert piecemeal — it should land as its own commit</td></tr>
+<tr><td><strong>Biggest defect risk</strong></td><td>The three hand-copied primitives (<code>dialog</code>, <code>table</code>, <code>textarea</code>). Transcription error, not design error. <code>tsc</code> + <code>eslint</code> + actually rendering each one is the check</td></tr>
+<tr><td><strong>Second biggest</strong></td><td>The nav scope split silently drifting desktop and mobile apart. The mitigation is structural: both keep rendering one <code>NavGroups</code> fed by one hook</td></tr>
+<tr><td><strong>Security posture</strong></td><td><code>whitelist</code> + <code>forbidNonWhitelisted</code> stay on, so an undeclared field is a 400. <code>created_by</code> has no <code>@Expose()</code> on any DTO. Membership is enforced in the service, not the controller. No new secret, no weakened check, no widened scope — the <code>SEED_MEMBER_*</code> vars are optional dev fixtures validated like every other var and committed only as empty rows</td></tr>
+</tbody></table></div>
+<hr>
+</section>
+<section id="backend"><h2>Backend</h2>
+<p class='sub'>Endpoints, DTO shapes and the access model, from <code>design.md</code> + <code>spec.md</code>. The backend-tagged subtasks are in the Tasks section below.</p>
+<h3>Access model</h3>
+<p><strong>One gate, applied in the service, for every operation.</strong> Resolve the viewer&#x27;s <code>project_members</code> row for the project id first; branch on what came back.</p>
+<div class='tw'><table>
+<thead><tr><th>Viewer</th><th>Read (list / get / members)</th><th>Owner-only write (update, archive, restore, member add/remove)</th></tr></thead>
+<tbody>
+<tr><td>owner</td><td>allowed</td><td>allowed</td></tr>
+<tr><td>member</td><td>allowed</td><td><strong>403 <code>PROJECT_NOT_OWNER</code></strong></td></tr>
+<tr><td>non-member, or unknown id</td><td><strong>404 <code>PROJECT_NOT_FOUND</code></strong></td><td><strong>404 <code>PROJECT_NOT_FOUND</code></strong></td></tr>
+</tbody></table></div>
+<p><strong>Why a non-member gets 404 and a member gets 403.</strong> A 403 for a non-member confirms the project exists, which is exactly the leak membership scoping is there to prevent. A member already knows the project exists — they can read it — so 403 tells them something true and actionable (&quot;you are not the owner&quot;) without revealing anything new. Collapsing both into 404 would make the settings page indistinguishable from a bug for a member who typed the URL.</p>
+<p><strong>The list query is membership-first.</strong> <code>GET /projects</code> never filters a global project set down to the viewer&#x27;s; it starts from <code>project_members WHERE user_id = :viewer</code> and joins outward. A project the viewer is not on cannot appear in the result set even if the status or search filter is wrong, because it was never in the candidate rows. That ordering is the security property — keep the join direction if the query is ever rewritten.</p>
+<p><strong>Creation makes the creator the owner, atomically.</strong> <code>POST /projects</code> writes the <code>projects</code> row and the <code>project_members</code> row with <code>role=&#x27;owner&#x27;</code> inside <strong>one transaction</strong>. A project with no owner row would be invisible to its own creator and unreachable by every endpoint — unrecoverable through the API, since every write is owner-gated. <code>dataSource.transaction()</code> around both saves.</p>
+<hr>
+<h3>API shapes this change establishes</h3>
+<p>Three shapes have no precedent in the repo. They become the pattern every later domain copies.</p>
+<h6>Paginated list envelope</h6>
+<pre class='code'>class ProjectListDto {            // dto/project-list.dto.ts
+  @Expose() items: ProjectSummaryDto[];
+  @Expose() total: number;        // matching rows before paging
+  @Expose() page: number;
+  @Expose() limit: number;
+}</pre>
+<p>A concrete DTO per domain, not a generic <code>Paginated&lt;T&gt;</code>. TypeORM is not the constraint here — <code>@nestjs/swagger</code> and <code>class-transformer</code> both need a real class to read metadata off, and a generic wrapper needs <code>ApiExtraModels</code> + <code>getSchemaPath</code> plumbing per endpoint to produce a usable OpenAPI schema. Three extra lines per domain beats that. &lt;!-- ponytail: one concrete list DTO per domain. Revisit when the fourth one exists, not the second. --&gt;</p>
+<h6>Query DTO composes the shared pieces</h6>
+<p><code>ListProjectsDto</code> nests <code>PaginationDto</code> and <code>SortDto</code> as <code>pagination</code> / <code>sort</code> rather than flattening them — the convention <code>pagination.dto.ts:4</code> documents. <code>sortBy</code> is re-declared with <code>@IsIn([&#x27;updatedAt&#x27;, &#x27;createdAt&#x27;, &#x27;name&#x27;, &#x27;code&#x27;])</code> so an arbitrary string can never reach the <code>ORDER BY</code>; default <code>updatedAt DESC</code>. Own fields: <code>q</code> (optional search) and <code>status</code> (<code>active</code> | <code>archived</code> | <code>all</code>, default <code>active</code>).</p>
+<h6>Two response DTOs, not one</h6>
+<p><code>ProjectSummaryDto</code> (list rows, dashboard) and <code>ProjectDto</code> (detail) are separate classes. The list needs <code>memberCount</code> + up to three member names for the avatar stack; the detail needs <code>objective</code>, both dates and <code>createdByName</code>. One DTO carrying every field would make the list query join and serialise prose it never renders.</p>
+<div class='tw'><table>
+<thead><tr><th></th><th><code>ProjectSummaryDto</code></th><th><code>ProjectDto</code></th></tr></thead>
+<tbody>
+<tr><td>id, createdAt, updatedAt</td><td>✓ (<code>AuditDto</code>)</td><td>✓ (<code>AuditDto</code>)</td></tr>
+<tr><td>code, name, customerBu, domain, status</td><td>✓</td><td>✓</td></tr>
+<tr><td>memberCount</td><td>✓</td><td>✓</td></tr>
+<tr><td>memberNames (max 3, for the avatar stack)</td><td>✓</td><td>—</td></tr>
+<tr><td>viewerRole (<code>owner</code> \</td><td><code>member</code>)</td><td>✓</td><td>✓</td></tr>
+<tr><td>objective, startsOn, endsOn</td><td>—</td><td>✓</td></tr>
+<tr><td>createdByName</td><td>—</td><td>✓</td></tr>
+</tbody></table></div>
+<p><code>created_by</code> (the uuid) carries <strong>no <code>@Expose()</code></strong> on either DTO — the same mechanism that keeps <code>files.uploadedBy</code> server-side. The detail view needs the creator&#x27;s <em>name</em>, so <code>createdByName</code> ships the display string and the id stays internal.</p>
+<p><strong><code>starts_on</code> / <code>ends_on</code> serialise as <code>&#x27;YYYY-MM-DD&#x27;</code> strings, not <code>Date</code>.</strong> TypeORM returns a <code>date</code> column as a string, and that is what we want: wrapping it in a <code>Date</code> would re-introduce a timezone and could render a start date a day early for a viewer behind UTC. Typed <code>string</code> on the DTO. First <code>date</code> columns in the repo — record it in <code>schema.md</code>.</p>
+<hr>
+<h3>The four Overview counts are frontend constants, not API fields</h3>
+<p>Overview shows Context documents / Meetings held / Requirements collected / Open questions, all <code>0</code> with a <code>Soon</code> badge. <strong>No API field backs them.</strong> An API returning <code>requirementsCount: 0</code> from a table that does not exist is a field that lies by construction, and the first change to add requirements would have to decide whether the old zero was real. <code>memberCount</code> <em>is</em> a real API field because <code>project_members</code> exists.</p>
+<p>The stage counts live in a frontend constant alongside their <code>Soon</code> flags, so <code>add-project-context</code> / <code>add-meetings</code> / <code>add-requirements</code> each replace one constant with one query and the page layout never changes.</p>
+<hr>
+<h3>Verification needs a second account</h3>
+<p><code>ui.md</code> and <code>proposal.md</code> both flag it: <code>devspec/improve/testing.md</code> records only <code>admin@clarivo.local</code>, and member-vs-owner and non-member are three of this change&#x27;s states. Clarivo has no signup endpoint, so the <strong>only</strong> way to create an account is the seed path.</p>
+<p><strong>Decision: <code>pnpm seed</code> gains an optional second account.</strong> <code>SEED_MEMBER_EMAIL</code> / <code>SEED_MEMBER_PASSWORD</code> / <code>SEED_MEMBER_NAME</code> are added to <code>EnvironmentVariables</code> as <strong><code>@IsOptional()</code></strong> (the first optional vars in the contract) and seeded only when all three are set. Optional, because a required var would invalidate every existing <code>.env</code> — the cost <code>FILE_STORAGE_PATH</code> already imposed once, and not worth repeating for a test fixture. Credentials go in the gitignored <code>devspec/improve/testing.md</code>, never in <code>.env.example</code> (which gets the empty rows and a comment) and never in a commit.</p>
+<p>Rejected: inserting the row with SQL (the worker is forbidden from touching the live DB directly, and an unseeded account would not survive a DB reset); hardcoding a fixture account in <code>seed.ts</code> (a committed password, even a dev one, is the wrong precedent).</p>
+<hr>
+<h3>Rejected approaches</h3>
+<div class='tw'><table>
+<thead><tr><th>Considered</th><th>Rejected because</th></tr></thead>
+<tbody>
+<tr><td><code>deleted_at</code> soft-delete column for archive</td><td>The repo has no soft delete anywhere and no <code>@DeleteDateColumn</code>. Archive is domain state the UI renders as an <code>Active</code>/<code>Archived</code> badge, not a deletion. <code>db.md</code> records this.</td></tr>
+<tr><td>Postgres <code>enum</code> type for <code>status</code> / <code>role</code></td><td>Adding a value needs <code>ALTER TYPE … ADD VALUE</code>, which cannot run inside a transaction block — a migration footgun for a two-value set. <code>varchar</code> + <code>@Check()</code> widens with a plain constraint swap. First enum in the repo, so this sets the precedent.</td></tr>
+<tr><td>A <code>GET /dashboard</code> endpoint for the dashboard tiles</td><td>Total + 5 recent actives is <code>GET /projects?pagination[limit]=5&amp;status=active</code> plus the envelope&#x27;s <code>total</code>. A second endpoint returning a subset of an existing one is pure duplication.</td></tr>
+<tr><td>Generic <code>PaginatedDto&lt;T&gt;</code></td><td>Swagger generics need per-endpoint <code>ApiExtraModels</code>/<code>getSchemaPath</code> plumbing to emit a usable schema; the generated frontend types would degrade to <code>unknown</code>.</td></tr>
+<tr><td>403 for a non-member</td><td>Confirms the project exists. The whole point of membership scoping is that it does not.</td></tr>
+<tr><td>Project switcher as a dropdown</td><td>A second list query for navigation <code>← All projects</code> already provides.</td></tr>
+<tr><td>Edit-details modal on the list row menu</td><td>Two places editing the same six fields, two validation paths. Settings owns editing.</td></tr>
+<tr><td><code>CHECK</code> on <code>projects.domain</code></td><td>Customer data that grows; every new vertical would become a migration.</td></tr>
+<tr><td><code>CHECK (ends_on &gt;= starts_on)</code></td><td>Validated in the DTO where the message can name the field. A constraint violation surfaces as a 500-shaped driver error with no field to attach to.</td></tr>
+</tbody></table></div>
+<hr>
+<h3>Requirements</h3>
+<div class='tw'><table><thead><tr><th>req</th><th>SHALL</th><th>task sections</th></tr></thead><tbody>
+<tr><td><code>req-1</code></td><td>projects and project_members schema</td><td>1. Entities and migration</td></tr>
+<tr><td><code>req-2</code></td><td>create a project</td><td>2. Error codes and DTOs, 3. ProjectsService — the membership gate and every operation, 4. ProjectsController</td></tr>
+<tr><td><code>req-3</code></td><td>list the viewer&#x27;s projects</td><td>2. Error codes and DTOs, 3. ProjectsService — the membership gate and every operation, 4. ProjectsController</td></tr>
+<tr><td><code>req-4</code></td><td>read one project</td><td>2. Error codes and DTOs, 3. ProjectsService — the membership gate and every operation, 4. ProjectsController</td></tr>
+<tr><td><code>req-5</code></td><td>update project details</td><td>2. Error codes and DTOs, 3. ProjectsService — the membership gate and every operation, 4. ProjectsController</td></tr>
+<tr><td><code>req-6</code></td><td>archive and restore</td><td>2. Error codes and DTOs, 3. ProjectsService — the membership gate and every operation, 4. ProjectsController</td></tr>
+<tr><td><code>req-7</code></td><td>manage members</td><td>2. Error codes and DTOs, 3. ProjectsService — the membership gate and every operation, 4. ProjectsController</td></tr>
+<tr><td><code>req-8</code></td><td>projects list screen</td><td>6. Frontend data layer, 7. The three missing UI primitives, 9. Projects list screen and create modal</td></tr>
+<tr><td><code>req-9</code></td><td>create project modal</td><td>7. The three missing UI primitives, 9. Projects list screen and create modal</td></tr>
+<tr><td><code>req-10</code></td><td>project overview screen</td><td>6. Frontend data layer, 10. Project overview screen</td></tr>
+<tr><td><code>req-11</code></td><td>project-scoped navigation</td><td>8. Sidebar: two scopes, one source</td></tr>
+<tr><td><code>req-12</code></td><td>project settings screen</td><td>6. Frontend data layer, 7. The three missing UI primitives, 11. Project settings screen</td></tr>
+<tr><td><code>req-13</code></td><td>dashboard reflects real projects</td><td>12. Dashboard reflects real projects</td></tr>
+<tr><td><code>req-14</code></td><td>consumers and conventions are updated</td><td>5. Second test account for the member-vs-owner states, 6. Frontend data layer, 13. Conventions, docs and the repo&#x27;s gates</td></tr>
+</tbody></table></div></section>
+<section id="database"><h2>Database</h2>
+<p><strong>Source</strong>: <strong>live</strong> — <code>docker exec clarivo-postgres-1 psql -U clarivo -d clarivo</code> (no DB MCP is connected). <strong>Dialect</strong>: postgresql 17 · schema <code>public</code> · read 2026-10-01. <strong>Conventions</strong>: <code>devspec/context/schema.md</code> (the canonical table below) + <code>backend/src/database/base.entity.ts</code>.</p>
+<p>Existing domain tables: <code>users</code> (2 rows), <code>files</code> (0 rows). Two migrations applied: <code>CreateUsers1790762306910</code>, <code>CreateFiles1790827127817</code>. This change is the third.</p>
+<h3>Tables touched</h3>
+<h4><code>users</code> (exists — read only, <strong>not altered</strong>)</h4>
+<div class='tw'><table>
+<thead><tr><th>col</th><th>type</th><th>null</th><th>default</th><th>note</th></tr></thead>
+<tbody>
+<tr><td>id</td><td>uuid</td><td>no</td><td>—</td><td>PK. Referenced by both new tables</td></tr>
+<tr><td>email</td><td>varchar(255)</td><td>no</td><td>—</td><td><code>UQ_97672ac88f789774dd47f7c8be3</code></td></tr>
+<tr><td>password_hash</td><td>varchar(255)</td><td>no</td><td>—</td><td>never serialised</td></tr>
+<tr><td>name</td><td>varchar(255)</td><td>no</td><td>—</td><td></td></tr>
+<tr><td>created_at / updated_at</td><td>timestamptz</td><td>no</td><td>now()</td><td></td></tr>
+</tbody></table></div>
+<p>No column is added, altered or dropped on <code>users</code>. The change only points two new FKs at <code>users.id</code>.</p>
+<h4><code>projects</code> (<strong>new</strong>)</h4>
+<div class='tw'><table>
+<thead><tr><th>col</th><th>type</th><th>null</th><th>default</th><th>note</th></tr></thead>
+<tbody>
+<tr><td>id</td><td>uuid</td><td>no</td><td>—</td><td><strong>add</strong> · PK, uuidv7 from <code>BaseEntity</code></td></tr>
+<tr><td>created_at / updated_at</td><td>timestamptz</td><td>no</td><td>now()</td><td><strong>add</strong> · <code>BaseEntity</code></td></tr>
+<tr><td>code</td><td>varchar(64)</td><td>no</td><td>—</td><td><strong>add</strong> · UNIQUE, <strong>globally</strong>. Human handle (<code>CLT-DevSpec</code>)</td></tr>
+<tr><td>name</td><td>varchar(255)</td><td>no</td><td>—</td><td><strong>add</strong></td></tr>
+<tr><td>customer_bu</td><td>varchar(255)</td><td>no</td><td>—</td><td><strong>add</strong> · customer / business unit (<code>CLT</code>)</td></tr>
+<tr><td>domain</td><td>varchar(255)</td><td>no</td><td>—</td><td><strong>add</strong> · free text, <strong>no CHECK</strong> — see Decisions</td></tr>
+<tr><td>objective</td><td>text</td><td><strong>yes</strong></td><td>—</td><td><strong>add</strong> · long prose, not shown in the create modal as required</td></tr>
+<tr><td>status</td><td>varchar(16)</td><td>no</td><td><code>&#x27;active&#x27;</code></td><td><strong>add</strong> · CHECK <code>status IN (&#x27;active&#x27;,&#x27;archived&#x27;)</code></td></tr>
+<tr><td>starts_on</td><td>date</td><td><strong>yes</strong></td><td>—</td><td><strong>add</strong> · first <code>date</code> column in this repo</td></tr>
+<tr><td>ends_on</td><td>date</td><td><strong>yes</strong></td><td>—</td><td><strong>add</strong></td></tr>
+<tr><td>created_by</td><td>uuid</td><td>no</td><td>—</td><td><strong>add</strong> · FK → <code>users(id)</code> <strong>ON DELETE RESTRICT</strong></td></tr>
+</tbody></table></div>
+<p>Indexes to create deliberately (Postgres does not index an FK column):</p>
+<ul>
+<li><code>UQ projects(code)</code> — from <code>unique: true</code> on the column.</li>
+<li><code>IDX projects(status)</code> — <strong>skipped</strong>. The list query always filters by membership first; status narrows a handful of rows. Record the skip, add it when a project count justifies it.</li>
+<li><code>IDX projects(created_by)</code> — <strong>skipped</strong>. No per-creator listing and no user-delete path exists (<code>UsersService</code> has no remove method), so the RESTRICT check never runs.</li>
+</ul>
+<h4><code>project_members</code> (<strong>new</strong>)</h4>
+<div class='tw'><table>
+<thead><tr><th>col</th><th>type</th><th>null</th><th>default</th><th>note</th></tr></thead>
+<tbody>
+<tr><td>id</td><td>uuid</td><td>no</td><td>—</td><td><strong>add</strong> · PK, uuidv7 from <code>BaseEntity</code></td></tr>
+<tr><td>created_at / updated_at</td><td>timestamptz</td><td>no</td><td>now()</td><td><strong>add</strong> · <code>BaseEntity</code></td></tr>
+<tr><td>project_id</td><td>uuid</td><td>no</td><td>—</td><td><strong>add</strong> · FK → <code>projects(id)</code> <strong>ON DELETE CASCADE</strong> — the one documented exception to the repo&#x27;s RESTRICT default</td></tr>
+<tr><td>user_id</td><td>uuid</td><td>no</td><td>—</td><td><strong>add</strong> · FK → <code>users(id)</code> <strong>ON DELETE RESTRICT</strong></td></tr>
+<tr><td>role</td><td>varchar(16)</td><td>no</td><td>—</td><td><strong>add</strong> · CHECK <code>role IN (&#x27;owner&#x27;,&#x27;member&#x27;)</code></td></tr>
+</tbody></table></div>
+<p>Constraints and indexes:</p>
+<ul>
+<li><code>UQ project_members(project_id, user_id)</code> — <strong>first composite unique constraint in this repo</strong>. One row per person per project; makes &quot;add an existing member&quot; a 409 rather than a duplicate.</li>
+<li><code>IDX project_members(user_id)</code> — <strong>required, not optional</strong>. Every project list query starts from &quot;which projects is this user in&quot;, so <code>user_id</code> is the hot lookup. The composite unique only indexes <code>project_id</code> as its leading column, so it does not serve this.</li>
+</ul>
+<h3>Impact</h3>
+<ul>
+<li><code>backend/src/users/user.entity.ts</code> — unchanged. Two new tables reference <code>users.id</code>; nothing on <code>User</code> needs an inverse relation (none of the existing entities declare one either — <code>FileEntity.uploader</code> is one-directional).</li>
+<li><code>backend/src/users/users.service.ts</code> — unchanged, and <strong>no user-delete path exists</strong>, so adding two more RESTRICT references to <code>users</code> costs nothing today. When a user-delete ever ships it must now also account for <code>projects.created_by</code> and <code>project_members.user_id</code>.</li>
+<li><code>backend/src/files/*</code> — untouched. <code>files</code> stays unconsumed in this change (the Context tab is a placeholder); the first <code>file_id</code> FK lands in <code>add-project-context</code>.</li>
+<li><code>backend/src/app.module.ts</code> — gains one import registering <code>ProjectsModule</code>. Entity registration happens <strong>only</strong> via <code>TypeOrmModule.forFeature([...])</code> inside that module (<code>app.module.ts</code> passes <code>entities: []</code> + <code>autoLoadEntities: true</code>); registering anywhere else is a silent no-op.</li>
+<li><code>backend/src/common/dtos/pagination.dto.ts</code> + <code>sort.dto.ts</code> — reused as-is by the list query DTO, not modified. <code>SortDto.sortBy</code> is whitelisted per domain by overriding with <code>@IsIn</code>.</li>
+<li><strong>No existing query reads either new table.</strong> Nothing can regress.</li>
+</ul>
+<h3>Migration verdict</h3>
+<p><strong>Purely additive.</strong> Two new tables, three new FKs, two new unique constraints, one new index, two CHECK constraints. No column on an existing table is added, altered or dropped. <strong>No backfill, no data reshape, no destructive operation anywhere.</strong> Reverts clean by dropping the two new tables in FK order (<code>project_members</code> then <code>projects</code>).</p>
+<p>One migration file covering both tables — TypeORM&#x27;s generator emits a single file per <code>migration:generate</code> run, and the two tables are one logical unit. Expected name <code>&lt;timestamp&gt;-CreateProjects.ts</code> in <code>backend/src/database/migrations/</code>.</p>
+<p>⚠ <code>pnpm migration:*</code> <strong>builds first and runs against <code>dist/</code></strong> — a TypeScript error surfaces as a confusing migration failure. Compile clean before generating.</p>
+<h3>Decisions settled here</h3>
+<div class='tw'><table>
+<thead><tr><th>Question</th><th>Decision</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>Enum representation — pg enum type vs lookup table vs varchar+CHECK</td><td><strong>varchar + CHECK</strong>, via TypeORM&#x27;s <code>@Check()</code> entity decorator</td><td><code>schema.md</code> lists this as undecided; <code>status</code> forces the call. A pg enum type needs its own <code>ALTER TYPE ... ADD VALUE</code> migration (which cannot run inside a transaction block) to add a value; a lookup table adds a join for a 2-value set. varchar + CHECK widens with a plain constraint swap. <strong>This sets the precedent for every enum after it — record it in <code>schema.md</code>.</strong></td></tr>
+<tr><td><code>domain</code> — CHECK too?</td><td><strong>No. Plain varchar, no constraint</strong></td><td><code>status</code> is a closed 2-value set the code branches on. <code>domain</code> is customer data that grows (<code>Logistics</code>, <code>Finance</code>, …); a CHECK there turns every new customer vertical into a migration.</td></tr>
+<tr><td><code>project_members.project_id</code> ON DELETE</td><td><strong>CASCADE</strong> — the one exception to the repo&#x27;s RESTRICT default</td><td>A membership row has no meaning without its project and owns no external bytes, so cascading cannot orphan anything a FK can&#x27;t reach (which is exactly why <code>files.uploaded_by</code> is RESTRICT). Without it, archiving-then-deleting a project would be blocked by its own membership rows.</td></tr>
+<tr><td><code>project_members.user_id</code> ON DELETE</td><td><strong>RESTRICT</strong> — matches <code>files.uploaded_by</code></td><td>Keeps the repo&#x27;s default. A user who is still on a project cannot vanish silently.</td></tr>
+<tr><td>Archive = <code>deleted_at</code>?</td><td><strong>No.</strong> <code>status=&#x27;archived&#x27;</code></td><td>The repo has <strong>no soft delete anywhere</strong> and no <code>@DeleteDateColumn</code>. A <code>deleted_at</code> would introduce a second deletion concept; a status value is domain state the UI already shows (screen 5 renders an <code>Active</code> badge).</td></tr>
+<tr><td><code>code</code> scope</td><td><strong>Globally UNIQUE</strong></td><td>One index, one error message, no coupling to <code>customer_bu</code>. A composite <code>(customer_bu, code)</code> would also make renaming a customer a uniqueness event.</td></tr>
+<tr><td><code>size</code> of <code>code</code></td><td>varchar(64)</td><td><code>CLT-DevSpec</code> shape. Everything else stays at the repo&#x27;s 255.</td></tr>
+</tbody></table></div>
+<h3>Open questions</h3>
+<p>None blocking. Two notes for whoever refreshes <code>devspec/context/schema.md</code> (that refresh is a task in this change, not a separate job):</p>
+<ul>
+<li>This change settles three of the four items <code>schema.md</code> lists under <strong>&quot;Still not established&quot;</strong>: enum representation (varchar + CHECK), composite unique constraints (<code>project_members</code>), and the first <code>date</code> columns. Money and JSON column types remain unestablished.</li>
+<li><code>ON DELETE CASCADE</code> appears for the first time. The convention line in <code>schema.md</code> currently reads &quot;RESTRICT is the default&quot; — it should stay the default, with the CASCADE exception and its reasoning recorded beside it, so the next change does not read one CASCADE as permission to cascade everything.</li>
+</ul>
+<h3>Suggested Verify hooks for tasks.md</h3>
+<ul>
+<li><strong>Schema assertion</strong> — a vitest spec reading <code>getMetadataArgsStorage()</code> (the pattern <code>backend/src/files/file.entity.spec.ts</code> already uses; <code>DataSource.getMetadata()</code> throws before connection) asserting every column&#x27;s snake_case <code>name:</code>, both CHECK constraints, and the composite unique.</li>
+<li><strong>Migration round-trip</strong> — <code>pnpm migration:run</code> → <code>pnpm migration:revert</code> → <code>pnpm migration:run</code> against the dev DB, then <code>\d projects</code> / <code>\d project_members</code> confirming types, FKs, <code>ON DELETE</code> actions and indexes.</li>
+<li><strong>No-regression</strong> — <code>pnpm test</code> (the existing suite) still green; <code>users</code> and <code>files</code> are structurally untouched, so any failure there is a real regression.</li>
+</ul>
+</section>
+<section id="frontend"><h2>Frontend</h2>
+<p><strong>Mockups</strong> (approved 2026-10-01 by LE AN):</p>
+<ul>
+<li><code>mockups/projects-list.html</code> — the list, 6 states</li>
+<li><code>mockups/project-create-modal.html</code> — create, 9 states</li>
+<li><code>mockups/project-detail.html</code> — overview + the sidebar scope switch, 6 states</li>
+<li><code>mockups/project-settings.html</code> — settings, 5 states</li>
+<li><code>mockups/dashboard.html</code> — the dashboard after this change, 3 states</li>
+</ul>
+<p><strong>References</strong>: <code>assets/ChatGPT Image Sep 30, 2026, 02_57_53 PM.png</code>, screens 2 (Dashboard), 3 (Create Project), 5 (Project Overview). Deliberate departures from the reference are listed under <em>Cut from the reference</em> at the bottom.</p>
+<p><strong>Style source</strong>: every colour, radius and shadow in the mockups is copied from <code>frontend/app/globals.css</code> (<code>--primary</code>, <code>--sidebar</code>, <code>--success</code>, <code>--warning</code>, <code>--chart-1/2/3</code>, <code>--radius</code>). The sidebar&#x27;s floating-card shape (18px radius, 264px / 72px widths, <code>my-3 ml-3</code>) comes from <code>components/sidebar/app-sidebar.tsx</code>; the nav row&#x27;s active treatment (left bar + <code>bg-sidebar-primary/12</code>) and the disabled <code>Soon</code> badge come from <code>components/sidebar/nav-item.tsx</code>; the error card and stat tiles mirror <code>app/(app)/page.tsx</code>.</p>
+<p><strong>Frontend conventions</strong>: <code>@/*</code> resolves from the frontend root per <code>frontend/CLAUDE.md</code> (<code>devspec/context/conventions.md</code> is stale on this point). Tailwind v4 + shadcn/ui new-york. <strong>The shadcn CLI hangs in this environment</strong> (<code>devspec/context/rules.md</code>) — any new primitive is hand-copied into <code>components/ui/</code>.</p>
+<hr>
+<h3>Components to reuse</h3>
+<p>Resolved against the real tree. A subtask that adds UI builds from these, never a fresh plain element.</p>
+<div class='tw'><table>
+<thead><tr><th>Need</th><th>Reuse</th></tr></thead>
+<tbody>
+<tr><td>Buttons</td><td><code>components/ui/button.tsx:Button</code> — <code>variant</code> primary/outline/ghost, <code>size</code> sm/icon-sm</td></tr>
+<tr><td>Cards</td><td><code>components/ui/card.tsx</code> — <code>Card</code>, <code>CardHeader</code>, <code>CardTitle</code>, <code>CardContent</code></td></tr>
+<tr><td>Text inputs</td><td><code>components/ui/input.tsx:Input</code></td></tr>
+<tr><td>Field labels</td><td><code>components/ui/label.tsx:Label</code></td></tr>
+<tr><td>Status / role pills</td><td><code>components/ui/badge.tsx:Badge</code> — <code>variant=&quot;outline&quot;</code> for the neutral pill</td></tr>
+<tr><td>Avatars</td><td><code>components/ui/avatar.tsx</code> — <code>Avatar</code>, <code>AvatarFallback</code></td></tr>
+<tr><td>Loading</td><td><code>components/ui/skeleton.tsx:Skeleton</code></td></tr>
+<tr><td>Row action menu</td><td><code>components/ui/dropdown-menu.tsx</code></td></tr>
+<tr><td>Dividers</td><td><code>components/ui/separator.tsx:Separator</code></td></tr>
+<tr><td>Collapsed-rail tooltips</td><td><code>components/ui/tooltip.tsx</code></td></tr>
+<tr><td><strong>All</strong> confirms (archive, restore, remove member)</td><td><code>hooks/use-confirm.ts:useConfirm</code> → <code>components/provider/confirm-provider.tsx</code>. <strong>Imperative — no local dialog state, no new JSX.</strong></td></tr>
+<tr><td>Confirm tone icon</td><td><code>components/ui/tone-icon.tsx:ToneIcon</code></td></tr>
+<tr><td>Success / error toasts</td><td><code>sonner</code>&#x27;s <code>toast</code>, already wired in <code>app/layout.tsx</code></td></tr>
+<tr><td>Mutation error toasts</td><td>Already automatic via the <code>MutationCache</code> in <code>components/provider/query-provider.tsx</code>. <strong>Defining a local <code>onError</code> overrides it</strong> — see that change&#x27;s design note.</td></tr>
+<tr><td>Nav rows, both desktop and mobile</td><td><code>components/sidebar/nav-item.tsx:NavItem</code></td></tr>
+<tr><td>Mobile drawer</td><td><code>components/sidebar/mobile-nav.tsx</code></td></tr>
+</tbody></table></div>
+<h4>Primitives that do NOT exist yet</h4>
+<p><code>components/ui/</code> has <strong>no</strong> <code>dialog</code>, <code>table</code>, or <code>textarea</code>. All three are needed:</p>
+<ul>
+<li><strong><code>dialog.tsx</code></strong> — the create modal. <code>alert-dialog.tsx</code> is not a substitute: it has no close</li>
+</ul>
+<p>button, blocks outside-click dismissal by design, and is owned by the confirm provider.</p>
+<ul>
+<li><strong><code>table.tsx</code></strong> — the projects list.</li>
+<li><strong><code>textarea.tsx</code></strong> — the Objective field.</li>
+</ul>
+<p>Hand-copy each from shadcn/ui new-york (the CLI hangs). <strong>Transcription error is the most likely defect in those three files</strong> — <code>tsc</code> + <code>eslint</code> + actually rendering each one is the check.</p>
+<hr>
+<h3>Navigation model</h3>
+<p>The one structural change: the sidebar has <strong>two scopes</strong>. Outside a project it is global; inside <code>/projects/:id/*</code> it swaps to that project&#x27;s sections. <code>components/sidebar/nav-groups.tsx</code> and <code>components/sidebar/mobile-nav.tsx</code> both render from one source today (<code>constants/nav.ts:NAV_ITEMS</code>) so they cannot drift — <strong>keep that property</strong>: two arrays, one scope-picking function, both renderers still reading one source.</p>
+<pre class='code'>GLOBAL SCOPE                       PROJECT SCOPE  — inside /projects/:id
+  Workspace                          ← All projects          (back row)
+    Dashboard      /                 [▣ CLT-DevSpec]         (static label, no dropdown)
+    Projects       /projects         Plan
+  Account                              Overview       /projects/:id            REAL
+    Settings       (disabled, Soon)     Context        …/context      disabled, Soon
+                                        Discovery Plan …/discovery    disabled, Soon
+                                     Run
+                                        Meetings       …/meetings     disabled, Soon
+                                     Output
+                                        Requirements   …/requirements disabled, Soon
+                                        Questions      …/questions    disabled, Soon
+                                        Decisions      …/decisions    disabled, Soon
+                                     Project
+                                        Settings       …/settings     REAL, owner only</pre>
+<ul>
+<li><code>NavGroup</code> in <code>types/nav.ts</code> is currently <code>&quot;Workspace&quot; | &quot;Insights&quot; | &quot;Account&quot;</code>. The project</li>
+</ul>
+<p>scope needs <code>&quot;Plan&quot; | &quot;Run&quot; | &quot;Output&quot; | &quot;Project&quot;</code>; <code>&quot;Insights&quot;</code> disappears with the rows that used it.</p>
+<ul>
+<li><strong>Global <code>Meetings</code>, <code>Requirements</code>, <code>Questions</code>, <code>Decisions</code>, <code>Documents</code> rows are removed.</strong></li>
+</ul>
+<p>They become project-scoped. <code>Documents</code> is the project&#x27;s Context section and gets no global row.</p>
+<ul>
+<li><strong><code>Conflicts &amp; Gaps</code> gets no row at all</strong> — it is an analysis view over requirements, not an</li>
+</ul>
+<p>entity. It will be a tab inside Requirements.</p>
+<ul>
+<li>A <strong>member</strong> (not owner) sees no <code>Settings</code> row.</li>
+<li>The project switcher is a <strong>static label, not a dropdown</strong>. <code>← All projects</code> already covers</li>
+</ul>
+<p>navigation; a dropdown would be a second list query for no new capability.</p>
+<hr>
+<h3>projects-list — <code>/projects</code></h3>
+<p>Layout:</p>
+<pre class='code'>Projects                                                   [🔔]
+Every project you own or were added to.
+
+[⌕ search…………]  [ Active | Archived | All ]      [＋ New project]
+┌──────────────────────────────────────────────────────────────┐
+│ PROJECT        CUSTOMER  DOMAIN     MEMBERS  STATUS  UPDATED │
+│ ▣ CLT-DevSpec   CLT      Logistics  ●●●+2   Active   2h ago ⋯│
+│   CLT-DevSpec                                                │
+│ ▣ Caris Logis.  Caris    Logistics  ●●+1    Active   Yest.  ⋯│
+│──────────────────────────────────────────────────────────────│
+│ 1–20 of 37                                      ‹ [1] 2 ›    │
+└──────────────────────────────────────────────────────────────┘</pre>
+<p><strong>Columns</strong>: Project (mark + name + code), Customer / BU, Domain, Members (avatar stack, +N overflow), Status, Updated, row-menu. <strong>Timeline is deliberately not a column</strong> — it lives on the detail page; seven columns is already crowded at 1280px.</p>
+<p><strong>States</strong></p>
+<div class='tw'><table>
+<tbody>
+<tr><td>filled</td><td>table + pager. Archived rows are muted with a grey mark so the <code>All</code> filter stays readable</td></tr>
+<tr><td>empty — no projects at all</td><td>🗂 “No projects yet” + “A project is where meeting notes turn into requirements.” + <strong>a <code>＋ New project</code> CTA</strong>. Search is disabled</td></tr>
+<tr><td>empty — search/filter matched nothing</td><td>⌕ “No projects match “&lt;term&gt;”” + “Try a different search term, or switch the status filter.” + <strong><code>Clear filters</code>, no create CTA</strong>. These two empties are different; one component for both is the usual bug</td></tr>
+<tr><td>loading</td><td>skeleton rows in the real table shape</td></tr>
+<tr><td>error</td><td>⚠ “Couldn’t load your projects” + <code>Retry</code>, the same card shape as the existing <code>dashboard-error</code> in <code>app/(app)/page.tsx</code></td></tr>
+</tbody></table></div>
+<p><strong>Interactions</strong></p>
+<ul>
+<li>Row click → <code>/projects/:id</code>.</li>
+<li>Search is debounced and drives the list query; it does not filter client-side.</li>
+<li>The status segmented control defaults to <strong>Active</strong>.</li>
+<li>Row menu (<code>dropdown-menu.tsx</code>): <strong>Open</strong> always · <strong>Archive</strong> (warning-coloured) for an active</li>
+</ul>
+<p>project the viewer owns · <strong>Restore</strong> for an archived one · both <strong>disabled for a non-owner</strong>. <strong>There is no Delete anywhere in the UI.</strong></p>
+<ul>
+<li><code>＋ New project</code> opens the create modal; on success the list refetches and a success toast fires.</li>
+</ul>
+<hr>
+<h3>project-create-modal — a dialog over <code>/projects</code></h3>
+<p>Layout:</p>
+<pre class='code'>┌─ New project ──────────────────────────────┐
+│ Code *      [CLT-DevSpec]                  │
+│ Project name * [……………]                     │
+│ Customer / BU * [CLT]   Domain * [Logistics]│
+│ Objective (optional)                       │
+│ [………………………………………………………]                    │
+│ Starts on [date]        Ends on [date]     │
+│                        [Cancel] [Create]   │
+└────────────────────────────────────────────┘</pre>
+<p><strong>One modal, not the reference image&#x27;s 3-step wizard.</strong> The wizard&#x27;s step 2 is document upload, which needs a project row to attach to — that means a draft-project state machine. Document upload moves to the project&#x27;s Context section in a later change instead.</p>
+<p><strong>Required</strong>: code, name, customer / BU, domain. <strong>Optional and nullable</strong>: objective, both dates. <code>Create</code> stays disabled until the four required fields are non-empty.</p>
+<p><strong>States</strong>: empty · filled · submitting (all fields and Cancel disabled, spinner in the primary button) · field errors · request failed.</p>
+<p><strong>Error handling — this is the part that matters</strong></p>
+<ul>
+<li><strong>Duplicate code → a field error under the code input</strong> (“A project with this code already</li>
+</ul>
+<p>exists.”), not a toast. A toast makes the user hunt for which field is wrong.</p>
+<ul>
+<li><strong>End date before start date → a field error on the end date.</strong> Validated in the DTO only;</li>
+</ul>
+<p><code>db.md</code> deliberately adds no <code>CHECK (ends_on &gt;= starts_on)</code> constraint.</p>
+<ul>
+<li><strong>A failed request keeps the dialog open with every typed value intact</strong>, and shows a banner</li>
+</ul>
+<p>inside the dialog. Losing a filled form to a 500 is the worst outcome on this screen.</p>
+<ul>
+<li><code>Domain</code> is a plain input with a <code>datalist</code> of the viewer&#x27;s existing domains. It is free text —</li>
+</ul>
+<p>the column has no CHECK constraint.</p>
+<hr>
+<h3>project-detail — <code>/projects/:id</code> (Overview)</h3>
+<p>Layout:</p>
+<pre class='code'>CLT-DevSpec  [Active]                              [⚙ Settings]
+CLT-DevSpec · CLT · Logistics · 5 members  [Owner]
+
+┌─ 0 ─────┐┌─ 0 ─────┐┌─ 0 ──────────┐┌─ 0 ──────┐
+│Context  ││Meetings ││Requirements  ││Open      │
+│documents││held     ││collected     ││questions │
+└─────────┘└─────────┘└──────────────┘└──────────┘
+
+┌─ Project plan ───────── Stage 1 of 4 ─┐┌─ Project summary ─┐
+│ ▬▬▬▬░░░░░░░░░░░░░░░░                  ││ &lt;objective prose&gt; │
+│ ① Add context documents  0 files  Soon││ Customer/BU   CLT │
+│ ② Generate discovery plan     —   Soon││ Domain  Logistics │
+│ ③ Run the meetings    0 of 0 held Soon││ Timeline  Sep–Nov │
+│ ④ Draft the requirements 0 drafted Soon││ Members         5 │
+└───────────────────────────────────────┘│ Created  …by An Le│
+                                          │ Last updated  2h  │
+                                          └───────────────────┘</pre>
+<p><strong>Overview is the project&#x27;s plan</strong>, not a summary card. The four stages are Clarivo&#x27;s actual pipeline — Context → Discovery plan → Meetings → Requirements — each with a real count.</p>
+<p><strong>Every count on this page is genuinely <code>0</code> today</strong> and every stage carries a <code>Soon</code> badge, because <code>add-project-context</code>, <code>add-meetings</code> and <code>add-requirements</code> have not shipped. Zero is a true number. The reference image&#x27;s <strong>78% health ring and its Known / Unknown / Conflicts / Questions counters are cut</strong> — nothing in the database can produce them, and an invented percentage survives into a demo. Building the shape once means later changes fill numbers in without the page changing.</p>
+<p><strong>States</strong></p>
+<div class='tw'><table>
+<tbody>
+<tr><td>owner</td><td><code>⚙ Settings</code> button in the head; <code>Settings</code> row in the sidebar</td></tr>
+<tr><td>member</td><td>no Settings button, no Settings row; <code>Member</code> badge instead of <code>Owner</code></td></tr>
+<tr><td>archived</td><td>a warning ribbon (“This project is archived… and read-only”) with <code>Restore</code>; the plan card freezes and reads “Stopped at stage N”; the project mark goes grey</td></tr>
+<tr><td>loading</td><td>skeletons in the real tile/card shape; the sidebar switcher shows an id-less skeleton</td></tr>
+<tr><td>not found</td><td>🔍 “Project not found” + “This project doesn’t exist, or you don’t have access to it. Ask the project owner to add you.” + <code>← Back to projects</code>. <strong>The sidebar stays in global scope here</strong> — there is no project to scope to</td></tr>
+</tbody></table></div>
+<p><strong>A non-member gets the not-found screen, byte-identical to a bad id.</strong> A 403 would confirm the project exists.</p>
+<p>Breadcrumb in the top bar: <code>Projects / CLT-DevSpec</code>.</p>
+<hr>
+<h3>project-settings — <code>/projects/:id/settings</code></h3>
+<p><strong>Owner only.</strong> A member has no Settings row, and a direct URL hit renders the same “Project not found” screen used everywhere else.</p>
+<p>Layout: three stacked cards in a <code>max-w-[760px]</code> column.</p>
+<pre class='code'>┌─ Project details ───────────────────────────┐
+│  the same six fields as the create modal     │
+│                   [Discard] [Save changes]   │
+└─────────────────────────────────────────────┘
+┌─ Members ───────────────────────── 5 ───────┐
+│ [add a member by email……………] [Add member]   │
+│ AL An Le        admin@…    [Owner] [You]    │
+│ TN Thu Nguyen   thu@…      [Member]    ✕    │
+└─────────────────────────────────────────────┘
+┌─ Danger zone ───────────────────────────────┐  warning border
+│ Archive this project       [Archive project]│
+└─────────────────────────────────────────────┘</pre>
+<p><strong>One place to administer a project.</strong> Details, members and lifecycle all live here, and <strong>there is no edit-details modal</strong> — the list&#x27;s row menu keeps only Open / Archive / Restore.</p>
+<p><strong>Project details</strong></p>
+<ul>
+<li>Same fields and same validation as the create modal, rendered inline rather than in a dialog.</li>
+<li><code>Save changes</code> is disabled until something actually changes; an <code>Unsaved changes</code> badge appears</li>
+</ul>
+<p>in the card header once it is dirty.</p>
+<ul>
+<li>States: pristine · dirty · saving (fields and both buttons disabled) · duplicate-code field error.</li>
+</ul>
+<p><strong>Members</strong></p>
+<ul>
+<li>Add by <strong>email, matched against an existing Clarivo account</strong>. There is no invite flow and no</li>
+</ul>
+<p>email is sent.</p>
+<ul>
+<li>Add states: idle · adding (spinner, input disabled) · **“No Clarivo account uses this email</li>
+</ul>
+<p>address.”<strong> · </strong>“&lt;Name&gt; is already a member of this project.”** — both field errors, not toasts.</p>
+<ul>
+<li>Each member row: avatar, name, email, role badge, and a <code>✕</code> remove button.</li>
+<li><strong>The owner row has no remove button</strong>, and the viewer&#x27;s own row is marked <code>You</code>. Ownership</li>
+</ul>
+<p>transfer is out of scope — a half-built control is worse than none.</p>
+<ul>
+<li>Solo-project state: one row plus “You&#x27;re the only member. Add teammates by email so they can open</li>
+</ul>
+<p>this project.”</p>
+<p><strong>Danger zone</strong></p>
+<ul>
+<li>Active project → <code>Archive project</code>, warning-bordered card.</li>
+<li>Archived project → the card turns primary-bordered and offers <code>Restore project</code>; the details card</li>
+</ul>
+<p>and member list render disabled, with a ribbon at the top of the page.</p>
+<p><strong>Confirms</strong> — all three go through <code>useConfirm</code>, none is a new dialog:</p>
+<div class='tw'><table>
+<thead><tr><th>action</th><th>tone</th><th>copy</th></tr></thead>
+<tbody>
+<tr><td>Remove member</td><td><code>warning</code></td><td>“Remove &lt;Name&gt;? They lose access to “&lt;project&gt;” immediately. Anything they already contributed stays.”</td></tr>
+<tr><td>Archive</td><td><code>warning</code></td><td>“Archive this project? “&lt;project&gt;” will be hidden from the active list and become read-only. Nothing is deleted, and you can restore it at any time.”</td></tr>
+<tr><td>Restore</td><td><code>confirm</code></td><td>“Restore this project? “&lt;project&gt;” moves back into the active list.”</td></tr>
+</tbody></table></div>
+<p><strong>None of these uses <code>constants/confirm.ts:confirmDelete</code>.</strong> That preset is red and says “permanently deleted. This can&#x27;t be undone.” — a lie for every action on this page. Add <code>confirmArchive</code> / <code>confirmRestore</code> / <code>confirmRemoveMember</code> presets beside it.</p>
+<hr>
+<h3>dashboard — <code>/</code> (edits to the existing page)</h3>
+<p>Three changes to <code>app/(app)/page.tsx</code>:</p>
+<ol>
+<li><strong>Delete <code>FeedbackDemoCard</code>.</strong> Its own <code>ponytail:</code> comment says “delete when real screens land” —</li>
+</ol>
+<p>this is that change, and nothing else enforces it.</p>
+<ol>
+<li><strong>Remove the Next Meeting card</strong> entirely. No meetings table exists, so there is nothing for it</li>
+</ol>
+<p>to be empty about; <code>Recent projects</code> takes the full width instead of sitting beside a permanently blank card.</p>
+<ol>
+<li><strong><code>Total projects</code> and <code>Recent projects</code> become real data.</strong> The other three tiles keep their</li>
+</ol>
+<p>place, read a true <code>0</code>, and carry a <code>Soon</code> marker — the same honest-zero rule Overview uses, so this row is never rebuilt as each later feature lands.</p>
+<p><code>Recent projects</code> rows show <strong>customer · domain · member count · updated</strong>, replacing the reference image&#x27;s “Last meeting · N requirements” subtitle with columns that exist. Rows link to <code>/projects/:id</code>; <code>View all →</code> goes to <code>/projects</code>. <strong>Archived projects never appear here.</strong> Empty state reuses the list page&#x27;s “No projects yet” block with the <code>＋ New project</code> CTA.</p>
+<hr>
+<h3>Cut from the reference image</h3>
+<div class='tw'><table>
+<thead><tr><th>Reference element</th><th>Why it is cut</th></tr></thead>
+<tbody>
+<tr><td>78% project-health ring (screen 5)</td><td>No data source. An invented percentage survives into a demo</td></tr>
+<tr><td>Known 84 / Unknown 23 / Conflicts 4 / Questions 17 (screen 5)</td><td>Same — requirements and questions tables do not exist</td></tr>
+<tr><td>3-step create wizard (screen 3)</td><td>Step 2 is document upload, which needs a draft project row. One modal avoids the whole state machine</td></tr>
+<tr><td>Upload Files / Existing System / Additional Info tabs (screen 4)</td><td>That is the Context section, a later change</td></tr>
+<tr><td>Next Meeting card (screen 2)</td><td>No meetings table</td></tr>
+<tr><td>“Last meeting · N requirements” card subtitle (screen 2)</td><td>Neither value exists; replaced with real columns</td></tr>
+<tr><td>Meetings / Requirements tabs on the project page (screen 5)</td><td>Became project-scoped sidebar rows, shipped disabled with <code>Soon</code></td></tr>
+</tbody></table></div>
+<hr>
+<h3>Verify</h3>
+<p><code>Verify: /devspec-verify add-projects</code> for every UI section — agent-browser drives the running app and checks that the regions exist, that styling is not browser-default (the three hand-copied primitives are the risk), that the layout is aligned, and that <strong>pagination actually walks past page 1</strong>. A presence-only assertion would pass on a plain unstyled table.</p>
+<p>Test credentials and URLs are in <code>devspec/improve/testing.md</code> (frontend <code>:3001</code>, API <code>:3000</code>, seeded admin <code>admin@clarivo.local</code>). <strong>A second account is needed</strong> to exercise the member-vs-owner and non-member states; <code>testing.md</code> records only the one admin today.</p>
+<h3>Approved mockups</h3>
+<div class='mock'><header><h4>mockups/dashboard.html</h4><a href='mockups/dashboard.html' target='_blank'>open standalone ↗</a></header><iframe src='mockups/dashboard.html' loading='lazy' title='dashboard.html'></iframe></div>
+<div class='mock'><header><h4>mockups/project-create-modal.html</h4><a href='mockups/project-create-modal.html' target='_blank'>open standalone ↗</a></header><iframe src='mockups/project-create-modal.html' loading='lazy' title='project-create-modal.html'></iframe></div>
+<div class='mock'><header><h4>mockups/project-detail.html</h4><a href='mockups/project-detail.html' target='_blank'>open standalone ↗</a></header><iframe src='mockups/project-detail.html' loading='lazy' title='project-detail.html'></iframe></div>
+<div class='mock'><header><h4>mockups/project-settings.html</h4><a href='mockups/project-settings.html' target='_blank'>open standalone ↗</a></header><iframe src='mockups/project-settings.html' loading='lazy' title='project-settings.html'></iframe></div>
+<div class='mock'><header><h4>mockups/projects-list.html</h4><a href='mockups/projects-list.html' target='_blank'>open standalone ↗</a></header><iframe src='mockups/projects-list.html' loading='lazy' title='projects-list.html'></iframe></div>
+</section>
+<section id="tasks"><h2>Tasks</h2>
+<p class='sub'>Walked top to bottom by the worker. Layer tag per subtask; a section is satisfied only when its <code>Verify:</code> passes.</p>
+<h3>By layer</h3><div class='tw'><table><thead><tr><th>layer</th><th>subtasks</th></tr></thead><tbody>
+<tr><td><code>[db]</code></td><td>6</td></tr>
+<tr><td><code>[backend]</code></td><td>21</td></tr>
+<tr><td><code>[service]</code></td><td>8</td></tr>
+<tr><td><code>[frontend]</code></td><td>46</td></tr>
+<tr><td><code>[test]</code></td><td>6</td></tr>
+</tbody></table></div>
+<h3>Sections</h3>
+<div class='tsec'>
+<h4>1. Entities and migration [req-1]</h4>
+<div class='reqs'>8 subtasks · req-1</div>
+<ul class='checks'>
+<li class=''><span class='box'>☐</span> 1.1 [db] New <code>backend/src/projects/project.entity.ts</code> — <code>@Entity(&#x27;projects&#x27;)</code> class <code>Project extends BaseEntity</code>; columns <code>code</code> varchar(64) unique, <code>name</code>/<code>customer_bu</code>/<code>domain</code> varchar(255), <code>objective</code> text nullable, <code>status</code> varchar(16) default <code>&#x27;active&#x27;</code>, <code>starts_on</code>/<code>ends_on</code> type <code>date</code> nullable (typed <code>string</code>), <code>created_by</code> uuid + <code>@ManyToOne(() =&gt; User, { onDelete: &#x27;RESTRICT&#x27; })</code> + <code>@JoinColumn({ name: &#x27;created_by&#x27; })</code>. Every column declares an explicit snake_case <code>name:</code> — mirror <code>src/files/file.entity.ts</code></li>
+<li class=''><span class='box'>☐</span> 1.2 [db] Add <code>@Check(&quot;status IN (&#x27;active&#x27;,&#x27;archived&#x27;)&quot;)</code> to <code>Project</code>. No CHECK on <code>domain</code> — <code>db.md</code> records why</li>
+<li class=''><span class='box'>☐</span> 1.3 [db] New <code>backend/src/projects/project-member.entity.ts</code> — <code>@Entity(&#x27;project_members&#x27;)</code> class <code>ProjectMember extends BaseEntity</code>; <code>project_id</code> uuid + <code>@ManyToOne(() =&gt; Project, { onDelete: &#x27;CASCADE&#x27; })</code>, <code>user_id</code> uuid + <code>@ManyToOne(() =&gt; User, { onDelete: &#x27;RESTRICT&#x27; })</code>, <code>role</code> varchar(16) with <code>@Check(&quot;role IN (&#x27;owner&#x27;,&#x27;member&#x27;)&quot;)</code>, plus <code>@Unique([&#x27;projectId&#x27;,&#x27;userId&#x27;])</code> and <code>@Index([&#x27;userId&#x27;])</code></li>
+<li class=''><span class='box'>☐</span> 1.4 [backend] New <code>backend/src/projects/projects.module.ts</code> registering <code>TypeOrmModule.forFeature([Project, ProjectMember])</code> — the only thing that registers either entity (<code>app.module.ts</code> passes <code>entities: []</code> + <code>autoLoadEntities: true</code>)</li>
+<li class=''><span class='box'>☐</span> 1.5 [backend] Register <code>ProjectsModule</code> in <code>backend/src/app.module.ts</code> — one import line, same shape as <code>FilesModule</code></li>
+<li class=''><span class='box'>☐</span> 1.6 [test] New <code>backend/src/projects/project.entity.spec.ts</code> and <code>project-member.entity.spec.ts</code> reading <code>getMetadataArgsStorage()</code> (the <code>src/files/file.entity.spec.ts</code> pattern — <code>DataSource.getMetadata()</code> throws before connection): assert the table names, every column&#x27;s snake_case <code>name:</code>, both CHECK expressions, the composite unique, the <code>user_id</code> index and each relation&#x27;s <code>onDelete</code></li>
+<li class=''><span class='box'>☐</span> 1.7 [db] <code>cd backend &amp;&amp; pnpm build</code> clean first, then <code>pnpm migration:generate src/database/migrations/CreateProjects</code> — read the emitted SQL before running it. Additive only: two CREATE TABLEs, three FKs, two uniques, one index, two CHECKs. <strong>No DROP, ALTER or DELETE against an existing table may appear</strong></li>
+<li class=''><span class='box'>☐</span> 1.8 [db] <code>pnpm migration:run</code>, then <code>pnpm migration:revert</code>, then <code>pnpm migration:run</code> again — prove the round trip before any service code depends on the tables</li>
+</ul>
+<p class='verify'><span class='vlabel'>Verify</span> <code>cd backend &amp;&amp; pnpm build &amp;&amp; pnpm vitest run src/projects &amp;&amp; pnpm migration:show</code></p>
+</div>
+<div class='tsec'>
+<h4>2. Error codes and DTOs [req-2] [req-3] [req-4] [req-5] [req-6] [req-7]</h4>
+<div class='reqs'>8 subtasks · req-2, req-3, req-4, req-5, req-6, req-7</div>
+<ul class='checks'>
+<li class=''><span class='box'>☐</span> 2.1 [backend] New <code>backend/src/projects/projects.errors.ts</code> — <code>defineErrors(&#x27;PROJECT&#x27;, {...})</code> with <code>NOT_FOUND</code> 404, <code>NOT_OWNER</code> 403, <code>CODE_TAKEN</code> 409, <code>INVALID_DATE_RANGE</code> 400, <code>ARCHIVED</code> 409, <code>MEMBER_NOT_FOUND</code> 404, <code>ALREADY_MEMBER</code> 409, <code>OWNER_NOT_REMOVABLE</code> 409. Never <code>throw new HttpException</code> in domain code</li>
+<li class=''><span class='box'>☐</span> 2.2 [backend] New <code>dto/create-project.dto.ts</code> — <code>code</code> <code>@IsString() @IsNotEmpty() @MaxLength(64)</code>, <code>name</code>/<code>customerBu</code>/<code>domain</code> required strings, <code>objective</code> <code>@IsOptional() @IsString()</code>, <code>startsOn</code>/<code>endsOn</code> <code>@IsOptional() @IsDateString()</code>. JSDoc each field — the Swagger CLI plugin turns comments into descriptions</li>
+<li class=''><span class='box'>☐</span> 2.3 [backend] New <code>dto/update-project.dto.ts</code> — <code>PartialType(CreateProjectDto)</code></li>
+<li class=''><span class='box'>☐</span> 2.4 [backend] New <code>dto/list-projects.dto.ts</code> — nests <code>PaginationDto</code> as <code>pagination</code> and a <code>SortDto</code> subclass as <code>sort</code> with <code>sortBy</code> re-declared <code>@IsIn([&#x27;updatedAt&#x27;,&#x27;createdAt&#x27;,&#x27;name&#x27;,&#x27;code&#x27;])</code>; own fields <code>q?</code> string and <code>status</code> <code>@IsIn([&#x27;active&#x27;,&#x27;archived&#x27;,&#x27;all&#x27;])</code> defaulting to <code>&#x27;active&#x27;</code>. Nested, never flat (<code>src/common/dtos/pagination.dto.ts:4</code>)</li>
+<li class=''><span class='box'>☐</span> 2.5 [backend] New <code>dto/project.dto.ts</code> (detail) and <code>dto/project-summary.dto.ts</code> (list rows), both extending <code>AuditDto</code>, fields <code>@Expose()</code>d per the table in <code>design.md</code>. <strong><code>createdBy</code> gets no <code>@Expose()</code></strong> — the uuid stays server-side; <code>createdByName</code> carries the display string</li>
+<li class=''><span class='box'>☐</span> 2.6 [backend] New <code>dto/project-list.dto.ts</code> — <code>items: ProjectSummaryDto[]</code>, <code>total</code>, <code>page</code>, <code>limit</code>, all <code>@Expose()</code>d. A concrete class per domain, not a generic wrapper; add a <code>ponytail:</code> comment naming that ceiling</li>
+<li class=''><span class='box'>☐</span> 2.7 [backend] New <code>dto/project-member.dto.ts</code> (<code>userId</code>, <code>name</code>, <code>email</code>, <code>role</code>) and <code>dto/add-member.dto.ts</code> (<code>email</code> <code>@IsEmail()</code>)</li>
+<li class=''><span class='box'>☐</span> 2.8 [test] New <code>backend/src/projects/projects.errors.spec.ts</code> asserting each code is <code>PROJECT_&lt;KEY&gt;</code> with the right status, and a DTO spec proving <code>createdBy</code> does not survive <code>plainToInstance(..., { excludeExtraneousValues: true })</code></li>
+</ul>
+<p class='verify'><span class='vlabel'>Verify</span> <code>cd backend &amp;&amp; pnpm vitest run src/projects</code></p>
+</div>
+<div class='tsec'>
+<h4>3. ProjectsService — the membership gate and every operation [req-2] [req-3] [req-4] [req-5] [req-6] [req-7]</h4>
+<div class='reqs'>9 subtasks · req-2, req-3, req-4, req-5, req-6, req-7</div>
+<ul class='checks'>
+<li class=''><span class='box'>☐</span> 3.1 [service] New <code>backend/src/projects/projects.service.ts</code> with <code>Repository&lt;Project&gt;</code> + <code>Repository&lt;ProjectMember&gt;</code> + <code>UsersService</code> injected, and one private <code>requireMembership(projectId, viewerId, { owner?: boolean })</code> resolving the viewer&#x27;s membership row: no row → <code>PROJECT_NOT_FOUND</code>; <code>owner: true</code> and <code>role !== &#x27;owner&#x27;</code> → <code>PROJECT_NOT_OWNER</code>. <strong>Every public method goes through it</strong> — the gate lives here, not in the controller</li>
+<li class=''><span class='box'>☐</span> 3.2 [service] <code>create(dto, viewerId)</code> — inside <code>dataSource.transaction()</code>: insert the project with <code>created_by = viewerId</code>, then the <code>project_members</code> owner row. Pre-check <code>code</code> and throw <code>CODE_TAKEN</code>; also map Postgres <code>23505</code> from the insert to the same error. Validate <code>endsOn &gt;= startsOn</code> → <code>INVALID_DATE_RANGE</code></li>
+<li class=''><span class='box'>☐</span> 3.3 [service] <code>list(dto, viewerId)</code> — query <strong>from <code>project_members</code> where <code>user_id = viewerId</code></strong> and join outward to <code>projects</code>; apply <code>status</code>, <code>ILIKE &#x27;%q%&#x27;</code> on <code>code</code> or <code>name</code>, the whitelisted <code>ORDER BY</code>, then <code>skip</code>/<code>take</code> from <code>dto.pagination</code>. Return <code>{ items, total, page, limit }</code>. A <code>ponytail:</code> comment names the ILIKE ceiling. <strong>Keep the join direction</strong> — it is the security property</li>
+<li class=''><span class='box'>☐</span> 3.4 [service] Fill <code>memberCount</code>, up to three <code>memberNames</code> (ordered by <code>project_members.created_at</code>, so the owner comes first) and <code>viewerRole</code> from the membership rows already loaded — no second round trip per row</li>
+<li class=''><span class='box'>☐</span> 3.5 [service] <code>findOne(id, viewerId)</code> — gate, then return the project with <code>createdByName</code> from a join on <code>users</code></li>
+<li class=''><span class='box'>☐</span> 3.6 [service] <code>update(id, dto, viewerId)</code> — owner gate; <code>PROJECT_ARCHIVED</code> if the project is archived; <code>CODE_TAKEN</code> if another project holds the new code; patch only the supplied fields</li>
+<li class=''><span class='box'>☐</span> 3.7 [service] <code>archive(id, viewerId)</code> / <code>restore(id, viewerId)</code> — owner gate, set <code>status</code>, <strong>idempotent</strong> (already in the target state → return unchanged, no error). <strong>No delete method on this service at all</strong></li>
+<li class=''><span class='box'>☐</span> 3.8 [service] <code>listMembers</code>, <code>addMember</code>, <code>removeMember</code> — member gate for the read, owner gate for both writes; <code>PROJECT_ARCHIVED</code> on either write against an archived project; <code>UsersService.findByEmail</code> (already case-normalising) → <code>MEMBER_NOT_FOUND</code> when absent, <code>ALREADY_MEMBER</code> on a duplicate, <code>OWNER_NOT_REMOVABLE</code> when the target row is the owner</li>
+<li class=''><span class='box'>☐</span> 3.9 [test] New <code>backend/src/projects/projects.service.spec.ts</code> — one case per spec scenario in [req-2]–[req-7], with the owner / member / non-member matrix explicit: non-member reads <strong>404</strong>, member writes <strong>403</strong></li>
+</ul>
+<p class='verify'><span class='vlabel'>Verify</span> <code>cd backend &amp;&amp; pnpm vitest run src/projects</code></p>
+</div>
+<div class='tsec'>
+<h4>4. ProjectsController [req-2] [req-3] [req-4] [req-5] [req-6] [req-7]</h4>
+<div class='reqs'>8 subtasks · req-2, req-3, req-4, req-5, req-6, req-7</div>
+<ul class='checks'>
+<li class=''><span class='box'>☐</span> 4.1 [backend] New <code>backend/src/projects/projects.controller.ts</code> — <code>@Controller(&#x27;projects&#x27;)</code>, every route <code>@UseGuards(JwtAuthGuard)</code> + <code>@ApiCookieAuth(SESSION_COOKIE)</code>, viewer read as <code>req.user as User</code> (the <code>FilesController</code> shape)</li>
+<li class=''><span class='box'>☐</span> 4.2 [backend] <code>POST /projects</code> → 201 <code>ProjectDto</code>; <code>GET /projects</code> with <code>@Query() ListProjectsDto</code> → <code>ProjectListDto</code></li>
+<li class=''><span class='box'>☐</span> 4.3 [backend] <code>GET /projects/:id</code> and <code>PATCH /projects/:id</code>, both <code>@Param(&#x27;id&#x27;, ParseUUIDPipe)</code></li>
+<li class=''><span class='box'>☐</span> 4.4 [backend] <code>POST /projects/:id/archive</code> and <code>POST /projects/:id/restore</code> → <code>ProjectDto</code>. <strong>No DELETE route on a project anywhere</strong></li>
+<li class=''><span class='box'>☐</span> 4.5 [backend] <code>GET /projects/:id/members</code>, <code>POST /projects/:id/members</code> → 201, <code>DELETE /projects/:id/members/:userId</code> → 204 <code>@HttpCode(204)</code></li>
+<li class=''><span class='box'>☐</span> 4.6 [backend] Serialise every response through <code>plainToInstance(Dto, entity, { excludeExtraneousValues: true })</code> — the <code>toFileDto</code> helper shape in <code>files.controller.ts</code></li>
+<li class=''><span class='box'>☐</span> 4.7 [backend] Register the controller in <code>ProjectsModule</code> and export <code>ProjectsService</code></li>
+<li class=''><span class='box'>☐</span> 4.8 [test] New <code>backend/src/projects/projects.controller.spec.ts</code> — route wiring, the 204 on remove, and that no project-delete route exists</li>
+</ul>
+<p class='verify'><span class='vlabel'>Verify</span> <code>cd backend &amp;&amp; pnpm lint &amp;&amp; pnpm vitest run src/projects &amp;&amp; pnpm build</code></p>
+</div>
+<div class='tsec'>
+<h4>5. Second test account for the member-vs-owner states [req-14]</h4>
+<div class='reqs'>5 subtasks · req-14</div>
+<ul class='checks'>
+<li class=''><span class='box'>☐</span> 5.1 [backend] Add <code>SEED_MEMBER_EMAIL</code>, <code>SEED_MEMBER_PASSWORD</code>, <code>SEED_MEMBER_NAME</code> to <code>EnvironmentVariables</code> in <code>backend/src/config/env.validation.ts</code> as <strong><code>@IsOptional()</code></strong> strings — required vars would invalidate every existing <code>.env</code></li>
+<li class=''><span class='box'>☐</span> 5.2 [backend] In <code>backend/src/database/seeds/seed.ts</code>, after the admin upsert, upsert the member account <strong>only when all three are set</strong>; reuse the existing argon2id + <code>normaliseEmail</code> path. The admin branch is untouched</li>
+<li class=''><span class='box'>☐</span> 5.3 [backend] Add the three rows to <code>backend/.env.example</code>, empty, with a comment saying they are an optional local test fixture</li>
+<li class=''><span class='box'>☐</span> 5.4 [test] Extend <code>backend/src/database/seeds/seed.spec.ts</code> — all three set → second account upserted idempotently; any unset → skipped and the seed still succeeds</li>
+<li class=''><span class='box'>☐</span> 5.5 [backend] Set the three in the gitignored <code>backend/.env</code>, run <code>cd backend &amp;&amp; pnpm seed</code>, and record the credentials in the gitignored <code>devspec/improve/testing.md</code> under a new <code>## Second account (project member)</code> heading. <strong>Never commit the password</strong></li>
+</ul>
+<p class='verify'><span class='vlabel'>Verify</span> <code>cd backend &amp;&amp; pnpm vitest run src/database/seeds &amp;&amp; pnpm seed</code></p>
+</div>
+<div class='tsec'>
+<h4>6. Frontend data layer [req-14] [req-8] [req-10] [req-12]</h4>
+<div class='reqs'>7 subtasks · req-14, req-8, req-10, req-12</div>
+<ul class='checks'>
+<li class=''><span class='box'>☐</span> 6.1 [frontend] With the backend running, <code>cd frontend &amp;&amp; pnpm api:types</code> — regenerates <code>frontend/app/types/api/types.gen.ts</code>. Generated: never hand-edit (<code>devspec/context/rules.md</code>)</li>
+<li class=''><span class='box'>☐</span> 6.2 [frontend] New <code>frontend/services/projects.ts</code> — one function per endpoint (<code>listProjects</code>, <code>getProject</code>, <code>createProject</code>, <code>updateProject</code>, <code>archiveProject</code>, <code>restoreProject</code>, <code>listMembers</code>, <code>addMember</code>, <code>removeMember</code>), each returning unwrapped <code>data</code> from the shared <code>@/lib/api</code> axios instance, typed from <code>@/types/api</code>. No React, no toasts, no routing (<code>frontend/CLAUDE.md</code> layer law)</li>
+<li class=''><span class='box'>☐</span> 6.3 [frontend] New <code>frontend/hooks/use-projects.ts</code> — <code>useProjects(params)</code> on key <code>[&#x27;projects&#x27;, params]</code></li>
+<li class=''><span class='box'>☐</span> 6.4 [frontend] New <code>frontend/hooks/use-project.ts</code> — <code>useProject(id)</code> on <code>[&#x27;project&#x27;, id]</code>, plus <code>useCreateProject</code>, <code>useUpdateProject</code>, <code>useArchiveProject</code>, <code>useRestoreProject</code>, each invalidating the narrowest changed key plus <code>[&#x27;projects&#x27;]</code></li>
+<li class=''><span class='box'>☐</span> 6.5 [frontend] New <code>frontend/hooks/use-project-members.ts</code> — <code>useProjectMembers(id)</code> on <code>[&#x27;project&#x27;, id, &#x27;members&#x27;]</code>, plus <code>useAddMember</code> / <code>useRemoveMember</code> invalidating that key and <code>[&#x27;project&#x27;, id]</code></li>
+<li class=''><span class='box'>☐</span> 6.6 [frontend] Leave <code>onError</code> <strong>undefined</strong> on every mutation whose failure should surface as the global toast; define it only where a field error replaces the toast (create/update code clash, date range, member email) — the <code>MutationCache</code> override rule in <code>components/provider/query-provider.tsx</code></li>
+<li class=''><span class='box'>☐</span> 6.7 [frontend] New <code>frontend/types/project.ts</code> for view-model-only shapes the generated types do not cover (e.g. the list filter state). Anything already in <code>@/types/api</code> is <strong>not</strong> re-declared</li>
+</ul>
+<p class='verify'><span class='vlabel'>Verify</span> <code>cd frontend &amp;&amp; npx tsc --noEmit &amp;&amp; pnpm lint</code></p>
+</div>
+<div class='tsec'>
+<h4>7. The three missing UI primitives [req-8] [req-9] [req-12]</h4>
+<div class='reqs'>4 subtasks · req-8, req-9, req-12</div>
+<ul class='checks'>
+<li class=''><span class='box'>☐</span> 7.1 [frontend] Hand-copy <code>components/ui/dialog.tsx</code> from shadcn/ui <strong>new-york</strong> (<code>components.json</code> sets the style). Import shape must match the installed umbrella package: <code>import { Dialog as DialogPrimitive } from &quot;radix-ui&quot;</code> — the <code>sheet.tsx</code> / <code>alert-dialog.tsx</code> pattern, <strong>no new dependency needed</strong>. <code>alert-dialog.tsx</code> is not a substitute: no close button, outside-click blocked, owned by the confirm provider</li>
+<li class=''><span class='box'>☐</span> 7.2 [frontend] Hand-copy <code>components/ui/table.tsx</code> (plain elements, no radix dep)</li>
+<li class=''><span class='box'>☐</span> 7.3 [frontend] Hand-copy <code>components/ui/textarea.tsx</code> (plain element, no radix dep)</li>
+<li class=''><span class='box'>☐</span> 7.4 [frontend] Render each one once in the running app before building on it — transcription error is this change&#x27;s most likely defect, and <code>tsc</code> alone will not catch a dropped class string</li>
+</ul>
+<p class='verify'><span class='vlabel'>Verify</span> <code>cd frontend &amp;&amp; npx tsc --noEmit &amp;&amp; pnpm lint &amp;&amp; pnpm build</code></p>
+</div>
+<div class='tsec'>
+<h4>8. Sidebar: two scopes, one source [req-11]</h4>
+<div class='reqs'>6 subtasks · req-11</div>
+<ul class='checks'>
+<li class=''><span class='box'>☐</span> 8.1 [frontend] <code>frontend/types/nav.ts</code> — widen <code>NavGroup</code> to <code>&quot;Workspace&quot; | &quot;Account&quot; | &quot;Plan&quot; | &quot;Run&quot; | &quot;Output&quot; | &quot;Project&quot;</code>; <strong>remove <code>&quot;Insights&quot;</code></strong> (a group with no items renders an empty header)</li>
+<li class=''><span class='box'>☐</span> 8.2 [frontend] <code>frontend/constants/nav.ts</code> — replace <code>NAV_ITEMS</code> with <code>GLOBAL_NAV_ITEMS</code> (Dashboard enabled, <strong>Projects enabled → <code>/projects</code>, <code>Soon</code> badge gone</strong>, Settings still disabled; the Meetings / Requirements / Questions / Decisions / Documents rows <strong>deleted</strong>) plus <code>projectNavItems(id, isOwner)</code> and the two group arrays. Keep the file the single nav source</li>
+<li class=''><span class='box'>☐</span> 8.3 [frontend] New <code>frontend/hooks/use-nav-scope.ts</code> — derives <code>{ scope, groups, items, project? }</code> from <code>usePathname()</code>, reading the project&#x27;s code and name out of the <code>useProject(id)</code> cache. Scope comes from the <strong>path</strong>, so project scope renders immediately with a skeleton label and the global nav never flashes</li>
+<li class=''><span class='box'>☐</span> 8.4 [frontend] <code>frontend/components/sidebar/nav-groups.tsx</code> — take items and groups from <code>useNavScope()</code> instead of importing the constant; in project scope render the <code>← All projects</code> back row and the static project label above the groups. Keep reusing <code>./nav-item.tsx:NavItem</code> for every row, disabled rows included — its <code>Soon</code> badge and disabled <code>&lt;span&gt;</code> are already correct</li>
+<li class=''><span class='box'>☐</span> 8.5 [frontend] Leave <code>components/sidebar/mobile-nav.tsx</code> rendering the same <code>&lt;NavGroups&gt;</code>. <strong>Do not give the drawer its own source</strong> — one renderer, one hook, is what stops desktop and mobile drifting</li>
+<li class=''><span class='box'>☐</span> 8.6 [frontend] Confirm the collapsed rail still tooltips every row and that <code>NavItem</code>&#x27;s <code>pathname === item.href</code> active test matches both <code>/projects</code> and <code>/projects/:id</code></li>
+</ul>
+<p class='verify'><span class='vlabel'>Verify</span> <code>cd frontend &amp;&amp; npx tsc --noEmit &amp;&amp; pnpm lint &amp;&amp; pnpm build</code></p>
+</div>
+<div class='tsec'>
+<h4>9. Projects list screen and create modal [req-8] [req-9]</h4>
+<div class='reqs'>9 subtasks · req-8, req-9</div>
+<ul class='checks'>
+<li class=''><span class='box'>☐</span> 9.1 [frontend] New <code>frontend/app/(app)/projects/page.tsx</code> — mirrors <code>mockups/projects-list.html</code>: header, search input, status segmented control defaulting to <strong>Active</strong>, <code>＋ New project</code> button, table, pager</li>
+<li class=''><span class='box'>☐</span> 9.2 [frontend] Reuse <code>components/ui/table.tsx</code> for the list — <strong>not</strong> a hand-rolled <code>&lt;table&gt;</code>. Columns per <code>ui.md</code>; Timeline is deliberately not a column</li>
+<li class=''><span class='box'>☐</span> 9.3 [frontend] Reuse <code>components/ui/input.tsx:Input</code> for search (debounced, drives the query — never client-side filtering), <code>components/ui/button.tsx:Button</code> for every action, <code>components/ui/badge.tsx:Badge variant=&quot;outline&quot;</code> for the status pill, <code>components/ui/avatar.tsx</code> for the member stack with a <code>+N</code> overflow chip</li>
+<li class=''><span class='box'>☐</span> 9.4 [frontend] Row menu with <code>components/ui/dropdown-menu.tsx</code>: <code>Open</code> always; <code>Archive</code> (warning-coloured) on an active project; <code>Restore</code> on an archived one; both <strong>disabled for a non-owner</strong>. <strong>No Delete item</strong></li>
+<li class=''><span class='box'>☐</span> 9.5 [frontend] Archive and restore go through <code>hooks/use-confirm.ts:useConfirm</code> with the new presets from task 11.6 — imperative, no local dialog state, no new JSX</li>
+<li class=''><span class='box'>☐</span> 9.6 [frontend] Two <strong>separate</strong> empty states per <code>ui.md</code> — &quot;No projects yet&quot; (with the create CTA, search disabled) and &quot;No projects match …&quot; (with <code>Clear filters</code>, no CTA). One component serving both is the usual bug here</li>
+<li class=''><span class='box'>☐</span> 9.7 [frontend] Loading = <code>components/ui/skeleton.tsx:Skeleton</code> rows <strong>in the real table shape</strong>; error = the <code>dashboard-error</code> card shape from <code>app/(app)/page.tsx</code> with <code>Retry</code></li>
+<li class=''><span class='box'>☐</span> 9.8 [frontend] New <code>frontend/components/projects/create-project-dialog.tsx</code> — <code>components/ui/dialog.tsx</code>, <code>react-hook-form</code> + <code>zodResolver</code>, schema beside the form with <code>z.infer</code>, <code>components/ui/textarea.tsx</code> for Objective, a <code>datalist</code> of the viewer&#x27;s existing domains on the Domain input. <strong>Never <code>watch()</code></strong> (React Compiler + <code>react-hooks/incompatible-library</code>); busy = <code>isSubmitting || mutation.isPending</code></li>
+<li class=''><span class='box'>☐</span> 9.9 [frontend] Field-level errors via <code>setError</code>: duplicate code under the code input, bad date range on the end date, request failure as a banner from <code>errors.root</code> <strong>with every typed value kept</strong>. Success → close, <code>toast.success</code>, list refetch</li>
+</ul>
+<p class='verify'><span class='vlabel'>Verify</span> <code>/devspec-verify add-projects</code></p>
+</div>
+<div class='tsec'>
+<h4>10. Project overview screen [req-10]</h4>
+<div class='reqs'>7 subtasks · req-10</div>
+<ul class='checks'>
+<li class=''><span class='box'>☐</span> 10.1 [frontend] New <code>frontend/app/(app)/projects/[id]/page.tsx</code> — mirrors <code>mockups/project-detail.html</code>: header (code, name, status badge, <code>Owner</code>/<code>Member</code> badge, <code>⚙ Settings</code> for the owner only), four stat tiles, the Project plan card, the Project summary card</li>
+<li class=''><span class='box'>☐</span> 10.2 [frontend] New <code>frontend/constants/project-stages.ts</code> — the four stages (Context → Discovery plan → Meetings → Requirements) with label, href, <code>Soon</code> flag and the literal <code>0</code>. One constant per stage so a later change swaps one line for one query. <strong>No health ring, no percentage, no Known / Unknown / Conflicts counters</strong> — <code>ui.md</code> cuts them</li>
+<li class=''><span class='box'>☐</span> 10.3 [frontend] Reuse <code>components/ui/card.tsx</code>, <code>badge.tsx</code>, <code>separator.tsx</code> and the stat-tile shape already in <code>app/(app)/page.tsx</code></li>
+<li class=''><span class='box'>☐</span> 10.4 [frontend] Archived state: warning ribbon with <code>Restore</code> (through <code>useConfirm</code>), the plan card frozen reading &quot;Stopped at stage N&quot;, the project mark muted</li>
+<li class=''><span class='box'>☐</span> 10.5 [frontend] Loading = skeletons in the real tile and card shape. Not-found = the shared screen below, for a 404 <strong>and</strong> a 400 from a malformed uuid alike</li>
+<li class=''><span class='box'>☐</span> 10.6 [frontend] New <code>frontend/components/projects/project-not-found.tsx</code> — the one &quot;Project not found&quot; screen with <code>← Back to projects</code>, reused by the detail page and the settings route. The sidebar stays in global scope on it</li>
+<li class=''><span class='box'>☐</span> 10.7 [frontend] Breadcrumb <code>Projects / &lt;code&gt;</code> in the top bar</li>
+</ul>
+<p class='verify'><span class='vlabel'>Verify</span> <code>/devspec-verify add-projects</code></p>
+</div>
+<div class='tsec'>
+<h4>11. Project settings screen [req-12]</h4>
+<div class='reqs'>6 subtasks · req-12</div>
+<ul class='checks'>
+<li class=''><span class='box'>☐</span> 11.1 [frontend] New <code>frontend/app/(app)/projects/[id]/settings/page.tsx</code> — three stacked cards in a <code>max-w-[760px]</code> column per <code>mockups/project-settings.html</code>. A non-owner gets <code>project-not-found.tsx</code></li>
+<li class=''><span class='box'>☐</span> 11.2 [frontend] Project details card — the same six fields and the same zod schema as the create dialog, rendered inline. <code>Save changes</code> disabled until dirty, an <code>Unsaved changes</code> badge in the card header once dirty, <code>Discard</code> restoring saved values, duplicate code as a field error</li>
+<li class=''><span class='box'>☐</span> 11.3 [frontend] Members card — <code>components/ui/avatar.tsx</code> rows with name, email and a <code>Badge</code> role pill; the add-by-email input with its two field errors (&quot;No Clarivo account uses this email address.&quot;, &quot;&lt;Name&gt; is already a member of this project.&quot;), <strong>never toasts</strong></li>
+<li class=''><span class='box'>☐</span> 11.4 [frontend] <strong>No <code>✕</code> on the owner row</strong>; the viewer&#x27;s own row is marked <code>You</code>. No ownership-transfer control. Solo state shows the &quot;You&#x27;re the only member…&quot; hint</li>
+<li class=''><span class='box'>☐</span> 11.5 [frontend] Danger zone — warning-bordered card with <code>Archive project</code>; archived flips it to primary-bordered <code>Restore project</code>, disables the details card and member list, and shows the page ribbon</li>
+<li class=''><span class='box'>☐</span> 11.6 [frontend] Add <code>confirmArchive</code>, <code>confirmRestore</code>, <code>confirmRemoveMember</code> to <code>frontend/constants/confirm.ts</code> with the exact copy in <code>ui.md</code>, <strong>beside</strong> <code>confirmDelete</code> and without touching it. All three route through <code>useConfirm</code>; none claims anything is permanently deleted</li>
+</ul>
+<p class='verify'><span class='vlabel'>Verify</span> <code>/devspec-verify add-projects</code></p>
+</div>
+<div class='tsec'>
+<h4>12. Dashboard reflects real projects [req-13]</h4>
+<div class='reqs'>6 subtasks · req-13</div>
+<ul class='checks'>
+<li class=''><span class='box'>☐</span> 12.1 [frontend] <code>frontend/app/(app)/page.tsx</code> — delete <code>FeedbackDemoCard</code> (its own <code>ponytail:</code> comment asks for exactly this) and delete the Next Meeting card; <code>Recent projects</code> takes the full width</li>
+<li class=''><span class='box'>☐</span> 12.2 [frontend] Wire <code>Total projects</code> and <code>Recent projects</code> to <code>useProjects({ status: &#x27;active&#x27;, pagination: { limit: 5 }, sort: { sortBy: &#x27;updatedAt&#x27; } })</code> — total from the envelope, rows from <code>items</code>. <strong>No new endpoint</strong></li>
+<li class=''><span class='box'>☐</span> 12.3 [frontend] <code>Recent projects</code> rows show customer · domain · member count · updated, link to <code>/projects/:id</code>, and <code>View all →</code> goes to <code>/projects</code>. Archived projects never appear</li>
+<li class=''><span class='box'>☐</span> 12.4 [frontend] The other three stat tiles read a literal <code>0</code> with a <code>Soon</code> marker — the same honest-zero rule Overview uses</li>
+<li class=''><span class='box'>☐</span> 12.5 [frontend] Empty state reuses the list screen&#x27;s &quot;No projects yet&quot; block with its create CTA</li>
+<li class=''><span class='box'>☐</span> 12.6 [frontend] Remove <code>RECENT_PROJECTS</code>, <code>NEXT_MEETING</code> and the projects <code>Stat</code> from <code>frontend/constants/dashboard.ts</code>, and the now-orphaned <code>RecentProject</code> / <code>NextMeeting</code> types from <code>frontend/types/dashboard.ts</code> — in this same commit. These are orphans <strong>this change creates</strong>, so they go; nothing else in those files is touched</li>
+</ul>
+<p class='verify'><span class='vlabel'>Verify</span> <code>/devspec-verify add-projects</code></p>
+</div>
+<div class='tsec'>
+<h4>13. Conventions, docs and the repo&#x27;s gates [req-14]</h4>
+<div class='reqs'>4 subtasks · req-14</div>
+<ul class='checks'>
+<li class=''><span class='box'>☐</span> 13.1 [backend] Re-run <code>cd frontend &amp;&amp; pnpm api:types</code> if the controller changed after task 6.1, so the generated types match what shipped</li>
+<li class=''><span class='box'>☐</span> 13.2 [db] Refresh <code>devspec/context/schema.md</code> — add <code>projects</code> and <code>project_members</code> with their columns, and move four items out of &quot;Still not established&quot;: enums as <code>varchar</code> + CHECK, the first composite unique, the first <code>date</code> columns (serialised as <code>&#x27;YYYY-MM-DD&#x27;</code> strings), and the <code>ON DELETE CASCADE</code> exception <strong>with the reasoning that keeps RESTRICT the default</strong></li>
+<li class=''><span class='box'>☐</span> 13.3 [test] <code>cd backend &amp;&amp; pnpm lint &amp;&amp; pnpm test &amp;&amp; pnpm build</code> — all green. <strong>Do not run <code>pnpm test:e2e</code></strong> and do not touch <code>backend/test/app.e2e-spec.ts</code>: it is the pre-existing failure logged in <code>devspec/report/blockers.md</code> and is out of scope</li>
+<li class=''><span class='box'>☐</span> 13.4 [frontend] <code>cd frontend &amp;&amp; npx tsc --noEmit &amp;&amp; pnpm lint &amp;&amp; pnpm build</code> — all green, warnings included</li>
+</ul>
+<p class='verify'><span class='vlabel'>Verify</span> <code>cd backend &amp;&amp; pnpm lint &amp;&amp; pnpm test &amp;&amp; pnpm build &amp;&amp; cd ../frontend &amp;&amp; npx tsc --noEmit &amp;&amp; pnpm lint &amp;&amp; pnpm build</code></p>
+</div>
+</section>
+<section id="coverage"><h2>Coverage</h2>
+<div class='banner ok'><strong>Clean diff.</strong> Every <code>[req-N]</code> in <code>spec.md</code> has at least one task section, and every tag in <code>tasks.md</code> names a real requirement.</div>
+<div class='tw'><table><thead><tr><th>req</th><th>in spec.md</th><th>in tasks.md</th><th>verify kind</th></tr></thead><tbody>
+<tr><td><code>req-1</code></td><td>✓</td><td>✓</td><td>shell</td></tr>
+<tr><td><code>req-2</code></td><td>✓</td><td>✓</td><td>shell</td></tr>
+<tr><td><code>req-3</code></td><td>✓</td><td>✓</td><td>shell</td></tr>
+<tr><td><code>req-4</code></td><td>✓</td><td>✓</td><td>shell</td></tr>
+<tr><td><code>req-5</code></td><td>✓</td><td>✓</td><td>shell</td></tr>
+<tr><td><code>req-6</code></td><td>✓</td><td>✓</td><td>shell</td></tr>
+<tr><td><code>req-7</code></td><td>✓</td><td>✓</td><td>shell</td></tr>
+<tr><td><code>req-8</code></td><td>✓</td><td>✓</td><td>shell</td></tr>
+<tr><td><code>req-9</code></td><td>✓</td><td>✓</td><td>shell</td></tr>
+<tr><td><code>req-10</code></td><td>✓</td><td>✓</td><td>shell</td></tr>
+<tr><td><code>req-11</code></td><td>✓</td><td>✓</td><td>shell</td></tr>
+<tr><td><code>req-12</code></td><td>✓</td><td>✓</td><td>shell</td></tr>
+<tr><td><code>req-13</code></td><td>✓</td><td>✓</td><td>shell</td></tr>
+<tr><td><code>req-14</code></td><td>✓</td><td>✓</td><td>shell</td></tr>
+</tbody></table></div>
+<p>No <code>MANUAL</code> gate appears anywhere in this change, so the worker never stalls waiting on a human tick.</p>
+</section>
+<section id="board"><h2>Board</h2>
+<pre class='code'>  add-projects:
+    title: project list, create, detail, settings and the project sidebar scope
+    tasks_md: changes/add-projects/tasks.md
+    depends_on: []
+    skills: [frontend-design, typeorm]
+    status: pending
+    owner: &quot;&quot;
+    notes: &gt;-
+      Approved by LE AN on 2026-10-01. Artifacts complete: proposal.md, design.md,
+      spec.md, tasks.md, ui.md, db.md (live-schema grounded), 5 approved mockups,
+      spec.html. Req coverage is clean — req-1..req-14 each have a tasks.md
+      section, all 13 sections carry a runnable Verify: line, and there is NO
+      MANUAL gate anywhere, so the worker never stalls on a human tick.
+      First domain spine in the repo. Everything downstream (context documents,
+      discovery plan, meetings, requirements, questions, decisions) hangs off a
+      project, so this change is what unblocks add-project-context, add-meetings
+      and add-requirements — each fills one disabled sidebar row and one Overview
+      stage.
+      `depends_on: []` on purpose. This change consumes add-login&#x27;s output (the
+      `users` table, JwtAuthGuard, SESSION_COOKIE) and add-app-shell&#x27;s sidebar,
+      plus add-feedback-layer&#x27;s confirm provider and toasts — all four are now
+      status done and archived, and their code is in the working tree. Nothing is
+      waiting on anything.
+      THE NAV REWRITE IS THE ONE HIGH-RISK EDIT. `frontend/constants/nav.ts`
+      currently feeds BOTH the desktop sidebar (`nav-groups.tsx`) and the mobile
+      drawer (`mobile-nav.tsx`) from one `NAV_ITEMS` array, so the two cannot
+      drift. Section 8 splits it into two scopes behind one `useNavScope()` hook;
+      the single-source property must survive. Both renderers keep rendering one
+      `&lt;NavGroups&gt;` — giving the drawer its own source is the defect to watch for.
+      `types/nav.ts` loses &quot;Insights&quot; with the four global rows that used it; a
+      leftover union member renders an empty group header. Land section 8 as its
+      own commit — it is the only edit that is awkward to revert piecemeal.
+      Second biggest defect risk is transcription, not design: section 7
+      hand-copies three missing primitives (`dialog.tsx`, `table.tsx`,
+      `textarea.tsx`) because the shadcn CLI hangs in this environment
+      (devspec/context/rules.md). No new dependency is needed — the installed
+      `radix-ui` umbrella package exports the namespace objects, so dialog.tsx
+      imports `{ Dialog as DialogPrimitive } from &quot;radix-ui&quot;` exactly as
+      `sheet.tsx` and `alert-dialog.tsx` already do. `alert-dialog.tsx` is NOT a
+      substitute for `dialog.tsx`: no close button, outside-click dismissal
+      blocked by design, and owned by the confirm provider. tsc + eslint + actually
+      rendering each one is the check.
+      Third migration this repo has ever run, and purely additive: two new tables,
+      three FKs, two unique constraints, one index, two CHECK constraints. No
+      column on an existing table is added, altered or dropped, there is no
+      backfill, and NO destructive database operation appears anywhere in this
+      change. It reverts clean by dropping the two tables in FK order. There is no
+      hard delete in the service and none in the UI — archive is `status=&#x27;archived&#x27;`.
+      `pnpm migration:*` builds first and runs against `dist/`, so compile clean
+      before generating or a TypeScript error surfaces as a confusing migration
+      failure.
+      Entity registration is the same trap add-file-storage documented:
+      `app.module.ts` passes `entities: []` + `autoLoadEntities: true` on purpose
+      (the raw-.ts glob breaks vitest), so `TypeOrmModule.forFeature([Project,
+      ProjectMember])` inside ProjectsModule is the ONLY thing that registers
+      either entity. Registering them anywhere else is a silent no-op.
+      THREE ACCESS DECISIONS A REVIEWER SHOULD CHECK AGAINST THE CODE, because the
+      UI must not be the only thing enforcing them. (1) A non-member gets 404
+      PROJECT_NOT_FOUND, never 403 — a 403 confirms the project exists. (2) A
+      member attempting an owner-only write gets 403 PROJECT_NOT_OWNER, because
+      they already know it exists; collapsing both into 404 would read as a bug.
+      (3) PATCH and member add/remove on an archived project return 409
+      PROJECT_ARCHIVED — ui.md renders those controls disabled and the API agrees
+      independently. The membership gate lives in ProjectsService, not the
+      controller, and the list query starts FROM `project_members WHERE user_id =
+      viewer` and joins outward — keep that join direction if the query is ever
+      rewritten, it is the security property. Creation writes the project row and
+      the owner membership row in ONE transaction; a project with no owner row
+      would be unreachable through every endpoint.
+      ONE SCOPE ADDITION beyond proposal.md&#x27;s scope-in table, flagged to and
+      accepted by LE AN: section 5 gives `pnpm seed` an optional second account
+      (SEED_MEMBER_EMAIL / _PASSWORD / _NAME, the first @IsOptional() vars in the
+      env contract). Verification needs it — member-vs-owner and non-member are
+      three of this change&#x27;s states and devspec/improve/testing.md records only
+      admin@clarivo.local, while Clarivo has no signup endpoint. Optional on
+      purpose: a required var would invalidate every existing .env, the cost
+      FILE_STORAGE_PATH already imposed once. Credentials go in the gitignored
+      devspec/improve/testing.md; .env.example gets empty commented rows and no
+      password is ever committed.
+      The four Overview stage counts (Context documents / Meetings held /
+      Requirements collected / Open questions) are FRONTEND CONSTANTS in
+      `constants/project-stages.ts`, not API fields. An API returning
+      `requirementsCount: 0` from a table that does not exist is a field that lies
+      by construction, and the first change to add requirements would have to
+      decide whether the old zero was real. `memberCount` IS a real API field
+      because project_members exists. Same honest-zero rule on the dashboard. The
+      reference image&#x27;s 78% health ring and its Known/Unknown/Conflicts/Questions
+      counters are deliberately cut — ui.md records why.
+      design.md carries 28 Decision Defaults under ## Impact Area. That is what
+      lets the worker decide instead of blocking, so read them before treating any
+      gray area as underspecified.
+      Two cleanups ride along and must land with their replacements: section 12
+      deletes `FeedbackDemoCard` from `app/(app)/page.tsx` (add-feedback-layer left
+      a `ponytail:` comment asking for exactly this and nothing else enforces it)
+      and removes RECENT_PROJECTS / NEXT_MEETING / the projects Stat from
+      `constants/dashboard.ts` plus the orphaned types in `types/dashboard.ts`.
+      Those orphans are created by this change, so they go; nothing else in those
+      files is touched.
+      Do NOT run `pnpm test:e2e` and do not touch `backend/test/app.e2e-spec.ts`.
+      It asserts GET / -&gt; &quot;Hello World!&quot; against an AppController this repo does
+      not have, it was already failing before any DevSpec change started, and it is
+      logged in devspec/report/blockers.md. `pnpm test` is this change&#x27;s backend
+      gate. add-login was closed as done with that item explicitly out of scope.
+      devspec/context/conventions.md is STALE for the frontend — it still describes
+      `@/*` -&gt; ./app/* with everything under app/. `frontend/CLAUDE.md` is
+      authoritative: `@/*` resolves from the frontend root, and it also carries the
+      layer law (component -&gt; hooks/ -&gt; services/ -&gt; lib/api), the react-hook-form
+      + zod rule and the never-`watch()` constraint. Refreshing the context pack is
+      a separate job. Task 13.2 does refresh devspec/context/schema.md, which this
+      change settles four open items in: enums as varchar + CHECK, the first
+      composite unique, the first `date` columns (serialised as &#x27;YYYY-MM-DD&#x27;
+      strings, not Date), and the first ON DELETE CASCADE — recorded WITH the
+      reasoning that keeps RESTRICT the default, so the next change does not read
+      one CASCADE as blanket permission.</pre>
+<h3>Dependency position</h3>
+<pre class='arch'>add-login          done (archived)  ─┐
+add-app-shell      done (archived)  ─┤  output already in the working tree,
+add-feedback-layer done (archived)  ─┤  so depends_on stays []
+add-file-storage   done (archived)  ─┘
+
+add-projects       THIS CHANGE  depends_on: []
+   │
+   ├─► add-project-context   (first files consumer — fills the Context stage)
+   ├─► add-meetings          (fills the Meetings stage)
+   └─► add-requirements      (fills the Requirements stage)</pre>
+<p>Board changes today: <code>add-login</code>, <code>add-app-shell</code>, <code>add-feedback-layer</code>, <code>add-file-storage</code>, <code>add-projects</code>.</p>
+</section>
+</main></div></body></html>

@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clarivo — Project settings (mockup)</title>
+<style>
+/* Tokens copied verbatim from frontend/app/globals.css :root. */
+:root{
+  --radius:0.625rem;
+  --background:oklch(1 0 0);
+  --foreground:oklch(0.2536 0.0553 266.35);
+  --card:oklch(1 0 0);
+  --primary:oklch(0.6016 0.2123 263.59);
+  --primary-foreground:oklch(0.984 0.003 247.858);
+  --secondary:oklch(0.968 0.007 247.896);
+  --muted:oklch(0.968 0.007 247.896);
+  --muted-foreground:oklch(0.554 0.046 257.417);
+  --accent:oklch(0.968 0.007 247.896);
+  --destructive:oklch(0.577 0.245 27.325);
+  --success:oklch(0.58 0.14 157);
+  --warning:oklch(0.70 0.15 75);
+  --border:oklch(0.929 0.013 255.508);
+  --input:oklch(0.929 0.013 255.508);
+  --ring:oklch(0.6016 0.2123 263.59);
+  --chart-1:oklch(0.6016 0.2123 263.59);
+  --chart-2:oklch(0.6788 0.1756 250.9);
+  --chart-3:oklch(0.6392 0.1927 297.3);
+  --sidebar:oklch(0.984 0.003 247.858);
+  --sidebar-foreground:oklch(0.2536 0.0553 266.35);
+  --sidebar-primary:oklch(0.6016 0.2123 263.59);
+  --sidebar-accent:oklch(0.968 0.007 247.896);
+  --sidebar-border:oklch(0.929 0.013 255.508);
+}
+*{box-sizing:border-box;border-color:var(--border)}
+body{margin:0;background:var(--muted);color:var(--foreground);
+  font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.statebar{position:sticky;top:0;z-index:50;background:var(--foreground);color:#fff;
+  padding:9px 18px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.statebar small{float:right;font-weight:500;text-transform:none;letter-spacing:0;opacity:.72}
+.note{max-width:1000px;margin:0 auto;padding:14px 18px 0;font-size:12.5px;color:var(--muted-foreground)}
+
+/* ---- shell ---- */
+.shell{display:flex;height:800px;overflow:hidden;background:var(--muted)}
+.sidebar{width:264px;flex:0 0 264px;margin:12px 0 12px 12px;display:flex;flex-direction:column;
+  background:var(--sidebar);color:var(--sidebar-foreground);border:1px solid var(--sidebar-border);
+  border-radius:18px;box-shadow:0 10px 15px -3px oklch(0.2536 .0553 266.35/.09),0 4px 6px -4px oklch(0.2536 .0553 266.35/.09)}
+.brand{height:60px;display:flex;align-items:center;gap:9px;padding:0 14px;flex:0 0 auto}
+.brand .mark{width:28px;height:28px;border-radius:9px;flex:0 0 auto;background:linear-gradient(140deg,var(--chart-2),var(--chart-1))}
+.brand .word{font-size:17px;font-weight:800;letter-spacing:-.02em}
+.brand .panel{margin-left:auto;color:var(--muted-foreground);font-size:15px}
+nav{flex:1;display:flex;flex-direction:column;gap:2px;padding:4px 10px 10px;overflow-y:auto}
+.navgroup{padding:14px 8px 6px;font-size:10.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted-foreground)}
+.navitem{position:relative;display:flex;align-items:center;gap:12px;height:38px;padding:0 10px;border-radius:10px;
+  font-size:14px;font-weight:500;color:var(--sidebar-foreground);text-decoration:none}
+.navitem .ic{width:18px;text-align:center;color:var(--muted-foreground);font-size:15px;flex:0 0 18px}
+.navitem:hover{background:var(--sidebar-accent)}
+.navitem.active{background:color-mix(in oklch,var(--sidebar-primary) 12%,transparent);color:var(--sidebar-primary);font-weight:600}
+.navitem.active .ic{color:var(--sidebar-primary)}
+.navitem.active::before{content:"";position:absolute;left:-10px;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:var(--sidebar-primary)}
+.navitem.disabled{opacity:.55;cursor:default}
+.navitem.disabled:hover{background:transparent}
+.soon{margin-left:auto;border:1px solid var(--border);border-radius:7px;padding:1px 6px;font-size:10px;
+  font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-foreground)}
+.sidefoot{flex:0 0 auto;padding:10px}
+.sep{height:1px;background:var(--sidebar-border);margin-bottom:10px}
+.user{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:10px}
+.avatar{width:32px;height:32px;border-radius:999px;flex:0 0 auto;display:grid;place-items:center;
+  background:linear-gradient(140deg,var(--chart-2),var(--chart-1));color:#fff;font-size:12px;font-weight:700}
+.user b{display:block;font-size:13px;font-weight:600;line-height:1.25}
+.user span{display:block;font-size:11.5px;color:var(--muted-foreground)}
+
+/* --- project-scope sidebar head --- */
+.backrow{display:flex;align-items:center;gap:9px;height:34px;padding:0 10px;margin:2px 0 4px;border-radius:9px;
+  font-size:12.5px;font-weight:600;color:var(--muted-foreground);text-decoration:none}
+.backrow:hover{background:var(--sidebar-accent)}
+.switcher{display:flex;align-items:center;gap:10px;margin:0 10px 4px;padding:8px 10px;border:1px solid var(--sidebar-border);
+  border-radius:11px;background:var(--card);cursor:pointer}
+.switcher .pmark{width:30px;height:30px;flex:0 0 auto;border-radius:9px;display:grid;place-items:center;color:#fff;
+  font-size:11px;font-weight:700;background:linear-gradient(140deg,var(--chart-2),var(--chart-1))}
+.switcher b{display:block;font-size:13px;font-weight:700;line-height:1.25;letter-spacing:-.01em}
+.switcher span{display:block;font-size:11px;color:var(--muted-foreground);font-family:ui-monospace,Menlo,monospace}
+.switcher .chev{margin-left:auto;color:var(--muted-foreground);font-size:11px}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column;overflow-y:auto}
+.content{padding:0 26px 40px}
+.topbar{height:58px;display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted-foreground)}
+.topbar a{color:var(--muted-foreground);text-decoration:none}
+.topbar b{color:var(--foreground);font-weight:600}
+.bell{margin-left:auto;position:relative;width:30px;height:30px;border-radius:8px;display:grid;place-items:center}
+.bell i{position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:999px;background:var(--destructive)}
+
+/* ---- page head ---- */
+.phead{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px}
+.phead .pmark{width:46px;height:46px;flex:0 0 auto;border-radius:14px;display:grid;place-items:center;color:#fff;
+  font-size:15px;font-weight:700;background:linear-gradient(140deg,var(--chart-2),var(--chart-1))}
+.phead h1{margin:0;font-size:22px;font-weight:700;letter-spacing:-.02em;display:flex;align-items:center;gap:9px}
+.phead .meta{margin-top:3px;font-size:12.5px;color:var(--muted-foreground);display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.phead .meta code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
+.phead .acts{margin-left:auto;display:flex;gap:8px}
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:8px;padding:2px 8px;font-size:11.5px;font-weight:600;
+  border:1px solid var(--border);background:var(--card);color:var(--muted-foreground)}
+.badge.active{color:var(--success);border-color:color-mix(in oklch,var(--success) 35%,transparent);
+  background:color-mix(in oklch,var(--success) 10%,transparent)}
+.badge.archived{color:var(--muted-foreground);background:var(--secondary)}
+.badge.owner{color:var(--primary);border-color:color-mix(in oklch,var(--primary) 32%,transparent);
+  background:color-mix(in oklch,var(--primary) 9%,transparent)}
+.badge .dot{width:6px;height:6px;border-radius:999px;background:currentColor}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:34px;padding:0 13px;border-radius:10px;
+  border:1px solid transparent;font:inherit;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none}
+.btn-primary{background:var(--primary);color:var(--primary-foreground)}
+.btn-outline{background:var(--card);border-color:var(--border);color:var(--foreground)}
+.btn-ghost{background:transparent;color:var(--muted-foreground)}
+.btn-sm{height:30px;padding:0 10px;font-size:12.5px}
+
+/* ---- cards ---- */
+.cols{display:grid;grid-template-columns:1.55fr 1fr;gap:16px;align-items:start}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 1px 2px oklch(0.2536 .0553 266.35/.05)}
+.card h2{margin:0;font-size:14px;font-weight:700;letter-spacing:-.01em}
+.chead{display:flex;align-items:center;gap:8px;padding:15px 17px 0}
+.chead .right{margin-left:auto}
+.cbody{padding:13px 17px 17px}
+.prose{font-size:13.5px;line-height:1.62;color:var(--foreground);margin:0}
+.prose.none{color:var(--muted-foreground);font-style:italic}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:9px 18px;margin-top:16px;padding-top:15px;border-top:1px solid var(--border)}
+.kv dt{font-size:12.5px;color:var(--muted-foreground)}
+.kv dd{margin:0;font-size:13px;font-weight:500}
+.member{display:flex;align-items:center;gap:10px;padding:8px 0}
+.member+.member{border-top:1px solid var(--border)}
+.member b{display:block;font-size:13px;font-weight:600;line-height:1.3}
+.member span{display:block;font-size:11.5px;color:var(--muted-foreground)}
+.member .right{margin-left:auto;display:flex;align-items:center;gap:7px}
+.x{width:26px;height:26px;border-radius:8px;border:0;background:transparent;color:var(--muted-foreground);cursor:pointer;font-size:14px}
+.x:hover{background:var(--secondary);color:var(--destructive)}
+.timeline{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--muted-foreground)}
+.bar{flex:1;height:6px;border-radius:999px;background:var(--secondary);overflow:hidden}
+.bar i{display:block;height:100%;width:62%;border-radius:999px;background:linear-gradient(90deg,var(--chart-2),var(--chart-1))}
+
+/* ---- states ---- */
+.sk{background:var(--secondary);border-radius:7px;height:11px;display:block;animation:p 1.4s ease-in-out infinite}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.45}}
+.center{display:grid;place-items:center;gap:10px;text-align:center;padding:76px 20px}
+.center .ico{font-size:36px;opacity:.5}
+.center h2{margin:0;font-size:15px;font-weight:600}
+.center p{margin:0;max-width:42ch;font-size:12.5px;color:var(--muted-foreground)}
+.ribbon{display:flex;align-items:center;gap:9px;border-radius:11px;padding:10px 13px;margin-bottom:17px;font-size:12.5px;
+  border:1px solid color-mix(in oklch,var(--warning) 38%,transparent);
+  background:color-mix(in oklch,var(--warning) 11%,transparent)}
+.ribbon .right{margin-left:auto}
+
+/* ---- stat tiles (mirrors the existing dashboard STATS card) ---- */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.tile{display:flex;align-items:flex-start;gap:10px;background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:15px;box-shadow:0 1px 2px oklch(0.2536 .0553 266.35/.05)}
+.tile .n{font-size:26px;line-height:1.15;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tile .l{margin-top:2px;font-size:12px;color:var(--muted-foreground)}
+.tile .ic{margin-left:auto;width:34px;height:34px;flex:0 0 34px;border-radius:10px;display:grid;place-items:center;font-size:15px}
+.tile.zero .n{color:var(--muted-foreground)}
+.t-blue{background:color-mix(in oklch,var(--chart-1) 12%,transparent);color:var(--chart-1)}
+.t-sky{background:color-mix(in oklch,var(--chart-2) 14%,transparent);color:var(--chart-2)}
+.t-purple{background:color-mix(in oklch,var(--chart-3) 13%,transparent);color:var(--chart-3)}
+.t-warn{background:color-mix(in oklch,var(--warning) 15%,transparent);color:var(--warning)}
+
+/* ---- pipeline stages ---- */
+.stage{display:flex;align-items:center;gap:13px;padding:13px 0}
+.stage+.stage{border-top:1px solid var(--border)}
+.stage .num{width:26px;height:26px;flex:0 0 26px;border-radius:999px;display:grid;place-items:center;
+  font-size:11.5px;font-weight:700;background:var(--secondary);color:var(--muted-foreground)}
+.stage.done .num{background:color-mix(in oklch,var(--success) 15%,transparent);color:var(--success)}
+.stage.now .num{background:var(--primary);color:var(--primary-foreground)}
+.stage .txt{min-width:0}
+.stage .txt b{display:block;font-size:13.5px;font-weight:600;line-height:1.3}
+.stage .txt span{display:block;font-size:11.5px;color:var(--muted-foreground);margin-top:1px}
+.stage .right{margin-left:auto;display:flex;align-items:center;gap:9px;flex:0 0 auto}
+.stage .cnt{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--muted-foreground)}
+.track{height:5px;border-radius:999px;background:var(--secondary);overflow:hidden;margin:4px 0 2px}
+.track i{display:block;height:100%;width:25%;border-radius:999px;background:linear-gradient(90deg,var(--chart-2),var(--chart-1))}
+
+/* ---- form controls (same rules as mockups/project-create-modal.html) ---- */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.field{margin-bottom:13px}
+label{display:block;font-size:12.5px;font-weight:600;margin-bottom:5px}
+label .req{color:var(--destructive);margin-left:2px}
+label .opt{float:right;font-weight:500;color:var(--muted-foreground)}
+input,select,textarea{width:100%;height:36px;padding:0 11px;border:1px solid var(--input);
+  border-radius:10px;background:var(--card);font:inherit;font-size:13.5px;color:inherit}
+textarea{height:78px;padding:9px 11px;resize:vertical;line-height:1.5}
+input::placeholder,textarea::placeholder{color:var(--muted-foreground)}
+input:focus,select:focus,textarea:focus{outline:2px solid color-mix(in oklch,var(--ring) 50%,transparent);
+  outline-offset:1px;border-color:var(--ring)}
+input[aria-invalid=true]{border-color:var(--destructive);
+  outline:2px solid color-mix(in oklch,var(--destructive) 28%,transparent);outline-offset:1px}
+input[disabled],textarea[disabled]{background:var(--secondary);color:var(--muted-foreground);cursor:not-allowed}
+.hint{margin-top:5px;font-size:11.5px;color:var(--muted-foreground)}
+.err{margin-top:5px;font-size:11.5px;font-weight:500;color:var(--destructive)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.01em}
+.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.btn-warning{background:var(--warning);color:oklch(0.2536 .0553 266.35)}
+.btn[disabled]{opacity:.6;cursor:not-allowed}
+.spin{width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;
+  border-radius:999px;display:inline-block;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ---- confirm dialog (mirrors components/provider/confirm-provider.tsx) ---- */
+.confirm{width:100%;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;
+  box-shadow:0 24px 60px -18px oklch(0.2536 .0553 266.35/.35),0 4px 12px -4px oklch(0.2536 .0553 266.35/.14)}
+.confirm .row{display:grid;grid-template-columns:28px 1fr;gap:14px;align-items:start}
+.tone{width:28px;height:28px;border-radius:999px;display:grid;place-items:center;font-size:15px;flex:0 0 28px}
+.tone.warning{background:color-mix(in oklch,var(--warning) 16%,transparent);color:var(--warning)}
+.tone.confirm{background:color-mix(in oklch,var(--primary) 14%,transparent);color:var(--primary)}
+.confirm h3{margin:0;font-size:15px;font-weight:700}
+.confirm p{margin:5px 0 0;font-size:13px;color:var(--muted-foreground)}
+.confirm .actions{margin-top:22px}
+</style><body>
+
+<div class="note">
+  <strong>Mockup — project settings (<code>/projects/:id/settings</code>).</strong>
+  Owner-only. Three sections on one page: <b>Project details</b> (the form, inline — there is no edit modal),
+  <b>Members</b> (add by email, remove, owner is fixed), <b>Danger zone</b> (archive / restore).
+  Form controls, confirm dialog and tone colours are the same ones used in
+  <code>mockups/project-create-modal.html</code>.
+</div>
+
+<!-- ===================== 1. SETTINGS — LOADED ===================== -->
+<div class="statebar">State 1 · Settings — loaded <small>viewer is the owner · active project</small></div>
+<div class="shell" style="height:1020px">
+  <aside class="sidebar">
+    <div class="brand"><span class="mark"></span><span class="word">Clarivo</span><span class="panel">▤</span></div>
+    <a class="backrow" href="#">← All projects</a>
+    <div class="switcher"><span class="pmark">CD</span><span><b>CLT-DevSpec</b><span>CLT-DevSpec</span></span></div>
+    <nav style="padding-top:0">
+      <div class="navgroup">Plan</div>
+      <a class="navitem" href="#"><span class="ic">◎</span>Overview</a>
+      <span class="navitem disabled"><span class="ic">🗎</span>Context<span class="soon">Soon</span></span>
+      <span class="navitem disabled"><span class="ic">✦</span>Discovery Plan<span class="soon">Soon</span></span>
+      <div class="navgroup">Run</div>
+      <span class="navitem disabled"><span class="ic">▤</span>Meetings<span class="soon">Soon</span></span>
+      <div class="navgroup">Output</div>
+      <span class="navitem disabled"><span class="ic">☑</span>Requirements<span class="soon">Soon</span></span>
+      <span class="navitem disabled"><span class="ic">?</span>Questions<span class="soon">Soon</span></span>
+      <span class="navitem disabled"><span class="ic">⚖</span>Decisions<span class="soon">Soon</span></span>
+      <div class="navgroup">Project</div>
+      <a class="navitem active" href="#"><span class="ic">⚙</span>Settings</a>
+    </nav>
+    <div class="sidefoot"><div class="sep"></div>
+      <div class="user"><span class="avatar">AL</span><span><b>An Le</b><span>BA</span></span></div></div>
+  </aside>
+
+  <div class="main"><div class="content" style="max-width:760px">
+    <div class="topbar"><a href="#">Projects</a> <span>/</span> <a href="#">CLT-DevSpec</a> <span>/</span> <b>Settings</b><span class="bell">🔔<i></i></span></div>
+    <h1 style="margin:0;font-size:22px;font-weight:700;letter-spacing:-.02em">Settings</h1>
+    <p style="margin:4px 0 20px;font-size:14px;color:var(--muted-foreground)">Manage this project’s details, its members, and its lifecycle.</p>
+
+    <!-- details -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="chead"><h2>Project details</h2></div>
+      <div class="cbody">
+        <div class="grid2">
+          <div class="field"><label for="c1">Code <span class="req">*</span></label>
+            <input id="c1" class="mono" value="CLT-DevSpec">
+            <div class="hint">Short unique handle. Changing it changes how this project is referenced.</div></div>
+          <div class="field"><label for="n1">Project name <span class="req">*</span></label><input id="n1" value="CLT-DevSpec"></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="b1">Customer / BU <span class="req">*</span></label><input id="b1" value="CLT"></div>
+          <div class="field"><label for="d1">Domain <span class="req">*</span></label><input id="d1" value="Logistics"></div>
+        </div>
+        <div class="field"><label for="o1">Objective <span class="opt">optional</span></label>
+          <textarea id="o1">Gather and analyse requirements for the CLT DevSpec project, focusing on key business processes, user roles and system integrations.</textarea></div>
+        <div class="grid2">
+          <div class="field"><label for="s1">Starts on <span class="opt">optional</span></label><input id="s1" type="date" value="2025-09-01"></div>
+          <div class="field"><label for="e1">Ends on <span class="opt">optional</span></label><input id="e1" type="date" value="2025-11-30"></div>
+        </div>
+        <div class="actions" style="margin-top:4px">
+          <button class="btn btn-outline">Discard</button>
+          <button class="btn btn-primary" disabled>Save changes</button>
+        </div>
+        <p style="margin:0;text-align:right;font-size:11.5px;color:var(--muted-foreground)">Save is enabled once something changes.</p>
+      </div>
+    </div>
+
+    <!-- members -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="chead"><h2>Members</h2><span class="badge right">5</span></div>
+      <div class="cbody" style="padding-top:8px">
+        <p style="margin:0 0 12px;font-size:12.5px;color:var(--muted-foreground)">
+          Members can open this project and everything in it. Only you, the owner, can change these settings.</p>
+
+        <div style="display:flex;gap:8px;margin-bottom:6px">
+          <input placeholder="Add a member by email…" style="flex:1;height:36px;padding:0 11px;border:1px solid var(--input);
+            border-radius:10px;font:inherit;font-size:13.5px;background:var(--card);color:inherit">
+          <button class="btn btn-primary">Add member</button>
+        </div>
+
+        <div class="member"><span class="avatar">AL</span><span><b>An Le</b><span>admin@clarivo.local</span></span>
+          <span class="right"><span class="badge owner">Owner</span><span class="badge">You</span></span></div>
+        <div class="member"><span class="avatar">TN</span><span><b>Thu Nguyen</b><span>thu@clarivo.local</span></span>
+          <span class="right"><span class="badge">Member</span><button class="x" aria-label="Remove Thu Nguyen">✕</button></span></div>
+        <div class="member"><span class="avatar">PH</span><span><b>Phong Ha</b><span>phong@clarivo.local</span></span>
+          <span class="right"><span class="badge">Member</span><button class="x" aria-label="Remove Phong Ha">✕</button></span></div>
+        <div class="member"><span class="avatar">MK</span><span><b>Minh Khoa</b><span>khoa@clarivo.local</span></span>
+          <span class="right"><span class="badge">Member</span><button class="x" aria-label="Remove Minh Khoa">✕</button></span></div>
+        <div class="member"><span class="avatar">DQ</span><span><b>Duc Quang</b><span>quang@clarivo.local</span></span>
+          <span class="right"><span class="badge">Member</span><button class="x" aria-label="Remove Duc Quang">✕</button></span></div>
+      </div>
+    </div>
+
+    <!-- danger zone -->
+    <div class="card" style="border-color:color-mix(in oklch,var(--warning) 40%,transparent)">
+      <div class="chead"><h2>Danger zone</h2></div>
+      <div class="cbody">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div><b style="display:block;font-size:13.5px">Archive this project</b>
+            <span style="display:block;font-size:12.5px;color:var(--muted-foreground);margin-top:2px">
+              It leaves the active list and becomes read-only. Nothing is deleted, and you can restore it at any time.</span></div>
+          <button class="btn btn-warning" style="margin-left:auto;flex:0 0 auto">Archive project</button>
+        </div>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<!-- ===================== 2. DETAILS — DIRTY / SAVING / ERROR ===================== -->
+<div class="statebar">State 2 · Project details — dirty, saving, and failed <small>three variants of the same card</small></div>
+<div style="padding:24px;display:grid;gap:18px;background:var(--muted)">
+  <div class="card" style="max-width:720px">
+    <div class="chead"><h2>Project details</h2><span class="badge right" style="color:var(--warning);border-color:color-mix(in oklch,var(--warning) 35%,transparent)">Unsaved changes</span></div>
+    <div class="cbody">
+      <div class="grid2">
+        <div class="field"><label for="c2">Code <span class="req">*</span></label><input id="c2" class="mono" value="CLT-DEVSPEC"></div>
+        <div class="field"><label for="n2">Project name <span class="req">*</span></label><input id="n2" value="CLT DevSpec"></div>
+      </div>
+      <div class="actions" style="margin-top:4px">
+        <button class="btn btn-outline">Discard</button><button class="btn btn-primary">Save changes</button></div>
+    </div>
+  </div>
+
+  <div class="card" style="max-width:720px">
+    <div class="chead"><h2>Project details</h2></div>
+    <div class="cbody">
+      <div class="grid2">
+        <div class="field"><label for="c3">Code <span class="req">*</span></label><input id="c3" class="mono" value="CLT-DEVSPEC" disabled></div>
+        <div class="field"><label for="n3">Project name <span class="req">*</span></label><input id="n3" value="CLT DevSpec" disabled></div>
+      </div>
+      <div class="actions" style="margin-top:4px">
+        <button class="btn btn-outline" disabled>Discard</button>
+        <button class="btn btn-primary" disabled><span class="spin"></span>Saving…</button></div>
+    </div>
+  </div>
+
+  <div class="card" style="max-width:720px">
+    <div class="chead"><h2>Project details</h2></div>
+    <div class="cbody">
+      <div class="grid2">
+        <div class="field"><label for="c4">Code <span class="req">*</span></label>
+          <input id="c4" class="mono" value="CRS-LOG" aria-invalid="true">
+          <div class="err">A project with this code already exists.</div></div>
+        <div class="field"><label for="n4">Project name <span class="req">*</span></label><input id="n4" value="CLT DevSpec"></div>
+      </div>
+      <div class="actions" style="margin-top:4px">
+        <button class="btn btn-outline">Discard</button><button class="btn btn-primary">Save changes</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 3. MEMBERS — ADD STATES ===================== -->
+<div class="statebar">State 3 · Members — add states <small>adding · no such user · already a member · single-member project</small></div>
+<div style="padding:24px;display:grid;gap:18px;background:var(--muted)">
+  <div class="card" style="max-width:720px">
+    <div class="chead"><h2>Members</h2><span class="badge right">5</span></div>
+    <div class="cbody" style="padding-top:10px">
+      <div style="display:flex;gap:8px"><input value="thu@clarivo.local" disabled style="flex:1;height:36px;padding:0 11px;
+        border:1px solid var(--input);border-radius:10px;font:inherit;font-size:13.5px;background:var(--card);color:inherit">
+        <button class="btn btn-primary" disabled><span class="spin"></span>Adding…</button></div>
+    </div>
+  </div>
+
+  <div class="card" style="max-width:720px">
+    <div class="chead"><h2>Members</h2><span class="badge right">5</span></div>
+    <div class="cbody" style="padding-top:10px">
+      <div style="display:flex;gap:8px"><input value="nobody@clarivo.local" aria-invalid="true" style="flex:1;height:36px;padding:0 11px;
+        border:1px solid var(--destructive);border-radius:10px;font:inherit;font-size:13.5px;background:var(--card);color:inherit">
+        <button class="btn btn-primary">Add member</button></div>
+      <div class="err">No Clarivo account uses this email address.</div>
+    </div>
+  </div>
+
+  <div class="card" style="max-width:720px">
+    <div class="chead"><h2>Members</h2><span class="badge right">5</span></div>
+    <div class="cbody" style="padding-top:10px">
+      <div style="display:flex;gap:8px"><input value="phong@clarivo.local" aria-invalid="true" style="flex:1;height:36px;padding:0 11px;
+        border:1px solid var(--destructive);border-radius:10px;font:inherit;font-size:13.5px;background:var(--card);color:inherit">
+        <button class="btn btn-primary">Add member</button></div>
+      <div class="err">Phong Ha is already a member of this project.</div>
+    </div>
+  </div>
+
+  <div class="card" style="max-width:720px">
+    <div class="chead"><h2>Members</h2><span class="badge right">1</span></div>
+    <div class="cbody" style="padding-top:10px">
+      <div style="display:flex;gap:8px;margin-bottom:6px"><input placeholder="Add a member by email…" style="flex:1;height:36px;padding:0 11px;
+        border:1px solid var(--input);border-radius:10px;font:inherit;font-size:13.5px;background:var(--card);color:inherit">
+        <button class="btn btn-primary">Add member</button></div>
+      <div class="member"><span class="avatar">AL</span><span><b>An Le</b><span>admin@clarivo.local</span></span>
+        <span class="right"><span class="badge owner">Owner</span><span class="badge">You</span></span></div>
+      <p style="margin:11px 0 0;font-size:12.5px;color:var(--muted-foreground)">
+        You’re the only member. Add teammates by email so they can open this project.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 4. CONFIRMS ===================== -->
+<div class="statebar">State 4 · Confirms <small>remove member · archive · restore — all through the existing confirm provider</small></div>
+<div style="padding:24px;display:flex;gap:20px;flex-wrap:wrap;background:var(--muted)">
+  <div class="confirm" style="max-width:420px">
+    <div class="row"><span class="tone warning">⚠</span>
+      <div><h3>Remove Thu Nguyen?</h3>
+        <p>They lose access to “CLT-DevSpec” immediately. Anything they already contributed stays.</p></div></div>
+    <div class="actions"><button class="btn btn-outline">Cancel</button><button class="btn btn-warning">Remove</button></div>
+  </div>
+  <div class="confirm" style="max-width:420px">
+    <div class="row"><span class="tone warning">⚠</span>
+      <div><h3>Archive this project?</h3>
+        <p>“CLT-DevSpec” will be hidden from the active list and become read-only. Nothing is deleted, and you can restore it at any time.</p></div></div>
+    <div class="actions"><button class="btn btn-outline">Cancel</button><button class="btn btn-warning">Archive</button></div>
+  </div>
+  <div class="confirm" style="max-width:420px">
+    <div class="row"><span class="tone confirm">↺</span>
+      <div><h3>Restore this project?</h3><p>“Legacy Portal” moves back into the active list.</p></div></div>
+    <div class="actions"><button class="btn btn-outline">Cancel</button><button class="btn btn-primary">Restore</button></div>
+  </div>
+</div>
+
+<!-- ===================== 5. ARCHIVED PROJECT SETTINGS ===================== -->
+<div class="statebar">State 5 · Settings on an archived project <small>details and members read-only; the danger zone offers Restore</small></div>
+<div class="shell" style="height:620px">
+  <aside class="sidebar">
+    <div class="brand"><span class="mark"></span><span class="word">Clarivo</span><span class="panel">▤</span></div>
+    <a class="backrow" href="#">← All projects</a>
+    <div class="switcher" style="opacity:.75"><span class="pmark" style="background:var(--secondary);color:var(--muted-foreground)">LP</span>
+      <span><b>Legacy Portal</b><span>LGC-PRT</span></span></div>
+    <nav style="padding-top:0">
+      <div class="navgroup">Plan</div>
+      <a class="navitem" href="#"><span class="ic">◎</span>Overview</a>
+      <span class="navitem disabled"><span class="ic">🗎</span>Context<span class="soon">Soon</span></span>
+      <div class="navgroup">Project</div>
+      <a class="navitem active" href="#"><span class="ic">⚙</span>Settings</a>
+    </nav>
+    <div class="sidefoot"><div class="sep"></div>
+      <div class="user"><span class="avatar">AL</span><span><b>An Le</b><span>BA</span></span></div></div>
+  </aside>
+  <div class="main"><div class="content" style="max-width:760px">
+    <div class="topbar"><a href="#">Projects</a> <span>/</span> <a href="#">Legacy Portal</a> <span>/</span> <b>Settings</b><span class="bell">🔔<i></i></span></div>
+    <div class="ribbon"><span>🗄</span><span>This project is archived. Restore it to make changes.</span></div>
+    <h1 style="margin:0;font-size:22px;font-weight:700;letter-spacing:-.02em">Settings</h1>
+    <p style="margin:4px 0 20px;font-size:14px;color:var(--muted-foreground)">Manage this project’s details, its members, and its lifecycle.</p>
+    <div class="card" style="margin-bottom:16px">
+      <div class="chead"><h2>Project details</h2></div>
+      <div class="cbody">
+        <div class="grid2">
+          <div class="field"><label for="c5">Code <span class="req">*</span></label><input id="c5" class="mono" value="LGC-PRT" disabled></div>
+          <div class="field"><label for="n5">Project name <span class="req">*</span></label><input id="n5" value="Legacy Portal" disabled></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="b5">Customer / BU <span class="req">*</span></label><input id="b5" value="CLT" disabled></div>
+          <div class="field"><label for="d5">Domain <span class="req">*</span></label><input id="d5" value="Finance" disabled></div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="border-color:color-mix(in oklch,var(--primary) 35%,transparent)">
+      <div class="chead"><h2>Danger zone</h2></div>
+      <div class="cbody"><div style="display:flex;align-items:center;gap:14px">
+        <div><b style="display:block;font-size:13.5px">Restore this project</b>
+          <span style="display:block;font-size:12.5px;color:var(--muted-foreground);margin-top:2px">
+            It returns to the active list and becomes editable again.</span></div>
+        <button class="btn btn-primary" style="margin-left:auto;flex:0 0 auto">Restore project</button></div></div>
+    </div>
+  </div></div>
+</div>
+
+<div class="note" style="padding-bottom:40px">
+  <strong>Decisions on this screen</strong><br>
+  • <b>One place to administer a project.</b> Details, members and archive all live here; the edit-details modal from
+  the earlier pass is deleted. The list page’s row menu keeps only Open / Archive / Restore.<br>
+  • <b>Owner-only page.</b> A member has no Settings row in the sidebar and a direct URL hit returns the same
+  “Project not found” screen — consistent with how a non-member is treated everywhere else.<br>
+  • <b>Add member is by email against an existing account.</b> There is no invite flow and no email is sent — an
+  unknown address is a field error, not a pending invitation.<br>
+  • <b>The owner row has no remove button.</b> Ownership transfer is out of scope; an owner who must leave is a
+  problem for a later change, not a half-built control here.<br>
+  • <b>Removing a member is a warning confirm, not the destructive red preset</b> — access is revoked, nothing is
+  deleted, and they can be added back.<br>
+  • <b>Archived settings are read-only</b> except Restore, which replaces Archive in the danger zone.
+</div>
+
+</body>
+</html>
