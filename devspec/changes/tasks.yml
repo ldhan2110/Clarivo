@@ -95,7 +95,7 @@ changes:
     tasks_md: changes/add-file-storage/tasks.md
     depends_on: []
     skills: [typeorm]
-    status: doing
+    status: done
     owner: "worker-local"
     notes: >-
       Approved by LE AN on 2026-10-01. Artifacts complete: proposal.md, design.md,
