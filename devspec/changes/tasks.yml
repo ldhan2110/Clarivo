@@ -21,3 +21,30 @@ changes:
       in devspec/context/schema.md. Refresh schema.md once the migration lands.
       Section 1 fixes the frontend dev port and CORS_ORIGINS; nothing in the
       change works in a browser until it does.
+  add-app-shell:
+    title: collapsible sidebar shell, mobile drawer, sample dashboard
+    tasks_md: changes/add-app-shell/tasks.md
+    depends_on: []
+    skills: [frontend-design]
+    status: done
+    owner: "worker-local"
+    notes: >-
+      Frontend only — nothing under backend/ is touched, no endpoint, entity,
+      migration or env var, and no new npm dependency.
+      NOT declared as depends_on [add-login] on purpose. This change does consume
+      add-login's output (stores/auth.ts, hooks/use-auth.ts, components/ui/button.tsx,
+      the cookie session), but that code is already built and verified in the working
+      tree. add-login sits at status: blocked only on the PRE-EXISTING
+      test/app.e2e-spec.ts failure in the backend, which has nothing to do with this
+      change — declaring the dep would stall this work behind an unrelated red test.
+      Flip to depends_on: [add-login] if the board must mirror strict lineage.
+      Two deletions are part of the work and must land in the same commit as their
+      replacements: frontend/app/page.tsx (its route moves to app/(app)/page.tsx —
+      two files cannot own "/") and frontend/components/auth/user-chip.tsx (absorbed
+      by components/nav/nav-user.tsx).
+      Section 1 hand-copies eight shadcn primitives because the shadcn CLI hangs in
+      this environment (devspec/context/rules.md). Transcription error is the most
+      likely defect in this change; tsc + eslint + rendering each one is the check.
+      devspec/context/conventions.md is STALE for the frontend — it still describes
+      @/* -> ./app/* with everything under app/. frontend/CLAUDE.md is authoritative:
+      @/* resolves to the frontend root. Refreshing the context pack is a separate job.

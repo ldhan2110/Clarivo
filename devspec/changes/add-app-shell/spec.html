@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>add-app-shell — spec</title><style>
+*{box-sizing:border-box}
+body{margin:0;background:#f1f4f9;color:#0f172a;font:15px/1.65 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px 90px;display:grid;grid-template-columns:208px 1fr;gap:30px;align-items:start}
+header.top{background:#0f172a;color:#e2e8f0;padding:26px 22px 22px;margin-bottom:26px}
+header.top .in{max-width:1180px;margin:0 auto}
+header.top h1{margin:0 0 6px;font-size:23px;letter-spacing:-.02em}
+header.top p{margin:0;color:#94a3b8;font-size:13.5px}
+.meta{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.meta span{background:#1e293b;border:1px solid #334155;border-radius:999px;padding:3px 11px;font-size:12px}
+nav.toc{position:sticky;top:18px;font-size:13.5px}
+nav.toc a{display:block;padding:5px 9px;border-radius:7px;color:#334155;text-decoration:none;border-left:2px solid transparent}
+nav.toc a:hover{background:#e2e8f0;border-left-color:#3a75fd;color:#0f172a}
+main{min-width:0}
+section.card{background:#fff;border:1px solid #dbe2ec;border-radius:13px;padding:22px 26px 26px;margin-bottom:22px;scroll-margin-top:16px}
+section.card > h2:first-child{margin:0 0 14px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e8edf4;padding-bottom:10px}
+h3{font-size:18px;margin:26px 0 8px;letter-spacing:-.015em}
+h4{font-size:15.5px;margin:20px 0 6px}
+h5{font-size:14px;margin:16px 0 5px;color:#334155}
+p{margin:9px 0}
+code{background:#eef2f8;border:1px solid #e2e8f0;border-radius:5px;padding:1px 5px;font:13px ui-monospace,SFMono-Regular,Menlo,monospace}
+pre{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:15px 17px;overflow-x:auto;font-size:12.5px;line-height:1.55}
+pre code{background:none;border:0;padding:0;color:inherit;font-size:12.5px}
+.tw{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{border:1px solid #e2e8f0;padding:7px 10px;text-align:left;vertical-align:top}
+th{background:#f6f8fc;font-weight:650}
+ul,ol{margin:9px 0;padding-left:22px}
+ul.checks{list-style:none;padding-left:2px}
+ul.checks li{display:flex;gap:9px;align-items:flex-start;padding:3px 0}
+ul.checks .box{color:#64748b;flex:0 0 auto}
+ul.checks li.done{color:#64748b;text-decoration:line-through}
+blockquote{border-left:3px solid #cbd5e1;margin:12px 0;padding:3px 0 3px 14px;color:#475569}
+hr{border:0;border-top:1px solid #e8edf4;margin:22px 0}
+.banner{border-radius:10px;padding:12px 15px;font-size:13.5px;margin:4px 0 14px}
+.banner.good{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46}
+.banner.bad{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+td.good{color:#047857;font-weight:600}
+td.bad{color:#b91c1c;font-weight:700}
+.chip{display:inline-block;background:#eef2f8;border:1px solid #dbe2ec;border-radius:999px;padding:3px 11px;font-size:12.5px;margin:0 6px 6px 0}
+.chip.warn{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
+.mock{margin:16px 0 22px}
+.mockhead{display:flex;align-items:center;gap:12px;font-size:13px;margin-bottom:7px}
+.mockhead a{margin-left:auto;color:#3a75fd;text-decoration:none;font-weight:600}
+iframe{width:100%;height:620px;border:1px solid #dbe2ec;border-radius:11px;background:#fff}
+.missing{color:#94a3b8;font-style:italic}
+.note{font-size:12.5px;color:#64748b}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}nav.toc{position:static}}
+</style></head><body>
+
+<header class="top"><div class="in">
+  <h1>add-app-shell</h1>
+  <p>DevSpec change review — generated from the artifacts in
+     <code style="background:#1e293b;border-color:#334155;color:#cbd5e1">devspec/changes/add-app-shell/</code>.
+     This page is disposable; fix the markdown, re-render.</p>
+  <div class="meta">
+    <span>8 requirements</span>
+    <span>8 task sections</span>
+    <span>46 subtasks</span>
+    <span>1 mockup file(s)</span>
+    <span>coverage clean</span>
+  </div>
+</div></header>
+
+<div class="wrap">
+<nav class="toc"><a href='#context'>Context</a><a href='#proposal'>Proposal</a><a href='#architecture'>Architecture</a><a href='#impact'>Impact Area</a><a href='#backend'>Backend</a><a href='#frontend'>Frontend</a><a href='#tasks'>Tasks</a><a href='#coverage'>Coverage</a><a href='#board'>Board</a></nav>
+<main>
+
+<section class="card" id="context"><h2>Context</h2>
+  <div class="tw"><table><tbody>
+    <tr><th>Change id</th><td><code>add-app-shell</code></td></tr>
+    <tr><th>Artifacts</th><td><code>proposal.md</code>, <code>design.md</code>, <code>spec.md</code>, <code>tasks.md</code>, <code>ui.md</code> &middot; <span class='missing'>db.md not captured (no DB work)</span></td></tr>
+    <tr><th>Board status</th><td>on the board</td></tr>
+    <tr><th>Depends on</th><td><code>add-login</code> <span class="note">(its auth store and hooks are built and verified; its <code>blocked</code> status is a pre-existing e2e failure unrelated to this change)</span></td></tr>
+  </tbody></table></div>
+</section>
+
+<section class="card" id="proposal"><h2>Proposal</h2><p>_approved_by: LE AN_ _approved_at: 2026-10-01_</p>
+<h2>Proposal: add-app-shell</h2>
+<h3>Why</h3>
+<p><code>add-login</code> shipped a login page and a cookie session, but there is nothing to log <em>in to</em>. <code>frontend/app/page.tsx</code> is still the Next.js starter scaffold with a <code>&lt;UserChip&gt;</code> bolted on, and there is no navigation of any kind — no way to see the product&#x27;s shape, and no place for the next fourteen screens to land.</p>
+<p>This change builds the frame the rest of the MVP hangs off: a persistent sidebar shell around every authenticated route, plus one real screen inside it (the dashboard) so the shell is visibly working rather than an empty chrome.</p>
+<p>It also settles three things every later screen inherits: where authenticated routes live (<code>app/(app)/</code>), how a page gets its navigation, and how the signed-in user is presented.</p>
+<h3>What it delivers</h3>
+<ol>
+<li><strong>A route group for authenticated pages</strong> — <code>app/(app)/</code>, with an auth guard in its layout. <code>(auth)/login</code> stays outside it and is untouched.</li>
+<li><strong>A collapsible sidebar</strong> — 264px expanded ⇄ 72px icon rail, a floating rounded card over a full-bleed page canvas. Collapse state persists in a cookie (no flash on reload) and toggles with <code>⌘B</code>.</li>
+<li><strong>Grouped navigation, eight items</strong> — Workspace (Dashboard, Projects, Meetings) · Insights (Requirements, Questions, Decisions, Documents) · Account (Settings). Only <strong>Dashboard</strong> is live; the other seven render dimmed with a <code>Soon</code> badge.</li>
+<li><strong>A mobile drawer</strong> — below 768px the sidebar is replaced by a hamburger that opens the same nav as an inset drawer over a scrim.</li>
+<li><strong>A sidebar footer user block</strong> — avatar, name, role, and a menu holding the e-mail and <strong>Sign out</strong>. This replaces and deletes <code>components/auth/user-chip.tsx</code>.</li>
+<li><strong>A sample dashboard</strong> at <code>/</code> — greeting, four stat cards, a Recent Projects list and a Next Meeting card, modelled on screen 2 of the product mockup. <strong>All of it is static sample data.</strong></li>
+</ol>
+<p>Approved shape: <code>mockups/app-shell.html</code> (9 frames) → <code>ui.md</code>.</p>
+<h3>Scope</h3>
+<p><strong>In</strong></p>
+<ul>
+<li><code>app/(app)/layout.tsx</code> (guard + shell) and <code>app/(app)/page.tsx</code> (dashboard), replacing the scaffold at <code>app/page.tsx</code></li>
+<li>The sidebar, nav item list, mobile drawer, and footer user block as new components</li>
+<li>Eight shadcn primitives hand-copied into <code>components/ui/</code> (avatar, dropdown-menu, card, badge, skeleton, tooltip, sheet, separator) — the CLI hangs in this repo</li>
+<li>Loading / empty / error / dark states for the dashboard region</li>
+<li>Deleting <code>components/auth/user-chip.tsx</code>; dropping <code>flex-col</code> from the <code>&lt;body&gt;</code> in <code>app/layout.tsx</code></li>
+</ul>
+<p><strong>Out</strong></p>
+<ul>
+<li>Any of the seven <code>Soon</code> sections — no routes, no stub pages, no placeholder screens</li>
+<li>Any backend work. No endpoint, no entity, no migration. Nothing in <code>backend/</code> is touched</li>
+<li>Real dashboard data. The numbers, projects and meeting are hardcoded sample values; wiring them is a later change per section</li>
+<li>A <code>⌘K</code> command palette and a sidebar search box — considered and cut</li>
+<li>A mobile bottom tab bar (reference screen 15) — considered and cut in favour of the drawer alone</li>
+<li>A theme toggle. The dark palette is honoured, but nothing in this change switches it</li>
+<li>Notifications. The topbar bell renders with its dot and does nothing</li>
+</ul>
+<h3>Risks</h3>
+<ul>
+<li><strong><code>frontend/app/page.tsx</code> disappears</strong> as a route file; <code>/</code> is served by <code>app/(app)/page.tsx</code> instead. Two files cannot own <code>/</code> — the old one must be deleted in the same step, not left behind.</li>
+<li><strong>Eight primitives are transcribed by hand</strong> because the shadcn CLI hangs (<code>devspec/context/rules.md</code>). Transcription errors are the most likely defect in this change; each one is checked by <code>tsc</code> and by rendering it.</li>
+<li><strong><code>devspec/context/conventions.md</code> is stale</strong> about the frontend — it describes <code>@/<em></code> → <code>./app/</em></code> and everything under <code>app/</code>, which <code>add-login</code> changed. <code>frontend/CLAUDE.md</code> is authoritative. Flagged in <code>design.md</code>; refreshing the context pack is a separate job.</li>
+<li><strong><code>add-login</code> is <code>status: blocked</code></strong> on the board, but only on a pre-existing e2e test unrelated to this work. Its auth store, hooks and services are built and verified, so this change is not actually blocked by it.</li>
+</ul></section>
+
+<section class="card" id="architecture"><h2>Architecture</h2>
+  <pre><code>app/layout.tsx  (html &gt; body, QueryProvider &gt; AuthProvider)
+   │
+   ├── app/(auth)/login/page.tsx                       ← untouched, no shell
+   │
+   └── app/(app)/layout.tsx          AuthGuard ─ reads stores/auth.ts status
+          │                             ├ &quot;unknown&quot;        → &lt;ShellSkeleton/&gt;  (never redirect)
+          │                             ├ &quot;anonymous&quot;      → router.replace(&quot;/login&quot;)
+          │                             └ &quot;authenticated&quot;  → shell
+          │
+          ├── SidebarProvider (context: open, toggle, isMobile)
+          │      └ cookie &quot;sidebar_state&quot; ← written on toggle, read by the server layout
+          │
+          ├── AppSidebar          ≥768px: floating card, 264 ⇄ 72
+          │      ├ NAV_ITEMS (components/nav/nav-items.ts) — one array, three groups
+          │      ├ NavItem × 8   (active = usePathname(); 7 disabled + Soon badge)
+          │      └ NavUser       → stores/auth.ts useUser · hooks/use-auth.ts useLogout
+          │
+          ├── MobileNav           &lt;768px: hamburger in the top bar → &lt;Sheet&gt; drawer,
+          │                       renders the SAME NAV_ITEMS array
+          │
+          └── app/(app)/page.tsx  dashboard — static sample data, no fetch
+                 └ Greeting · StatCard ×4 · RecentProjects · NextMeeting</code></pre>
+<p>Nothing in <code>backend/</code> is touched. No HTTP call is added: the shell reads the auth store that <code>add-login</code> already hydrates from <code>/auth/me</code>, and the dashboard&#x27;s numbers are hardcoded.</p>
+  <p class="note">Rendered from the ASCII block in <code>design.md</code>. The <code>archify</code> skill is
+     installed but was not used — ask for it if you want this as a drawn diagram.</p>
+</section>
+
+<section class="card" id="impact"><h2>Impact Area</h2><h4>Decision Defaults</h4>
+<div class='tw'><table><thead><tr><th>Gray area</th><th>Default decision</th><th>Fallback if the default doesn&#x27;t fit</th></tr></thead><tbody><tr><td>Where the shell components live</td><td><code>frontend/components/nav/</code> — new folder, kebab-case files, PascalCase exports</td><td>mirror the existing <code>components/auth/</code> folder shape</td></tr><tr><td>Where the collapse context lives</td><td><code>components/nav/sidebar-context.tsx</code>, a <code>&quot;use client&quot;</code> provider + <code>useSidebar()</code> hook</td><td>colocate in <code>app-sidebar.tsx</code> if it stays under ~30 lines</td></tr><tr><td>Breakpoint for the mobile swap</td><td>Tailwind <code>md</code> (768px), via a <code>useIsMobile()</code> hook using <code>matchMedia</code></td><td>if a named token is wanted later, declare it in <code>globals.css</code>, never an arbitrary variant</td></tr><tr><td>Icons for each nav item</td><td>the <code>lucide-react</code> names listed in <code>ui.md</code></td><td>nearest lucide equivalent; never an inline SVG</td></tr><tr><td>Greeting wording</td><td>&quot;Good morning / afternoon / evening, <code>{user.name}</code> 👋&quot; from the client clock</td><td>if <code>user.name</code> is missing, fall back to &quot;Good morning 👋&quot; with no name</td></tr><tr><td>Avatar when the user has no image</td><td>initials from <code>user.name</code>, first letters of the first two words, uppercased</td><td>single word → its first two letters; nothing usable → <code>&lt;User&gt;</code> icon</td></tr><tr><td>Role text under the name</td><td><code>user.role</code> if the <code>UserDto</code> carries one</td><td>the literal <code>BA</code>, matching the mockup, behind a <code>// ponytail:</code> comment</td></tr><tr><td>Sample data values</td><td>exactly the numbers in <code>ui.md</code> (3 / 12 / 48 / 7, the three named projects, the Oct 2 meeting)</td><td>—</td></tr><tr><td>What inert controls do</td><td><code>View all</code>, <code>View details</code>, the chevrons and the bell render and do nothing — no <code>href</code>, no handler</td><td>never a <code>#</code> href, which pushes a history entry</td></tr><tr><td>Dates shown on the dashboard</td><td>hardcoded strings exactly as in <code>ui.md</code> — no <code>Intl</code>, no date library</td><td>—</td></tr><tr><td>Shipping a shadcn primitive that needs a radix package</td><td>the installed <code>radix-ui</code> umbrella already provides it — import from <code>radix-ui</code></td><td>if a primitive genuinely needs a package the umbrella lacks, stop and flag; adding a dependency is out of scope</td></tr><tr><td>Where the deleted <code>UserChip</code> import is referenced</td><td>only <code>app/page.tsx</code>, which this change deletes</td><td>if <code>tsc</code> finds another importer, update it rather than keeping the file</td></tr><tr><td>Empty / error states being unreachable</td><td>build them, verify by temporarily flipping the local constant, leave the constant at its real value</td><td>—</td></tr></tbody></table></div>
+<h4>Blast Radius</h4>
+<p>Resolved against the working tree (the frontend is not in the code graph — <code>summary.md</code>: the graph covers <code>backend/</code> only).</p>
+<ul>
+<li><code>frontend/app/(app)/layout.tsx</code> (new — guard + shell) — safe/reversible</li>
+<li><code>frontend/app/(app)/page.tsx</code> (new — dashboard) — safe/reversible</li>
+<li><code>frontend/app/page.tsx</code> (<strong>deleted</strong> — its route moves to <code>(app)/page.tsx</code>) — safe/reversible</li>
+<li><code>frontend/app/layout.tsx</code> (adjust — drop <code>flex-col</code> from <code>&lt;body&gt;</code>) — safe/reversible</li>
+<li><code>frontend/components/auth/user-chip.tsx</code> (<strong>deleted</strong> — absorbed by <code>NavUser</code>) — safe/reversible</li>
+<li><code>frontend/components/nav/*</code> (new — <code>nav-items.ts</code>, <code>sidebar-context.tsx</code>, <code>app-sidebar.tsx</code>, <code>nav-item.tsx</code>, <code>nav-user.tsx</code>, <code>mobile-nav.tsx</code>) — safe/reversible</li>
+<li><code>frontend/components/ui/{avatar,dropdown-menu,card,badge,skeleton,tooltip,sheet,separator}.tsx</code> (new — hand-copied) — safe/reversible</li>
+<li><code>frontend/hooks/use-is-mobile.ts</code> (new) — safe/reversible</li>
+<li><code>frontend/app/globals.css</code> — <strong>read only.</strong> Every token this change needs already exists; nothing is added or changed — safe/reversible</li>
+<li><code>frontend/stores/auth.ts</code>, <code>frontend/hooks/use-auth.ts</code>, <code>frontend/components/ui/button.tsx</code> — <strong>read only</strong>, consumed unchanged — safe/reversible</li>
+<li><code>frontend/app/(auth)/login/page.tsx</code> — <strong>not touched</strong>; it stays outside the <code>(app)</code> group — safe/reversible</li>
+<li><code>backend/<strong></code> — </strong>not touched**. No endpoint, entity, migration or env var — safe/reversible</li>
+</ul>
+<p>No destructive operation, no database work, no security surface. The two deletions are source files whose content is absorbed elsewhere in the same change and recoverable from git.</p></section>
+
+<section class="card" id="backend"><h2>Backend</h2><div class='banner good'><b>No backend work.</b> This change touches nothing under <code>backend/</code> — no endpoint, entity, migration or env var. Every requirement is frontend-only.</div></section>
+
+<section class="card" id="frontend"><h2>Frontend</h2>
+  <h2>UI: add-app-shell</h2>
+<p><strong>Mockup</strong>: <code>mockups/app-shell.html</code> — approved 2026-09-30 by An Le (9 frames: A expanded · B collapsed rail · C user menu · D/E mobile closed+drawer · F loading · G empty · H error · I dark)</p>
+<p><strong>References</strong>: screen 2 (&quot;Dashboard&quot;) of <code>assets/ChatGPT Image Sep 30, 2026, 02_57_53 PM.png</code>. Nav item set, stat row, &quot;Recent Projects&quot; / &quot;Next Meeting&quot; split and the footer user block come from it. Deliberate departures from the reference, all approved: nav is <strong>grouped</strong> rather than one flat list of eight; the sidebar is a <strong>floating rounded card</strong> over a full-bleed page canvas rather than a flush flat panel; unbuilt sections carry a <strong>Soon</strong> badge; there is <strong>no search box</strong> and <strong>no mobile bottom tab bar</strong> (reference screen 15 is marked optional and was cut).</p>
+<p><strong>Style source</strong>: every colour, radius and surface in the mockup is copied verbatim from <code>frontend/app/globals.css</code> — <code>--sidebar</code>, <code>--sidebar-foreground</code>, <code>--sidebar-primary</code>, <code>--sidebar-accent</code>, <code>--sidebar-border</code> (already defined for both <code>:root</code> and <code>.dark</code>, unused until now), <code>--card</code>, <code>--muted</code>, <code>--border</code>, <code>--destructive</code>, <code>--chart-1..5</code>, <code>--radius</code>. <strong>No new token is introduced by this change.</strong> Typography is <code>--font-geist-sans</code> via <code>next/font</code> (the mockup falls back to a system stack because a standalone file cannot load it).</p>
+<hr>
+<h3>Shell layout</h3>
+<p>Desktop ≥768px, sidebar expanded:</p>
+<pre><code>┌──────────────────────────────────────────────────────────────┐
+│  ╭────────────────────╮                                      │  ← page canvas (--muted)
+│  │ ⬢ Clarivo       ⌸  │   Dashboard              🔔          │    is the BASE layer and
+│  │                    │  ──────────────────────────────────  │    runs edge to edge
+│  │ WORKSPACE          │                                      │
+│  │ ▌🅳 Dashboard      │   Good morning, An 👋                │
+│  │   🗀 Projects  Soon│   Here&#x27;s what&#x27;s happening…            │
+│  │   🗓 Meetings  Soon│                                      │
+│  │                    │   ┌────┬────┬────┬────┐              │
+│  │ INSIGHTS           │   │ 3  │ 12 │ 48 │ 7  │              │
+│  │   ☰ Requirements   │   └────┴────┴────┴────┘              │
+│  │   ？ Questions     │                                      │
+│  │   ⚖ Decisions      │   ┌──────────────┬────────────┐      │
+│  │   🗎 Documents     │   │Recent Projects│Next Meeting│      │
+│  │                    │   │  row ›        │  title     │      │
+│  │ ACCOUNT            │   │  row ›        │  when      │      │
+│  │   ⚙ Settings  Soon │   │  row ›        │ [View det] │      │
+│  │                    │   └──────────────┴────────────┘      │
+│  │ ──────────────     │                                      │
+│  │ (AL) An Le      ⌃⌄ │                                      │
+│  │      BA            │                                      │
+│  ╰────────────────────╯                                      │
+└──────────────────────────────────────────────────────────────┘
+      ↑ sidebar is a FLOATING CARD above the canvas:
+        12px margin · radius 18px · 1px --sidebar-border · soft shadow · z-index above content</code></pre>
+<p>Measurements, as approved:</p>
+<div class='tw'><table><thead><tr><th></th><th>expanded</th><th>collapsed</th></tr></thead><tbody><tr><td>sidebar flex basis</td><td>264px</td><td>72px</td></tr><tr><td>margin</td><td>12px (top/bottom/left)</td><td>12px</td></tr><tr><td>radius</td><td>18px</td><td>18px</td></tr><tr><td>nav item height</td><td>38px, radius 10px</td><td>38px, icon centred</td></tr><tr><td>topbar height</td><td>58px, transparent, no bottom border</td><td>same</td></tr></tbody></table></div>
+<h3>Sidebar</h3>
+<p><strong>Groups</strong> (headings are <code>10.5px / 600 / .09em</code> uppercase in <code>--muted-foreground</code>):</p>
+<div class='tw'><table><thead><tr><th>Group</th><th>Items</th></tr></thead><tbody><tr><td>Workspace</td><td>Dashboard · Projects · Meetings</td></tr><tr><td>Insights</td><td>Requirements · Questions · Decisions · Documents</td></tr><tr><td>Account</td><td>Settings</td></tr></tbody></table></div>
+<p>Only <strong>Dashboard</strong> is live (<code>/</code>). The other seven render dimmed (<code>opacity .55</code>), are not links, do not hover-highlight, and carry a <code>Soon</code> badge (<code>--muted</code> fill, <code>--border</code> outline, uppercase 9.5px).</p>
+<p><strong>Active item</strong>: background <code>--sidebar-primary</code> at 12% + text/icon in <code>--sidebar-primary</code> + a 3px full-height accent bar on the left edge of the item.</p>
+<p><strong>Collapsed rail (72px)</strong>: labels, <code>Soon</code> badges, the brand wordmark, the collapse button and the user&#x27;s name/role are all hidden. Group headings become a hairline divider (a faded <code>--sidebar-border</code> rule) so the grouping survives. Hovering an item shows its label as a tooltip to the right (<code>--foreground</code> fill, <code>--background</code> text, 7px radius, left-pointing arrow). The collapse toggle moves into the content topbar, because the rail&#x27;s header has no room for it.</p>
+<p><strong>Collapse state</strong>: persisted in a cookie so the server renders the correct width on first paint — no flash. <code>⌘B</code> / <code>Ctrl+B</code> toggles it from anywhere in the shell.</p>
+<h3>Sidebar footer — user block</h3>
+<p>Replaces <code>components/auth/user-chip.tsx</code> entirely (that file is deleted).</p>
+<pre><code> ╭──────────────────────╮
+ │ An Le                │   ← menu, opens upward
+ │ an.le@…              │
+ │ ─────────────────────│
+ │ 👤 Profile      Soon │   dimmed
+ │ ⇥  Sign out          │   --destructive text
+ ╰──────────────────────╯
+ ┌──────────────────────┐
+ │ (AL)  An Le       ⌃⌄ │   ← trigger row (highlighted while open)
+ │       BA             │
+ └──────────────────────┘</code></pre>
+<ul>
+<li>Avatar is initials on a <code>--chart-3 → --chart-1</code> gradient, 32px, radius 10px.</li>
+<li>Row shows <strong>name</strong> (600/13px) and <strong>role</strong> (11.5px, <code>--muted-foreground</code>). E-mail is <em>not</em> on the row — it lives in the menu header, so a long address cannot break the layout.</li>
+<li>Menu items: <code>Profile</code> (dimmed + <code>Soon</code>) and <code>Sign out</code> (<code>--destructive</code>). Sign out is the only live action.</li>
+<li>Collapsed rail shows the avatar alone; clicking it opens the same menu beside the rail.</li>
+</ul>
+<h3>Content — dashboard</h3>
+<p>All data is <strong>static sample data</strong>; no endpoint exists for any of it yet.</p>
+<ul>
+<li><strong>Greeting</strong>: <code>Good morning, An 👋</code> — the time-of-day word is derived from the client clock (morning / afternoon / evening); the name comes from the auth store. Subtitle: <code>Here&#x27;s what&#x27;s happening with your projects.</code></li>
+<li><strong>Stat row</strong>: 4 cards — Total Projects <code>3</code>, Meetings <code>12</code>, Requirements <code>48</code>, Open Questions <code>7</code>. Each is value (26px/700) over label (12px <code>--muted-foreground</code>), with a 34px tinted rounded square holding the section&#x27;s icon (tints from <code>--chart-1</code>, <code>--chart-2</code>, <code>--chart-3</code>, <code>--chart-5</code>).</li>
+<li><strong>Recent Projects</strong> card (1.6fr): three rows — 36px gradient tile, project name, <code>Last meeting: &lt;date&gt; · N requirements</code>, chevron. Rows hover-highlight and are separated by a hairline. Header carries a <code>View all</code> link (inert).</li>
+<li><strong>Next Meeting</strong> card (1fr): title, <code>Oct 2, 2026 · 10:00 AM</code>, two pills (<code>3 topics</code>, <code>5 questions</code>), a full-width primary <code>View details</code> button (inert).</li>
+<li><strong>Topbar</strong>: breadcrumb (<code>Dashboard</code>), spacer, notification bell with a <code>--destructive</code> dot. Bell is inert.</li>
+</ul>
+<h3>States</h3>
+<div class='tw'><table><thead><tr><th>State</th><th>What renders</th></tr></thead><tbody><tr><td><strong>loading</strong> (auth <code>status: &quot;unknown&quot;</code>)</td><td>Full shell, nav in place. User block and all content are <code>--muted</code> skeleton blocks. <strong>Never redirects</strong> — the cookie has not been checked yet, so a redirect here would bounce a signed-in user to <code>/login</code>.</td></tr><tr><td><strong>authenticated</strong></td><td>Frame A.</td></tr><tr><td><strong>anonymous</strong></td><td>No shell at all — redirect to <code>/login</code>.</td></tr><tr><td><strong>empty</strong></td><td>Stats render <code>0</code> (not hidden). Each card shows its own empty block: icon + heading + one line (&quot;No projects yet&quot; / &quot;Nothing scheduled&quot;). Subtitle changes to &quot;Nothing here yet — create your first project to get started.&quot;</td></tr><tr><td><strong>error</strong></td><td>Shell survives; only the content region is replaced by icon + &quot;Couldn&#x27;t load your dashboard&quot; + one line + a ghost <code>Retry</code> button. A <strong>401 is not this state</strong> — it clears the auth store and redirects to <code>/login</code>.</td></tr><tr><td><strong>dark</strong></td><td>Frame I. Canvas becomes <code>--background</code> (navy), sidebar <code>--sidebar</code> (lighter) — the float reads stronger than in light. No new tokens.</td></tr></tbody></table></div>
+<h3>Mobile (&lt;768px)</h3>
+<ul>
+<li>No sidebar. Top bar: hamburger · brand · spacer · bell.</li>
+<li>Hamburger opens the <strong>same nav</strong> as a left drawer — inset 12px, radius 18px, its own shadow, over a <code>rgba(15,23,42,.45)</code> scrim. Closes on scrim click, on the drawer&#x27;s X, and on <code>Esc</code>.</li>
+<li><strong>No bottom tab bar</strong> (cut from reference screen 15).</li>
+<li>Stats go 4 → 2 columns; the two content cards stack to one column; paddings drop from 26px to 16px.</li>
+</ul>
+<h3>Interactions</h3>
+<div class='tw'><table><thead><tr><th>Trigger</th><th>Result</th></tr></thead><tbody><tr><td>Click collapse toggle / <code>⌘B</code> / <code>Ctrl+B</code></td><td>Sidebar 264px ⇄ 72px, cookie written</td></tr><tr><td>Click a <code>Soon</code> item</td><td>Nothing — not a link, no navigation, no hover state</td></tr><tr><td>Click user row</td><td>Menu opens upward; row highlights; <code>Esc</code> or outside click closes</td></tr><tr><td>Click <code>Sign out</code></td><td>Logout mutation → auth store cleared → redirect <code>/login</code></td></tr><tr><td>Hover a rail icon (collapsed)</td><td>Tooltip with the item&#x27;s label</td></tr><tr><td>Mobile hamburger</td><td>Drawer opens; scrim / X / <code>Esc</code> close it</td></tr><tr><td>Resize across 768px</td><td>Drawer state and sidebar state are independent — crossing the breakpoint never leaves a half-open overlay</td></tr></tbody></table></div>
+<h3>Components</h3>
+<p>Existing, reuse as-is:</p>
+<ul>
+<li><code>frontend/components/ui/button.tsx:Button</code> — <code>View details</code> (default), <code>Retry</code> (<code>variant=&quot;outline&quot;</code>), every icon button (<code>variant=&quot;ghost&quot; size=&quot;icon&quot;</code>).</li>
+<li><code>frontend/lib/utils.ts:cn</code> — every conditional class.</li>
+<li><code>frontend/stores/auth.ts:useUser</code> / <code>useAuthStore</code> — name, role and email for the footer; <code>status</code> for the loading/redirect gate.</li>
+<li><code>frontend/hooks/use-auth.ts:useLogout</code> — the <code>Sign out</code> action.</li>
+<li><code>lucide-react</code> for every icon (already a dependency): <code>LayoutDashboard</code>, <code>FolderKanban</code>, <code>CalendarDays</code>, <code>ListChecks</code>, <code>CircleHelp</code>, <code>Scale</code>, <code>FileText</code>, <code>Settings</code>, <code>PanelLeft</code>, <code>Bell</code>, <code>ChevronRight</code>, <code>ChevronsUpDown</code>, <code>LogOut</code>, <code>User</code>, <code>Menu</code>, <code>X</code>, <code>TriangleAlert</code>.</li>
+</ul>
+<p>To add by hand — <strong>the shadcn CLI hangs in this repo</strong> (<code>devspec/context/rules.md</code>), so each is copied from ui.shadcn.com into <code>frontend/components/ui/</code> by hand; every radix dependency they need is already covered by the installed <code>radix-ui</code> umbrella package:</p>
+<ul>
+<li><code>avatar.tsx:Avatar</code> / <code>AvatarFallback</code> — footer + rail</li>
+<li><code>dropdown-menu.tsx:DropdownMenu…</code> — footer menu</li>
+<li><code>card.tsx:Card</code> / <code>CardHeader</code> / <code>CardContent</code> — stat and content cards</li>
+<li><code>badge.tsx:Badge</code> — the <code>Soon</code> badge and the meeting pills</li>
+<li><code>skeleton.tsx:Skeleton</code> — the loading state</li>
+<li><code>tooltip.tsx:Tooltip…</code> — collapsed-rail labels</li>
+<li><code>sheet.tsx:Sheet…</code> — the mobile drawer</li>
+<li><code>separator.tsx:Separator</code> — footer rule and the collapsed group dividers</li>
+</ul>
+<p>To build (no existing equivalent): the sidebar itself — the floating card, its collapse state + cookie, the <code>⌘B</code> handler, the nav item, the group heading, the rail behaviour. Option B was chosen over vendoring shadcn&#x27;s <code>sidebar</code> block; see <code>design.md</code>.</p>
+<p><strong>Deleted</strong>: <code>frontend/components/auth/user-chip.tsx</code> — the footer user block absorbs it. <code>frontend/app/page.tsx</code>&#x27;s Next.js scaffold content is replaced by the dashboard.</p>
+  <h3>Approved mockups</h3>
+  <div class='mock'><div class='mockhead'><b>app-shell.html</b><a href='mockups/app-shell.html' target='_blank'>open standalone &#8599;</a></div><iframe src='mockups/app-shell.html' loading='lazy'></iframe></div>
+</section>
+
+<section class="card" id="tasks"><h2>Tasks</h2>
+  <p class="note">Subtasks by layer tag:</p><p><span class='chip'>frontend <b>46</b></span></p>
+  <h2>Tasks: add-app-shell</h2>
+<p>All paths are relative to <code>frontend/</code>. <code>@/*</code> resolves to the <strong>frontend root</strong> (<code>frontend/CLAUDE.md</code>), not to <code>app/</code>.</p>
+<h3>1. UI primitives [req-2] [req-3] [req-4] [req-5] [req-7]</h3>
+<p>The shadcn CLI hangs in this repo (<code>devspec/context/rules.md</code>) — copy each component&#x27;s source from ui.shadcn.com (style <code>new-york</code>, baseColor <code>slate</code>) into <code>components/ui/</code> <strong>by hand</strong>. Every radix dependency these need is already covered by the installed <code>radix-ui</code> umbrella package; <strong>do not add an npm dependency</strong>.</p>
+<ul class='checks'>
+<li class=''><span class='box'>&#9744;</span>1.1 [frontend] <code>components/ui/avatar.tsx</code> — <code>Avatar</code>, <code>AvatarImage</code>, <code>AvatarFallback</code></li>
+<li class=''><span class='box'>&#9744;</span>1.2 [frontend] <code>components/ui/dropdown-menu.tsx</code> — <code>DropdownMenu</code>, <code>DropdownMenuTrigger</code>, <code>DropdownMenuContent</code>, <code>DropdownMenuItem</code>, <code>DropdownMenuLabel</code>, <code>DropdownMenuSeparator</code></li>
+<li class=''><span class='box'>&#9744;</span>1.3 [frontend] <code>components/ui/card.tsx</code> — <code>Card</code>, <code>CardHeader</code>, <code>CardTitle</code>, <code>CardContent</code></li>
+<li class=''><span class='box'>&#9744;</span>1.4 [frontend] <code>components/ui/badge.tsx</code> — <code>Badge</code> (used for the <code>Soon</code> badge and the meeting pills)</li>
+<li class=''><span class='box'>&#9744;</span>1.5 [frontend] <code>components/ui/skeleton.tsx</code> — <code>Skeleton</code></li>
+<li class=''><span class='box'>&#9744;</span>1.6 [frontend] <code>components/ui/tooltip.tsx</code> — <code>Tooltip</code>, <code>TooltipTrigger</code>, <code>TooltipContent</code>, <code>TooltipProvider</code></li>
+<li class=''><span class='box'>&#9744;</span>1.7 [frontend] <code>components/ui/sheet.tsx</code> — <code>Sheet</code>, <code>SheetTrigger</code>, <code>SheetContent</code>, <code>SheetTitle</code> (side <code>left</code>, used for the mobile drawer)</li>
+<li class=''><span class='box'>&#9744;</span>1.8 [frontend] <code>components/ui/separator.tsx</code> — <code>Separator</code></li>
+<li class=''><span class='box'>&#9744;</span>1.9 [frontend] Each file imports <code>cn</code> from <code>@/lib/utils</code> and uses semantic tokens only — no raw hex, no <code>bg-white</code></li>
+</ul>
+<p>Verify: <code>npx tsc --noEmit</code> clean and <code>npx eslint components/ui</code> clean (warnings included)</p>
+<h3>2. Nav data and sidebar context [req-2] [req-3]</h3>
+<ul class='checks'>
+<li class=''><span class='box'>&#9744;</span>2.1 [frontend] <code>components/nav/nav-items.ts</code> — export <code>NAV_ITEMS</code>, one array of <code>{ group, label, href, icon, disabled }</code>. Groups in order <code>Workspace</code> (Dashboard <code>/</code>, Projects, Meetings), <code>Insights</code> (Requirements, Questions, Decisions, Documents), <code>Account</code> (Settings). Icons from <code>lucide-react</code>: <code>LayoutDashboard</code>, <code>FolderKanban</code>, <code>CalendarDays</code>, <code>ListChecks</code>, <code>CircleHelp</code>, <code>Scale</code>, <code>FileText</code>, <code>Settings</code>. Dashboard is the only entry with <code>disabled: false</code></li>
+<li class=''><span class='box'>&#9744;</span>2.2 [frontend] <code>hooks/use-is-mobile.ts</code> — <code>useIsMobile()</code> returning whether the viewport is under 768px, via <code>matchMedia</code>; SSR-safe (no <code>window</code> access during render)</li>
+<li class=''><span class='box'>&#9744;</span>2.3 [frontend] <code>components/nav/sidebar-context.tsx</code> — <code>&quot;use client&quot;</code> <code>SidebarProvider</code> + <code>useSidebar()</code> exposing <code>{ open, setOpen, toggle, mobileOpen, setMobileOpen }</code>. Toggling writes the cookie <code>sidebar_state</code> (<code>&quot;true&quot;</code>/<code>&quot;false&quot;</code>, <code>path=/</code>, <code>max-age</code> 1 year, <code>SameSite=Lax</code>). A <code>keydown</code> listener toggles on <code>⌘B</code> / <code>Ctrl+B</code> and calls <code>preventDefault()</code>. Add a <code>// ponytail:</code> comment naming the ceiling: swap in shadcn&#x27;s <code>sidebar</code> block if a <code>⌘K</code> palette or rail-dragging is ever wanted</li>
+<li class=''><span class='box'>&#9744;</span>2.4 [frontend] The provider takes the server-read cookie value as <code>defaultOpen</code> so the first paint is already correct</li>
+</ul>
+<p>Verify: <code>npx tsc --noEmit</code> clean; <code>NAV_ITEMS</code> has exactly 8 entries, exactly one with <code>disabled: false</code></p>
+<h3>3. Sidebar [req-2] [req-3] [req-8]</h3>
+<ul class='checks'>
+<li class=''><span class='box'>&#9744;</span>3.1 [frontend] <code>components/nav/nav-item.tsx</code> — renders one <code>NAV_ITEMS</code> entry. Enabled → <code>next/link</code> <code>&lt;Link&gt;</code>; <strong>disabled → a <code>&lt;span&gt;</code>, never an anchor</strong>, with <code>aria-disabled=&quot;true&quot;</code>, <code>opacity-55</code>, no hover state, and a <code>&lt;Badge&gt;</code> reading <code>Soon</code>. Active (via <code>usePathname()</code>) → <code>bg-sidebar-primary/12 text-sidebar-primary font-semibold</code> plus a 3px left accent bar; <code>aria-current=&quot;page&quot;</code></li>
+<li class=''><span class='box'>&#9744;</span>3.2 [frontend] <code>components/nav/app-sidebar.tsx</code> — the floating card: <code>m-3 rounded-[18px] border border-sidebar-border bg-sidebar shadow-lg</code>, width <code>w-[264px]</code> expanded / <code>w-[72px]</code> collapsed, <code>transition-[width]</code>. Header = brand mark + wordmark + collapse button (<code>PanelLeft</code>). Body = the three groups with uppercase headings. Footer = <code>&lt;NavUser&gt;</code> above a <code>&lt;Separator&gt;</code></li>
+<li class=''><span class='box'>&#9744;</span>3.3 [frontend] Collapsed rail: hide labels, badges, wordmark, collapse button and the user&#x27;s name/role; centre each icon; render group headings as a hairline <code>&lt;Separator&gt;</code>; wrap each item in <code>&lt;Tooltip&gt;</code> showing its label (tooltips only while collapsed)</li>
+<li class=''><span class='box'>&#9744;</span>3.4 [frontend] Semantic tokens only — <code>bg-sidebar</code>, <code>text-sidebar-foreground</code>, <code>border-sidebar-border</code>, <code>text-sidebar-primary</code>, <code>bg-sidebar-accent</code>. <strong>No new token in <code>globals.css</code></strong>; every value the mockup uses is already defined there</li>
+</ul>
+<p>Verify: <code>/devspec-verify add-app-shell</code> (agent-browser at 1280px: sidebar is a card with a radius, border and inset; collapse toggles 264⇄72 and survives reload; <code>⌘B</code> toggles; the seven disabled items render no anchor and do not change the URL)</p>
+<h3>4. Footer user block [req-4]</h3>
+<ul class='checks'>
+<li class=''><span class='box'>&#9744;</span>4.1 [frontend] <code>components/nav/nav-user.tsx</code> — <code>&quot;use client&quot;</code>. Reads the user from <code>@/stores/auth</code> <code>useUser()</code>; sign-out from <code>@/hooks/use-auth</code> <code>useLogout()</code>. Row = <code>&lt;Avatar&gt;</code> with initials fallback (first letters of the first two words of <code>user.name</code>, uppercased), name (<code>font-semibold text-sm</code>), role underneath (<code>text-xs text-muted-foreground</code>), <code>ChevronsUpDown</code> at the end</li>
+<li class=''><span class='box'>&#9744;</span>4.2 [frontend] Wrap the row in <code>&lt;DropdownMenu&gt;</code>; content opens upward (<code>side=&quot;top&quot;</code>) with a <code>&lt;DropdownMenuLabel&gt;</code> carrying the name and e-mail, a disabled <code>Profile</code> item with a <code>Soon</code> badge, and a <code>Sign out</code> item styled <code>text-destructive</code> with a <code>LogOut</code> icon. <strong>The e-mail appears only in the menu</strong>, never on the row</li>
+<li class=''><span class='box'>&#9744;</span>4.3 [frontend] <code>Sign out</code> calls the logout mutation, then redirects to <code>/login</code>; the control is disabled while the mutation is pending</li>
+<li class=''><span class='box'>&#9744;</span>4.4 [frontend] Role text: use <code>user.role</code> if the <code>UserDto</code> carries one, otherwise the literal <code>BA</code> behind a <code>// ponytail:</code> comment</li>
+<li class=''><span class='box'>&#9744;</span>4.5 [frontend] <strong>Delete <code>components/auth/user-chip.tsx</code></strong> and remove every import of it</li>
+</ul>
+<p>Verify: <code>/devspec-verify add-app-shell</code> (sign in, open the footer menu, assert the e-mail is in the menu and not on the row, click <code>Sign out</code>, land on <code>/login</code>); <code>grep -r user-chip frontend --exclude-dir=node_modules</code> returns nothing</p>
+<h3>5. Mobile navigation [req-5]</h3>
+<ul class='checks'>
+<li class=''><span class='box'>&#9744;</span>5.1 [frontend] <code>components/nav/mobile-nav.tsx</code> — <code>&quot;use client&quot;</code>. Below 768px render a top bar: <code>Menu</code> button, brand, spacer, <code>Bell</code>. The button opens <code>&lt;Sheet side=&quot;left&quot;&gt;</code> whose content renders the <strong>same <code>NAV_ITEMS</code></strong> through the same <code>&lt;NavItem&gt;</code> — no second nav list</li>
+<li class=''><span class='box'>&#9744;</span>5.2 [frontend] Drawer styling matches the mockup: inset 12px, <code>rounded-[18px]</code>, its own shadow, over the <code>Sheet</code>&#x27;s scrim. Closes on scrim click, on its close control, and on <code>Escape</code> (the <code>Sheet</code> primitive gives the last two)</li>
+<li class=''><span class='box'>&#9744;</span>5.3 [frontend] Hide the desktop sidebar below 768px and hide the mobile top bar at and above it, driven by <code>useIsMobile()</code>. Crossing the breakpoint must not leave a drawer open over a desktop layout</li>
+<li class=''><span class='box'>&#9744;</span>5.4 [frontend] <strong>No bottom tab bar</strong> — do not build one</li>
+</ul>
+<p>Verify: <code>/devspec-verify add-app-shell</code> (agent-browser at 390px: no persistent sidebar, hamburger opens a drawer with all 8 items in 3 groups, <code>Escape</code> closes it, no bottom bar, no horizontal scroll)</p>
+<h3>6. Route group, guard and layout [req-1]</h3>
+<ul class='checks'>
+<li class=''><span class='box'>&#9744;</span>6.1 [frontend] <code>app/(app)/layout.tsx</code> — a Server Component. Read the <code>sidebar_state</code> cookie via <code>next/headers</code> <code>cookies()</code> and pass it as <code>defaultOpen</code> to <code>&lt;SidebarProvider&gt;</code>; render <code>&lt;AppSidebar&gt;</code> + <code>&lt;MobileNav&gt;</code> + a <code>&lt;main&gt;</code> holding <code>children</code>. Page canvas <code>bg-muted</code>, shell <code>h-dvh</code> (<strong>never <code>min-h-screen</code></strong>)</li>
+<li class=''><span class='box'>&#9744;</span>6.2 [frontend] <code>components/nav/auth-guard.tsx</code> — <code>&quot;use client&quot;</code>. Reads <code>status</code> from <code>@/stores/auth</code>: <code>&quot;unknown&quot;</code> → render the skeleton shell; <code>&quot;anonymous&quot;</code> → <code>router.replace(&quot;/login&quot;)</code> and render nothing; <code>&quot;authenticated&quot;</code> → render <code>children</code>. <strong>Never redirect while <code>&quot;unknown&quot;</code></strong></li>
+<li class=''><span class='box'>&#9744;</span>6.3 [frontend] <code>app/layout.tsx</code> — drop <code>flex-col</code> from the <code>&lt;body&gt;</code> class list; leave <code>QueryProvider</code> and <code>AuthProvider</code> as they are</li>
+<li class=''><span class='box'>&#9744;</span>6.4 [frontend] Confirm <code>app/(auth)/login/page.tsx</code> is untouched and renders with no shell</li>
+</ul>
+<p>Verify: <code>/devspec-verify add-app-shell</code> (signed out → <code>/</code> redirects to <code>/login</code>; signed in → <code>/</code> renders the shell; <code>/login</code> has no sidebar; reload with the sidebar collapsed shows no expand-then-collapse flash)</p>
+<h3>7. Dashboard [req-6] [req-7]</h3>
+<ul class='checks'>
+<li class=''><span class='box'>&#9744;</span>7.1 [frontend] <strong>Delete <code>app/page.tsx</code></strong> (the Next.js scaffold). <code>/</code> is served by <code>app/(app)/page.tsx</code> from here on — two files must not own the route</li>
+<li class=''><span class='box'>&#9744;</span>7.2 [frontend] <code>app/(app)/page.tsx</code> — greeting (&quot;Good morning / afternoon / evening&quot; from the client clock + <code>user.name</code> + 👋) over the subtitle <code>Here&#x27;s what&#x27;s happening with your projects.</code></li>
+<li class=''><span class='box'>&#9744;</span>7.3 [frontend] Stat row — four <code>&lt;Card&gt;</code>s, <code>grid-cols-4</code> desktop / <code>grid-cols-2</code> mobile: Total Projects <code>3</code>, Meetings <code>12</code>, Requirements <code>48</code>, Open Questions <code>7</code>. Each = value <code>text-2xl font-bold</code> over a <code>text-muted-foreground</code> label, plus a 34px tinted rounded square holding the section icon (tints from <code>--chart-1</code>, <code>--chart-2</code>, <code>--chart-3</code>, <code>--chart-5</code>)</li>
+<li class=''><span class='box'>&#9744;</span>7.4 [frontend] <code>Recent Projects</code> <code>&lt;Card&gt;</code> — three rows (gradient tile, name, <code>Last meeting: &lt;date&gt; · N requirements</code>, <code>ChevronRight</code>), hairline between rows, hover highlight, a <code>View all</code> link in the header. Values exactly as in <code>ui.md</code></li>
+<li class=''><span class='box'>&#9744;</span>7.5 [frontend] <code>Next Meeting</code> <code>&lt;Card&gt;</code> — title, <code>Oct 2, 2026 · 10:00 AM</code>, two <code>&lt;Badge&gt;</code> pills (<code>3 topics</code>, <code>5 questions</code>), a full-width <code>&lt;Button&gt;</code> reading <code>View details</code></li>
+<li class=''><span class='box'>&#9744;</span>7.6 [frontend] Sample data sits in this file behind a <code>// ponytail:</code> comment naming the swap (a <code>services/dashboard.ts</code> + <code>hooks/use-dashboard.ts</code> pair once endpoints exist). <strong>Do not create a service that returns hardcoded data</strong></li>
+<li class=''><span class='box'>&#9744;</span>7.7 [frontend] Inert controls (<code>View all</code>, <code>View details</code>, chevrons, bell) render with no <code>href</code> and no handler — <strong>never <code>href=&quot;#&quot;</code></strong></li>
+<li class=''><span class='box'>&#9744;</span>7.8 [frontend] Loading state — <code>&lt;Skeleton&gt;</code> placeholders for the stat cards, both content cards and the footer user block, shown while the auth status is <code>&quot;unknown&quot;</code></li>
+<li class=''><span class='box'>&#9744;</span>7.9 [frontend] Empty state — stats show <code>0</code>; each content card shows icon + heading + one line (&quot;No projects yet&quot; / &quot;Nothing scheduled&quot;); subtitle becomes &quot;Nothing here yet — create your first project to get started.&quot;</li>
+<li class=''><span class='box'>&#9744;</span>7.10 [frontend] Error state — shell intact, content region replaced by <code>TriangleAlert</code> + &quot;Couldn&#x27;t load your dashboard&quot; + one line + a <code>&lt;Button variant=&quot;outline&quot;&gt;Retry&lt;/Button&gt;</code>. A 401 is <strong>not</strong> this state: it clears the auth store and redirects to <code>/login</code></li>
+</ul>
+<p>Verify: <code>/devspec-verify add-app-shell</code> (all four dashboard regions present and non-plain; greeting names the signed-in user; no Next.js/Vercel scaffold text anywhere; empty and error states render correctly when the local constant is flipped)</p>
+<h3>8. Definition of done [req-8]</h3>
+<ul class='checks'>
+<li class=''><span class='box'>&#9744;</span>8.1 [frontend] <code>npx tsc --noEmit</code> clean</li>
+<li class=''><span class='box'>&#9744;</span>8.2 [frontend] <code>npx eslint app components hooks</code> clean — warnings included, <code>react-hooks/incompatible-library</code> included</li>
+<li class=''><span class='box'>&#9744;</span>8.3 [frontend] <code>pnpm build</code> succeeds</li>
+<li class=''><span class='box'>&#9744;</span>8.4 [frontend] <code>git diff frontend/app/globals.css</code> is empty — this change defines no new token</li>
+<li class=''><span class='box'>&#9744;</span>8.5 [frontend] No raw hex, no <code>bg-white</code>/<code>bg-black</code>, no <code>min-h-screen</code> in any file this change added or edited</li>
+<li class=''><span class='box'>&#9744;</span>8.6 [frontend] Measured in the running app (dev server <code>:3001</code>, API <code>:3000</code>) at 390px, 768px and 1280px: no horizontal scroll at any width; dark theme legible with nothing left on a light background</li>
+</ul>
+<p>Verify: <code>/devspec-verify add-app-shell</code> plus the three commands above, with the measured values reported</p>
+</section>
+
+<section class="card" id="coverage"><h2>Coverage</h2>
+  <div class='banner good'><b>Every requirement is covered.</b> 8 requirements, all mapped to a task section.</div>
+  <div class="tw"><table><thead><tr><th>Req</th><th>Requirement</th><th>Task section(s)</th><th>Status</th></tr></thead>
+  <tbody><tr><td><code>[req-1]</code></td><td>authenticated route group and guard</td><td>6. Route group, guard and layout</td><td class='good'>covered</td></tr><tr><td><code>[req-2]</code></td><td>collapsible sidebar</td><td>1. UI primitives, 2. Nav data and sidebar context, 3. Sidebar</td><td class='good'>covered</td></tr><tr><td><code>[req-3]</code></td><td>grouped navigation with one live section</td><td>1. UI primitives, 2. Nav data and sidebar context, 3. Sidebar</td><td class='good'>covered</td></tr><tr><td><code>[req-4]</code></td><td>sidebar footer user block</td><td>1. UI primitives, 4. Footer user block</td><td class='good'>covered</td></tr><tr><td><code>[req-5]</code></td><td>mobile navigation</td><td>1. UI primitives, 5. Mobile navigation</td><td class='good'>covered</td></tr><tr><td><code>[req-6]</code></td><td>dashboard screen</td><td>7. Dashboard</td><td class='good'>covered</td></tr><tr><td><code>[req-7]</code></td><td>dashboard states</td><td>1. UI primitives, 7. Dashboard</td><td class='good'>covered</td></tr><tr><td><code>[req-8]</code></td><td>styling fidelity</td><td>3. Sidebar, 8. Definition of done</td><td class='good'>covered</td></tr></tbody></table></div>
+</section>
+
+<section class="card" id="board"><h2>Board</h2><pre><code># DevSpec board — one entry per change, not per subtask.
+# Subtasks live in each change&#x27;s tasks.md; this file carries status and
+# cross-change ordering only.
+changes:
+  add-login:
+    title: login page, JWT cookie session, users table + seeded admin
+    tasks_md: changes/add-login/tasks.md
+    depends_on: []
+    skills: [frontend-design, typeorm]
+    status: blocked
+    owner: &quot;worker-local&quot;
+    notes: &gt;-
+      BLOCKED at section 9 only: `pnpm test:e2e` fails on the PRE-EXISTING
+      test/app.e2e-spec.ts (asserts GET / -&gt; &quot;Hello World!&quot; from an AppController
+      this repo does not have). All 4 tests this change added pass; sections 1-8
+      are verified. See devspec/report/blockers.md and
+      devspec/changes/add-login/verify/fixes.md.
+      First change in the repo. Establishes three precedents everything after
+      copies: the first domain modules (src/users/, src/auth/), the first
+      migration this project has ever run, and the table/column naming recorded
+      in devspec/context/schema.md. Refresh schema.md once the migration lands.
+      Section 1 fixes the frontend dev port and CORS_ORIGINS; nothing in the
+      change works in a browser until it does.
+  add-app-shell:
+    title: collapsible sidebar shell, mobile drawer, sample dashboard
+    tasks_md: changes/add-app-shell/tasks.md
+    depends_on: []
+    skills: [frontend-design]
+    status: pending
+    owner: &quot;&quot;
+    notes: &gt;-
+      Frontend only — nothing under backend/ is touched, no endpoint, entity,
+      migration or env var, and no new npm dependency.
+      NOT declared as depends_on [add-login] on purpose. This change does consume
+      add-login&#x27;s output (stores/auth.ts, hooks/use-auth.ts, components/ui/button.tsx,
+      the cookie session), but that code is already built and verified in the working
+      tree. add-login sits at status: blocked only on the PRE-EXISTING
+      test/app.e2e-spec.ts failure in the backend, which has nothing to do with this
+      change — declaring the dep would stall this work behind an unrelated red test.
+      Flip to depends_on: [add-login] if the board must mirror strict lineage.
+      Two deletions are part of the work and must land in the same commit as their
+      replacements: frontend/app/page.tsx (its route moves to app/(app)/page.tsx —
+      two files cannot own &quot;/&quot;) and frontend/components/auth/user-chip.tsx (absorbed
+      by components/nav/nav-user.tsx).
+      Section 1 hand-copies eight shadcn primitives because the shadcn CLI hangs in
+      this environment (devspec/context/rules.md). Transcription error is the most
+      likely defect in this change; tsc + eslint + rendering each one is the check.
+      devspec/context/conventions.md is STALE for the frontend — it still describes
+      @/* -&gt; ./app/* with everything under app/. frontend/CLAUDE.md is authoritative:
+      @/* resolves to the frontend root. Refreshing the context pack is a separate job.
+</code></pre></section>
+
+</main></div></body></html>

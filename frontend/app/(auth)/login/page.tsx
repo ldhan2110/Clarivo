@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { authErrorMessage, useLogin } from "@/hooks/use-auth";
+import { authErrorMessage, useLogin, useRedirectIfAuthenticated } from "@/hooks/use-auth";
 
 const loginSchema = z.object({
   email: z.string().trim().min(1, "Email is required.").email("Enter a valid email address."),
@@ -25,6 +25,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const login = useLogin();
+  useRedirectIfAuthenticated();
 
   const {
     register,

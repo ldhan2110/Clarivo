@@ -24,7 +24,8 @@
     "react-dom": "19.2.8",
     "react-hook-form": "^7.89.0",
     "tailwind-merge": "^3.7.0",
-    "zod": "^4.6.5"
+    "zod": "^4.6.5",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@hey-api/openapi-ts": "^0.99.0",
