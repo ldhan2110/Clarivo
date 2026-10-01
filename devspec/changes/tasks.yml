@@ -92,10 +92,11 @@ changes:
       pack is a separate job.
   add-file-storage:
     title: file service + files table, local disk storage behind authenticated upload/download
-    tasks_md: changes/add-file-storage/tasks.md
+    tasks_md: archive/add-file-storage/tasks.md
     depends_on: []
     skills: [typeorm]
     status: done
+    archived: archive/add-file-storage
     owner: "worker-local"
     notes: >-
       Approved by LE AN on 2026-10-01. Artifacts complete: proposal.md, design.md,
