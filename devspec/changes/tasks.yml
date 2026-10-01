@@ -164,10 +164,11 @@ changes:
       a per-resource check needs. Nothing enforces that it does.
   add-projects:
     title: project list, create, detail, settings and the project sidebar scope
-    tasks_md: changes/add-projects/tasks.md
+    tasks_md: archive/add-projects/tasks.md
     depends_on: []
     skills: [frontend-design, typeorm]
     status: done
+    archived: archive/add-projects
     owner: "worker-local"
     notes: >-
       Approved by LE AN on 2026-10-01. Artifacts complete: proposal.md, design.md,
