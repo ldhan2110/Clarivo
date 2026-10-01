@@ -13,7 +13,8 @@ import { useSidebar } from "./sidebar-context";
 
 /**
  * Below md the sidebar is gone; this top bar's menu button opens the same
- * NAV_ITEMS as a drawer. No bottom tab bar — deliberately cut.
+ * <NavGroups> as a drawer — one renderer, one scope hook, so the drawer and the
+ * desktop rail cannot drift. No bottom tab bar — deliberately cut.
  */
 export function MobileNav() {
   const { mobileOpen, setMobileOpen } = useSidebar();

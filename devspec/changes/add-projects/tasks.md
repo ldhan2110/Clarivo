@@ -52,37 +52,37 @@ Verify: `cd backend && pnpm vitest run src/projects`
 Verify: `cd backend && pnpm lint && pnpm vitest run src/projects && pnpm build`
 
 ## 5. Second test account for the member-vs-owner states [req-14]
-- [ ] 5.1 [backend] Add `SEED_MEMBER_EMAIL`, `SEED_MEMBER_PASSWORD`, `SEED_MEMBER_NAME` to `EnvironmentVariables` in `backend/src/config/env.validation.ts` as **`@IsOptional()`** strings — required vars would invalidate every existing `.env`
-- [ ] 5.2 [backend] In `backend/src/database/seeds/seed.ts`, after the admin upsert, upsert the member account **only when all three are set**; reuse the existing argon2id + `normaliseEmail` path. The admin branch is untouched
-- [ ] 5.3 [backend] Add the three rows to `backend/.env.example`, empty, with a comment saying they are an optional local test fixture
-- [ ] 5.4 [test] Extend `backend/src/database/seeds/seed.spec.ts` — all three set → second account upserted idempotently; any unset → skipped and the seed still succeeds
-- [ ] 5.5 [backend] Set the three in the gitignored `backend/.env`, run `cd backend && pnpm seed`, and record the credentials in the gitignored `devspec/improve/testing.md` under a new `## Second account (project member)` heading. **Never commit the password**
+- [x] 5.1 [backend] Add `SEED_MEMBER_EMAIL`, `SEED_MEMBER_PASSWORD`, `SEED_MEMBER_NAME` to `EnvironmentVariables` in `backend/src/config/env.validation.ts` as **`@IsOptional()`** strings — required vars would invalidate every existing `.env`
+- [x] 5.2 [backend] In `backend/src/database/seeds/seed.ts`, after the admin upsert, upsert the member account **only when all three are set**; reuse the existing argon2id + `normaliseEmail` path. The admin branch is untouched
+- [x] 5.3 [backend] Add the three rows to `backend/.env.example`, empty, with a comment saying they are an optional local test fixture
+- [x] 5.4 [test] Extend `backend/src/database/seeds/seed.spec.ts` — all three set → second account upserted idempotently; any unset → skipped and the seed still succeeds
+- [x] 5.5 [backend] Set the three in the gitignored `backend/.env`, run `cd backend && pnpm seed`, and record the credentials in the gitignored `devspec/improve/testing.md` under a new `## Second account (project member)` heading. **Never commit the password**
 Verify: `cd backend && pnpm vitest run src/database/seeds && pnpm seed`
 
 ## 6. Frontend data layer [req-14] [req-8] [req-10] [req-12]
-- [ ] 6.1 [frontend] With the backend running, `cd frontend && pnpm api:types` — regenerates `frontend/app/types/api/types.gen.ts`. Generated: never hand-edit (`devspec/context/rules.md`)
-- [ ] 6.2 [frontend] New `frontend/services/projects.ts` — one function per endpoint (`listProjects`, `getProject`, `createProject`, `updateProject`, `archiveProject`, `restoreProject`, `listMembers`, `addMember`, `removeMember`), each returning unwrapped `data` from the shared `@/lib/api` axios instance, typed from `@/types/api`. No React, no toasts, no routing (`frontend/CLAUDE.md` layer law)
-- [ ] 6.3 [frontend] New `frontend/hooks/use-projects.ts` — `useProjects(params)` on key `['projects', params]`
-- [ ] 6.4 [frontend] New `frontend/hooks/use-project.ts` — `useProject(id)` on `['project', id]`, plus `useCreateProject`, `useUpdateProject`, `useArchiveProject`, `useRestoreProject`, each invalidating the narrowest changed key plus `['projects']`
-- [ ] 6.5 [frontend] New `frontend/hooks/use-project-members.ts` — `useProjectMembers(id)` on `['project', id, 'members']`, plus `useAddMember` / `useRemoveMember` invalidating that key and `['project', id]`
-- [ ] 6.6 [frontend] Leave `onError` **undefined** on every mutation whose failure should surface as the global toast; define it only where a field error replaces the toast (create/update code clash, date range, member email) — the `MutationCache` override rule in `components/provider/query-provider.tsx`
-- [ ] 6.7 [frontend] New `frontend/types/project.ts` for view-model-only shapes the generated types do not cover (e.g. the list filter state). Anything already in `@/types/api` is **not** re-declared
+- [x] 6.1 [frontend] With the backend running, `cd frontend && pnpm api:types` — regenerates `frontend/app/types/api/types.gen.ts`. Generated: never hand-edit (`devspec/context/rules.md`)
+- [x] 6.2 [frontend] New `frontend/services/projects.ts` — one function per endpoint (`listProjects`, `getProject`, `createProject`, `updateProject`, `archiveProject`, `restoreProject`, `listMembers`, `addMember`, `removeMember`), each returning unwrapped `data` from the shared `@/lib/api` axios instance, typed from `@/types/api`. No React, no toasts, no routing (`frontend/CLAUDE.md` layer law)
+- [x] 6.3 [frontend] New `frontend/hooks/use-projects.ts` — `useProjects(params)` on key `['projects', params]`
+- [x] 6.4 [frontend] New `frontend/hooks/use-project.ts` — `useProject(id)` on `['project', id]`, plus `useCreateProject`, `useUpdateProject`, `useArchiveProject`, `useRestoreProject`, each invalidating the narrowest changed key plus `['projects']`
+- [x] 6.5 [frontend] New `frontend/hooks/use-project-members.ts` — `useProjectMembers(id)` on `['project', id, 'members']`, plus `useAddMember` / `useRemoveMember` invalidating that key and `['project', id]`
+- [x] 6.6 [frontend] Leave `onError` **undefined** on every mutation whose failure should surface as the global toast; define it only where a field error replaces the toast (create/update code clash, date range, member email) — the `MutationCache` override rule in `components/provider/query-provider.tsx`
+- [x] 6.7 [frontend] New `frontend/types/project.ts` for view-model-only shapes the generated types do not cover (e.g. the list filter state). Anything already in `@/types/api` is **not** re-declared
 Verify: `cd frontend && npx tsc --noEmit && pnpm lint`
 
 ## 7. The three missing UI primitives [req-8] [req-9] [req-12]
-- [ ] 7.1 [frontend] Hand-copy `components/ui/dialog.tsx` from shadcn/ui **new-york** (`components.json` sets the style). Import shape must match the installed umbrella package: `import { Dialog as DialogPrimitive } from "radix-ui"` — the `sheet.tsx` / `alert-dialog.tsx` pattern, **no new dependency needed**. `alert-dialog.tsx` is not a substitute: no close button, outside-click blocked, owned by the confirm provider
-- [ ] 7.2 [frontend] Hand-copy `components/ui/table.tsx` (plain elements, no radix dep)
-- [ ] 7.3 [frontend] Hand-copy `components/ui/textarea.tsx` (plain element, no radix dep)
-- [ ] 7.4 [frontend] Render each one once in the running app before building on it — transcription error is this change's most likely defect, and `tsc` alone will not catch a dropped class string
+- [x] 7.1 [frontend] Hand-copy `components/ui/dialog.tsx` from shadcn/ui **new-york** (`components.json` sets the style). Import shape must match the installed umbrella package: `import { Dialog as DialogPrimitive } from "radix-ui"` — the `sheet.tsx` / `alert-dialog.tsx` pattern, **no new dependency needed**. `alert-dialog.tsx` is not a substitute: no close button, outside-click blocked, owned by the confirm provider
+- [x] 7.2 [frontend] Hand-copy `components/ui/table.tsx` (plain elements, no radix dep)
+- [x] 7.3 [frontend] Hand-copy `components/ui/textarea.tsx` (plain element, no radix dep)
+- [x] 7.4 [frontend] Render each one once in the running app before building on it — transcription error is this change's most likely defect, and `tsc` alone will not catch a dropped class string
 Verify: `cd frontend && npx tsc --noEmit && pnpm lint && pnpm build`
 
 ## 8. Sidebar: two scopes, one source [req-11]
-- [ ] 8.1 [frontend] `frontend/types/nav.ts` — widen `NavGroup` to `"Workspace" | "Account" | "Plan" | "Run" | "Output" | "Project"`; **remove `"Insights"`** (a group with no items renders an empty header)
-- [ ] 8.2 [frontend] `frontend/constants/nav.ts` — replace `NAV_ITEMS` with `GLOBAL_NAV_ITEMS` (Dashboard enabled, **Projects enabled → `/projects`, `Soon` badge gone**, Settings still disabled; the Meetings / Requirements / Questions / Decisions / Documents rows **deleted**) plus `projectNavItems(id, isOwner)` and the two group arrays. Keep the file the single nav source
-- [ ] 8.3 [frontend] New `frontend/hooks/use-nav-scope.ts` — derives `{ scope, groups, items, project? }` from `usePathname()`, reading the project's code and name out of the `useProject(id)` cache. Scope comes from the **path**, so project scope renders immediately with a skeleton label and the global nav never flashes
-- [ ] 8.4 [frontend] `frontend/components/sidebar/nav-groups.tsx` — take items and groups from `useNavScope()` instead of importing the constant; in project scope render the `← All projects` back row and the static project label above the groups. Keep reusing `./nav-item.tsx:NavItem` for every row, disabled rows included — its `Soon` badge and disabled `<span>` are already correct
-- [ ] 8.5 [frontend] Leave `components/sidebar/mobile-nav.tsx` rendering the same `<NavGroups>`. **Do not give the drawer its own source** — one renderer, one hook, is what stops desktop and mobile drifting
-- [ ] 8.6 [frontend] Confirm the collapsed rail still tooltips every row and that `NavItem`'s `pathname === item.href` active test matches both `/projects` and `/projects/:id`
+- [x] 8.1 [frontend] `frontend/types/nav.ts` — widen `NavGroup` to `"Workspace" | "Account" | "Plan" | "Run" | "Output" | "Project"`; **remove `"Insights"`** (a group with no items renders an empty header)
+- [x] 8.2 [frontend] `frontend/constants/nav.ts` — replace `NAV_ITEMS` with `GLOBAL_NAV_ITEMS` (Dashboard enabled, **Projects enabled → `/projects`, `Soon` badge gone**, Settings still disabled; the Meetings / Requirements / Questions / Decisions / Documents rows **deleted**) plus `projectNavItems(id, isOwner)` and the two group arrays. Keep the file the single nav source
+- [x] 8.3 [frontend] New `frontend/hooks/use-nav-scope.ts` — derives `{ scope, groups, items, project? }` from `usePathname()`, reading the project's code and name out of the `useProject(id)` cache. Scope comes from the **path**, so project scope renders immediately with a skeleton label and the global nav never flashes
+- [x] 8.4 [frontend] `frontend/components/sidebar/nav-groups.tsx` — take items and groups from `useNavScope()` instead of importing the constant; in project scope render the `← All projects` back row and the static project label above the groups. Keep reusing `./nav-item.tsx:NavItem` for every row, disabled rows included — its `Soon` badge and disabled `<span>` are already correct
+- [x] 8.5 [frontend] Leave `components/sidebar/mobile-nav.tsx` rendering the same `<NavGroups>`. **Do not give the drawer its own source** — one renderer, one hook, is what stops desktop and mobile drifting
+- [x] 8.6 [frontend] Confirm the collapsed rail still tooltips every row and that `NavItem`'s `pathname === item.href` active test matches both `/projects` and `/projects/:id`
 Verify: `cd frontend && npx tsc --noEmit && pnpm lint && pnpm build`
 
 ## 9. Projects list screen and create modal [req-8] [req-9]

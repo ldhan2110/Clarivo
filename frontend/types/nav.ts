@@ -1,6 +1,12 @@
 import type { LucideIcon } from "lucide-react";
 
-export type NavGroup = "Workspace" | "Insights" | "Account";
+export type NavGroup =
+  | "Workspace"
+  | "Account"
+  | "Plan"
+  | "Run"
+  | "Output"
+  | "Project";
 
 export type NavItemDef = {
   group: NavGroup;
@@ -9,3 +15,5 @@ export type NavItemDef = {
   icon: LucideIcon;
   disabled: boolean;
 };
+
+export type NavScope = "global" | "project";
