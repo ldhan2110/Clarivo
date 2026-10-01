@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>add-file-storage — DevSpec review</title><style>
+*{box-sizing:border-box}
+:root{--bg:#fbfbfa;--fg:#1a1d23;--dim:#656d79;--line:#e3e5e8;--card:#fff;--accent:#3A75FD;--navy:#16213D;
+--good:#0e7a4a;--goodbg:#e8f6ee;--bad:#b4231c;--badbg:#fdecea;--warn:#8a5a00;--warnbg:#fff6e5;--codebg:#f5f6f7}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:232px minmax(0,1fr);gap:0;max-width:1240px;margin:0 auto}
+nav{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;padding:28px 18px;border-right:1px solid var(--line);font-size:13px}
+nav .brand{font-weight:700;font-size:15px;color:var(--navy);margin-bottom:2px}
+nav .cid{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--dim);margin-bottom:20px;word-break:break-all}
+nav a{display:block;padding:5px 8px;color:var(--dim);text-decoration:none;border-radius:5px}
+nav a:hover{background:#eef0f3;color:var(--fg)}
+main{padding:28px 36px 100px;min-width:0}
+section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:22px 26px;margin-bottom:20px}
+section>h2.st{margin:0 0 16px;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);border-bottom:1px solid var(--line);padding-bottom:9px}
+h1{font-size:25px;margin:0 0 4px;letter-spacing:-.02em}
+h2{font-size:19px;margin:26px 0 9px;letter-spacing:-.01em}
+h3{font-size:16px;margin:20px 0 8px}
+h4{font-size:14px;margin:14px 0 5px;color:var(--dim);font-weight:650}
+p{margin:9px 0}
+ul,ol{margin:9px 0;padding-left:22px}
+li{margin:3px 0}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.875em;background:var(--codebg);padding:1px 5px;border-radius:4px;border:1px solid var(--line)}
+pre.code{background:var(--codebg);border:1px solid var(--line);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:12px 0}
+pre.code code{background:none;border:0;padding:0;font-size:12.5px;line-height:1.55;white-space:pre}
+blockquote{margin:12px 0;padding:10px 14px;background:var(--warnbg);border-left:3px solid var(--warn);border-radius:0 6px 6px 0;color:#5c4100}
+blockquote code{background:#fff}
+.tablewrap{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:#f4f5f7;font-weight:650;font-size:12.5px}
+td.mono,.mono{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;white-space:nowrap}
+td.dim,.dim{color:var(--dim);font-size:12.5px}
+tr.self{background:#eef3ff}
+hr{border:0;border-top:1px solid var(--line);margin:22px 0}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+.pill{font-size:12px;padding:4px 11px;border-radius:999px;background:#eef0f3;color:var(--dim);border:1px solid var(--line)}
+.pill b{color:var(--fg);font-weight:600}
+.cov{padding:13px 16px;border-radius:8px;font-size:14px;margin:0}
+.cov.good{background:var(--goodbg);border:1px solid #bfe3cd;color:var(--good)}
+.cov.bad{background:var(--badbg);border:1px solid #f4c3bf;color:var(--bad)}
+ul.checks{list-style:none;padding-left:0}
+li.chk{display:flex;gap:8px;align-items:baseline;padding:4px 0;border-bottom:1px dotted var(--line)}
+li.chk .box{color:var(--dim)}
+li.chk.done{color:var(--dim)}
+li.chk .num{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--dim);min-width:26px}
+.layer{display:inline-block;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;font-weight:700;padding:2px 7px;border-radius:4px;vertical-align:1px}
+.l-backend{background:#e4ecff;color:#1b47b4}.l-service{background:#e8e4ff;color:#4c2fb0}
+.l-db{background:#e3f4ea;color:#126a41}.l-frontend{background:#fff0e0;color:#8a4b00}.l-test{background:#f0eef2;color:#5b5563}
+.cnt{font-size:12px;color:var(--dim);font-weight:400}
+p.verify{background:#f4f6fb;border-left:3px solid var(--accent);padding:9px 13px;border-radius:0 6px 6px 0;margin:10px 0 20px;font-size:13.5px}
+p.verify strong{color:var(--accent);margin-right:5px}
+.missing{color:var(--dim);font-style:italic}
+.note{font-size:12.5px;color:var(--dim);margin-top:10px}
+@media(max-width:860px){.wrap{grid-template-columns:1fr}nav{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}main{padding:20px 16px 60px}}
+</style></head>
+<body><div class="wrap">
+<nav><div class="brand">DevSpec review</div><div class="cid">add-file-storage</div>
+<a href="#ctx">Context</a><a href="#proposal">Proposal</a><a href="#arch">Architecture</a><a href="#impact">Impact Area</a><a href="#db">Database</a><a href="#backend">Backend</a><a href="#frontend">Frontend</a><a href="#tasks">Tasks</a><a href="#coverage">Coverage</a><a href="#board">Board</a>
+</nav><main><section id="ctx"><h2 class="st">Context</h2>
+<h1>add-file-storage</h1>
+<p class="dim">backend file service and <code>files</code> table — store an uploaded file under a configured root, hand back a stable id</p>
+<div class="meta">
+<span class="pill"><b>change</b> add-file-storage</span>
+<span class="pill"><b>board</b> not registered yet</span>
+<span class="pill"><b>depends_on</b> []</span>
+<span class="pill"><b>skills</b> typeorm</span>
+<span class="pill"><b>layers</b> backend &middot; service &middot; db</span>
+<span class="pill"><b>UI</b> none</span>
+</div>
+<p class="note">Artifacts in <code>devspec/changes/add-file-storage/</code>: <code>proposal.md</code>, <code>design.md</code>, <code>spec.md</code>, <code>tasks.md</code>, <code>db.md</code>. No <code>ui.md</code> — this change has zero visible UI effect, so <code>/devspec-ui-mockup</code> does not apply. This page is generated from those files; fix the markdown, never this HTML.</p>
+</section><section id="proposal"><h2 class="st">Proposal</h2><h1 id="proposal-add-file-storage">Proposal: add-file-storage</h1>
+<h2 id="why">Why</h2>
+<p>Clarivo&#x27;s product shape is built on documents. A project is given context documents; meetings produce transcripts; requirements trace back to the artifact that produced them. Every one of those flows needs the same thing underneath: take an uploaded file, put the bytes somewhere durable, and hand back a stable id a domain row can point at.</p>
+<p>Today the backend has no way to accept a file at all. There is no storage location, no table, no endpoint, and no size or type policy. The first feature that needs an upload would have to invent all five, inline, under deadline — and whatever it invented would become the precedent for every feature after it.</p>
+<p>This change builds that layer once, deliberately, with no feature pressure on it.</p>
+<h2 id="what-it-delivers">What it delivers</h2>
+<p>A minimal, complete file-storage capability in the backend:</p>
+<ul>
+<li><strong>A <code>files</code> table</strong> — id, relative storage key, original filename, mime type, size, uploader. One row per stored file.</li>
+<li><strong><code>POST /files</code></strong> — authenticated multipart upload. Validates type and size, writes the bytes to disk, returns the file&#x27;s id and metadata.</li>
+<li><strong><code>GET /files/:id</code></strong> — authenticated download, streamed through the API so access is always checked.</li>
+<li><strong>A storage root from configuration</strong> — <code>FILE_STORAGE_PATH</code>. The database stores only a relative key, so the storage directory can move between dev, staging and production without touching data.</li>
+<li><strong>A type allowlist and a size cap</strong> — PDF, DOCX, TXT, MD and raster images, up to 100 MB.</li>
+<li><strong>Deletion</strong> — removing a file row removes its bytes.</li>
+</ul>
+<p>The shape is intentionally conservative: this is infrastructure other changes will build on, so it does the obvious thing in the obvious place.</p>
+<h2 id="scope">Scope</h2>
+<h3 id="in">In</h3>
+<ul>
+<li><code>files</code> table + its forward migration</li>
+<li><code>FileEntity</code>, <code>FilesService</code>, <code>FilesController</code>, <code>FilesModule</code>, <code>FileDto</code>, <code>FileErrors</code></li>
+<li><code>FILE_STORAGE_PATH</code> added to the env contract (<code>env.validation.ts</code> + <code>.env.example</code>)</li>
+<li>Mime allowlist, 100 MB cap, extension derived from the validated mime type</li>
+<li>Upload, download, delete</li>
+<li>Unit tests for the service, plus a schema assertion that the migration produced the right columns</li>
+<li>Regenerating <code>frontend/app/types/api/</code> (<code>pnpm api:types</code>) so the new endpoints appear in the generated types</li>
+<li>Refreshing <code>devspec/context/schema.md</code>, which currently claims this project has zero domain tables</li>
+</ul>
+<h3 id="out">Out</h3>
+<ul>
+<li><strong>Any consumer.</strong> No project-document table, no transcript upload, no screen. Nothing in the frontend calls these endpoints yet. The first feature that needs files adds its own <code>file_id</code> column pointing at <code>files</code>.</li>
+<li><strong>Per-file authorization.</strong> Any authenticated user can download any file by id. There is no ownership model yet to authorize against — the first consumer introduces one, and that is when a per-resource check becomes meaningful and possible.</li>
+<li><strong>Object storage.</strong> Local disk only. No S3, no MinIO, no storage-driver abstraction behind an interface with one implementation.</li>
+<li><strong>Image processing.</strong> No thumbnails, no resizing, no EXIF stripping.</li>
+<li><strong>Versioning, deduplication, checksums, virus scanning, quotas, orphan sweeping.</strong> Each is a real concern and none has a requirement behind it yet.</li>
+<li><strong>Audio and video.</strong> Not in the allowlist. Meeting recordings would break the premise of local disk plus stream-through-API and are a separate change with a different storage answer.</li>
+<li><strong>Destructive database operations.</strong> Nothing is dropped, renamed, or backfilled.</li>
+</ul>
+<h2 id="risks-worth-stating-up-front">Risks worth stating up front</h2>
+<ul>
+<li><strong>Unreferenced by design.</strong> With no consumer, nothing distinguishes a legitimate file row from one left over from a test. Accepted: the alternative is guessing at a consumer&#x27;s needs and specifying the wrong ownership model.</li>
+<li><strong>Flat access control.</strong> &quot;Any authenticated user can read any file&quot; is correct for infrastructure with no owner model and wrong the moment real project documents land. The first consumer must tighten it; nothing in this change enforces that it does.</li>
+<li><strong>100 MB is large.</strong> It rules out buffering uploads in memory and makes the write path less obvious than it looks. The design addresses this directly.</li>
+</ul></section><section id="arch"><h2 class="st">Architecture</h2><pre class="code"><code>Upload
+  Client ──POST /files (multipart)──▶ FilesController
+                                         │ FileInterceptor (multer, diskStorage → &lt;base&gt;/tmp/)
+                                         │   fileFilter: mime allowlist · limits: 100MB
+                                         ▼
+                                      FilesService.store()
+                                         │ 1. key = yyyy/mm/&lt;uuidv7&gt;&lt;ext&gt;   ext from validated mime
+                                         │ 2. mkdir -p &lt;base&gt;/yyyy/mm
+                                         │ 3. fs.rename(&lt;base&gt;/tmp/&lt;rand&gt;, &lt;base&gt;/&lt;key&gt;)   ← atomic, same FS
+                                         │ 4. INSERT files row (uploaded_by = req.user.id)
+                                         ▼
+                                      FileDto { id, originalName, mimeType, sizeBytes, createdAt, ... }
+
+Download
+  Client ──GET /files/:id──▶ JwtAuthGuard ──▶ FilesController
+                                                 │ FilesService.read(id) → row, else FILE_NOT_FOUND
+                                                 │ resolve &lt;base&gt;/&lt;storage_key&gt;
+                                                 ▼
+                                              createReadStream ──▶ StreamableFile
+                                                 headers: Content-Type, Content-Length,
+                                                          Content-Disposition, X-Content-Type-Options: nosniff
+
+`FILE_STORAGE_PATH` is read once through `ConfigService` and is the only place an absolute path exists. The database holds relative keys exclusively.</code></pre><p class="note">Rendered as the ASCII flow from <code>design.md</code>. The <code>archify</code> skill is installed but not used here — an ASCII flow this small loses nothing as a diagram, and keeping the page dependency-free means it renders offline by double-click.</p></section><section id="impact"><h2 class="st">Impact Area</h2><h3 id="decision-defaults">Decision Defaults</h3>
+<div class='tablewrap'><table><thead><tr><th>Gray area</th><th>Default decision</th><th>Fallback if default doesn&#x27;t fit</th></tr></thead><tbody>
+<tr><td>Module placement</td><td><code>backend/src/files/</code> with <code>dto/</code> beneath it — mirrors <code>src/users/</code> and <code>src/auth/</code> exactly (<code>conventions.md</code>: role-first at <code>src/</code> top level, domain modules set their own folder)</td><td>mirror <code>src/users/</code> file-for-file</td></tr>
+<tr><td>File names</td><td><code>file.entity.ts</code>, <code>files.service.ts</code>, <code>files.controller.ts</code>, <code>files.module.ts</code>, <code>files.errors.ts</code>, <code>dto/file.dto.ts</code> — kebab-case + role suffix</td><td>—</td></tr>
+<tr><td>Entity class name</td><td><code>FileEntity</code>, <strong>not</strong> <code>File</code> — <code>File</code> is a DOM/Node global and shadowing it in a file that also handles uploads is a readability trap. Table name stays <code>files</code></td><td><code>File</code> with an explicit import alias if <code>FileEntity</code> reads worse in context</td></tr>
+<tr><td>Where the entity is registered</td><td><code>TypeOrmModule.forFeature([FileEntity])</code> inside <code>FilesModule</code> only — <code>app.module.ts</code> uses <code>entities: []</code> + <code>autoLoadEntities: true</code> on purpose (<code>db.md</code>)</td><td>—</td></tr>
+<tr><td>Error declaration</td><td>one <code>defineErrors(&#x27;FILE&#x27;, {...})</code> call in <code>files.errors.ts</code>, codes <code>FILE_NOT_FOUND</code> / <code>FILE_TOO_LARGE</code> / <code>FILE_UNSUPPORTED_TYPE</code>, mirroring <code>auth.errors.ts</code></td><td>—</td></tr>
+<tr><td>Error copy tone</td><td>sentence case, no trailing period, no detail that leaks internals — matches <code>AuthErrors</code> (<code>&#x27;Incorrect email or password&#x27;</code>)</td><td>terse lowercase</td></tr>
+<tr><td>Where the allowlist lives</td><td>a <code>const MIME_EXTENSIONS: Record&lt;string, string&gt;</code> in <code>files.constants.ts</code>, mirroring <code>auth.constants.ts</code>. The keys are the allowlist and the values are the extensions — one source of truth, not two lists that can disagree</td><td>inline in <code>files.service.ts</code> if a separate constants file feels thin</td></tr>
+<tr><td>How the cap is expressed</td><td>a named constant <code>MAX_FILE_SIZE_BYTES = 100 <em> 1024 </em> 1024</code> in <code>files.constants.ts</code>, passed to multer <code>limits.fileSize</code>. <strong>Not</strong> an env var — no requirement to vary it per environment</td><td>promote to the env contract only if a requirement to vary it appears</td></tr>
+<tr><td>Identifying the uploader</td><td><code>req.user as User</code> after <code>JwtAuthGuard</code>, exactly as <code>AuthController.me</code> does (<code>auth.controller.ts</code>) — there is no <code>@CurrentUser</code> decorator in this repo and this change does not add one</td><td>—</td></tr>
+<tr><td>Response serialization</td><td><code>plainToInstance(FileDto, entity, { excludeExtraneousValues: true })</code>, the <code>toUserDto</code> shape from <code>auth.controller.ts</code></td><td>—</td></tr>
+<tr><td>Swagger annotation</td><td>JSDoc comments on each handler (the CLI plugin has <code>introspectComments: true</code>, so <code>@ApiProperty</code> is rarely needed), plus <code>@ApiCookieAuth(SESSION_COOKIE)</code> and the <code>@ApiConsumes(&#x27;multipart/form-data&#x27;)</code> + <code>@ApiBody</code> pair that multipart genuinely does require</td><td>—</td></tr>
+<tr><td>Oversize upload rejection</td><td>multer&#x27;s <code>limits.fileSize</code> rejects before the full body is read; translate its <code>LIMIT_FILE_SIZE</code> error to <code>FileErrors.TOO_LARGE()</code> → 413</td><td>if intercepting multer&#x27;s error proves awkward, check <code>file.size</code> in the service and return the same code — the status and body must match either way</td></tr>
+<tr><td>Unsupported type rejection</td><td>multer <code>fileFilter</code> rejects → <code>FileErrors.UNSUPPORTED_TYPE()</code> → 415</td><td>same shape, checked in the service</td></tr>
+<tr><td>Missing file on disk but row present</td><td><code>FILE_NOT_FOUND</code> (404) and log at error level — the inconsistency is a server fault, but a 500 tells the client to retry something that will never succeed</td><td>—</td></tr>
+<tr><td>Storage root does not exist at boot</td><td>create it with <code>mkdir -p</code> on module init. Env validation proves the var is <em>set</em>, not that the directory exists</td><td>fail boot loudly if creation fails — a write-path that cannot work must not start</td></tr>
+<tr><td><code>uploaded_by</code> index</td><td>omit, with a <code>ponytail:</code> comment naming the ceiling (per-uploader listing, or a user-delete path) — see <code>db.md</code></td><td>add <code>@Index()</code> the moment either ships</td></tr>
+<tr><td>Tests</td><td>vitest spec files <strong>next to the source</strong> (<code>files.service.spec.ts</code>), per <code>conventions.md</code> — not under <code>test/</code></td><td>—</td></tr>
+<tr><td><code>test/app.e2e-spec.ts</code> is red</td><td><strong>do not touch it.</strong> It is a pre-existing failure that blocks <code>add-login</code> (asserts <code>GET /</code> → &quot;Hello World!&quot; against a controller this repo does not have). Out of scope; <code>pnpm test</code> is the gate for this change, not <code>pnpm test:e2e</code></td><td>—</td></tr>
+</tbody></table></div>
+<h3 id="blast-radius">Blast Radius</h3>
+<pre class="code"><code>backend/src/files/file.entity.ts                        (new)      — safe/reversible
+backend/src/files/files.service.ts                      (new)      — safe/reversible
+backend/src/files/files.controller.ts                   (new)      — safe/reversible
+backend/src/files/files.module.ts                       (new)      — safe/reversible
+backend/src/files/files.errors.ts                       (new)      — safe/reversible
+backend/src/files/files.constants.ts                    (new)      — safe/reversible
+backend/src/files/dto/file.dto.ts                       (new)      — safe/reversible
+backend/src/files/files.service.spec.ts                 (new)      — safe/reversible
+backend/src/database/migrations/&lt;ts&gt;-CreateFiles.ts     (new)      — safe/reversible (additive, forward-only, reverts clean)
+backend/src/config/env.validation.ts                    (adjust)   — safe/reversible  ← SHARED: adds FILE_STORAGE_PATH; a bad default kills boot for every dev
+backend/.env.example                                    (adjust)   — safe/reversible
+backend/.env                                            (adjust)   — gitignored, dev-local; must gain the var or the app will not boot
+backend/package.json                                    (adjust)   — safe/reversible (adds @types/multer, dev dep)
+backend/src/app.module.ts                               (adjust)   — safe/reversible  ← SHARED: registers FilesModule, one import line
+frontend/app/types/api/**                               (regen)    — safe/reversible (generated; never hand-edited)
+devspec/context/schema.md                               (adjust)   — safe/reversible (doc; currently stale)
+.gitignore                                              (adjust)   — safe/reversible (ignore the dev storage dir)</code></pre>
+<p><strong>Nothing reads or writes <code>users</code> differently.</strong> The only touch is a new inbound FK. <code>UsersService</code> and <code>AuthService</code> are unaffected.</p>
+<p><strong>No existing endpoint changes.</strong> <code>POST /auth/login</code>, <code>POST /auth/logout</code> and <code>GET /auth/me</code> are untouched, so no frontend call site breaks — but <code>pnpm api:types</code> must still be rerun, because the generated types are a whole-schema snapshot.</p>
+<p><strong>Zero callers for the new endpoints.</strong> The blast radius of a mistake inside <code>files/</code> is confined to <code>files/</code> until a consumer exists. The two genuinely shared files are <code>env.validation.ts</code> (a bad validator stops every developer&#x27;s boot) and <code>app.module.ts</code> (one import line). Those are where a reviewer should look hardest.</p>
+<h3 id="risk-notes">Risk notes</h3>
+<ul>
+<li><code>env.validation.ts</code> is the one change that can break an unrelated developer: adding a required variable means every existing <code>.env</code> is now invalid until the var is added. The <code>.env.example</code> row and a line in the change&#x27;s commit message are what make that survivable. This is the same cost <code>JWT_SECRET</code> already imposes, and is consistent with <code>rules.md</code> (&quot;env vars are validated at boot and the process dies on a bad one&quot;).</li>
+<li>The migration is additive and reverts cleanly, so it is <code>safe/reversible</code> — but it is only the <strong>second</strong> migration this repo has ever run, and <code>pnpm migration:*</code> builds first and runs against <code>dist/</code>, so a TypeScript error surfaces as a confusing migration failure. Compile clean before generating.</li>
+<li><strong>No destructive database operation anywhere in this change.</strong> Nothing is dropped, truncated, renamed or backfilled.</li>
+</ul><p class="note">The worker reads this to decide instead of stall. Every gray area above has a pre-decided default and a fallback.</p></section><section id="db"><h2 class="st">Database</h2><h1 id="db-add-file-storage">DB: add-file-storage</h1>
+<p><strong>Source</strong>: <strong>live Postgres</strong> — <code>docker exec clarivo-postgres-1 psql -U postgres -d clarivo</code>. No DB MCP is connected; queried <code>information_schema.columns</code>, <code>pg_constraint</code>, <code>pg_indexes</code> directly. <strong>Dialect</strong>: postgresql 17 · <strong>Schema</strong>: <code>public</code> (per <code>devspec/context/schema.md</code> + <code>backend/src/config/database.config.ts</code>)</p>
+<h2 id="live-schema-as-it-actually-is">Live schema as it actually is</h2>
+<div class='tablewrap'><table><thead><tr><th>table</th><th>owner</th><th>rows</th><th>note</th></tr></thead><tbody>
+<tr><td><code>users</code></td><td>postgres</td><td>2</td><td>the only domain table</td></tr>
+<tr><td><code>migrations</code></td><td>clarivo</td><td>1</td><td>TypeORM bookkeeping — <code>CreateUsers1790762306910</code> is the only applied migration</td></tr>
+</tbody></table></div>
+<blockquote><code>devspec/context/schema.md</code> is <strong>stale</strong>: it claims zero domain tables. <code>users</code> exists and is populated. Refresh that file when this change&#x27;s migration lands — it is the second migration this repo has ever run.</blockquote>
+<blockquote>The two tables have <strong>different owners</strong> (<code>users</code> → <code>postgres</code>, <code>migrations</code> → <code>clarivo</code>), confirming the gotcha in <code>rules.md</code> that the volume predates the current compose file. <code>backend/.env</code> connects as <code>postgres</code>, which works. Nothing in this change depends on which role owns what.</blockquote>
+<h2 id="tables-touched">Tables touched</h2>
+<h3 id="users-exists-read-only-in-this-change-no-column-added-or-altered">users  (exists — <strong>read-only in this change</strong>, no column added or altered)</h3>
+<div class='tablewrap'><table><thead><tr><th>col</th><th>type</th><th>null</th><th>default</th><th>note</th></tr></thead><tbody>
+<tr><td>id</td><td>uuid</td><td>no</td><td>—</td><td>PK <code>PK_a3ffb1c0c8416b9fc6f907b7433</code>. <strong>No DB default</strong> — generated in the app as uuidv7 (<code>base.entity.ts:9</code>)</td></tr>
+<tr><td>created_at</td><td>timestamptz</td><td>no</td><td><code>now()</code></td><td></td></tr>
+<tr><td>updated_at</td><td>timestamptz</td><td>no</td><td><code>now()</code></td><td></td></tr>
+<tr><td>email</td><td>varchar(255)</td><td>no</td><td>—</td><td>unique <code>UQ_97672ac88f789774dd47f7c8be3</code></td></tr>
+<tr><td>password_hash</td><td>varchar(255)</td><td>no</td><td>—</td><td></td></tr>
+<tr><td>name</td><td>varchar(255)</td><td>no</td><td>—</td><td></td></tr>
+</tbody></table></div>
+<p>This change only adds an inbound FK reference to <code>users.id</code>. No DDL on <code>users</code>.</p>
+<h3 id="files-new">files  (new)</h3>
+<div class='tablewrap'><table><thead><tr><th>col</th><th>type</th><th>null</th><th>default</th><th>state</th><th>note</th></tr></thead><tbody>
+<tr><td>id</td><td>uuid</td><td>no</td><td>—</td><td><strong>add</strong></td><td>PK. uuidv7 generated in the app via <code>BaseEntity.@BeforeInsert</code> — Postgres 17 has no <code>uuidv7()</code>. No DB default, matching <code>users</code></td></tr>
+<tr><td>created_at</td><td>timestamptz</td><td>no</td><td><code>now()</code></td><td><strong>add</strong></td><td><code>@CreateDateColumn</code>, from <code>BaseEntity</code></td></tr>
+<tr><td>updated_at</td><td>timestamptz</td><td>no</td><td><code>now()</code></td><td><strong>add</strong></td><td><code>@UpdateDateColumn</code>, from <code>BaseEntity</code></td></tr>
+<tr><td>storage_key</td><td>varchar(255)</td><td>no</td><td>—</td><td><strong>add</strong></td><td><strong>UNIQUE.</strong> Relative key <code>yyyy/mm/&lt;uuidv7&gt;&lt;ext&gt;</code> (~49 chars worst case). Base dir comes from env <code>FILE_STORAGE_PATH</code> at read time — <strong>an absolute path must never be stored here</strong>, or moving the mount becomes a migration</td></tr>
+<tr><td>original_name</td><td>varchar(255)</td><td>no</td><td>—</td><td><strong>add</strong></td><td>The name the client uploaded. Display only; never used to build a filesystem path (path-traversal)</td></tr>
+<tr><td>mime_type</td><td>varchar(127)</td><td>no</td><td>—</td><td><strong>add</strong></td><td>Longest value in the allowlist is the docx type at 71 chars</td></tr>
+<tr><td>size_bytes</td><td><strong>integer</strong></td><td>no</td><td>—</td><td><strong>add</strong></td><td>Deliberately <code>integer</code>, <strong>not <code>bigint</code></strong> — TypeORM returns <code>bigint</code> as a JS string, which would silently poison the DTO. int max 2 147 483 647 ≈ 2 GB, 21× the 100 MB cap</td></tr>
+<tr><td>uploaded_by</td><td>uuid</td><td>no</td><td>—</td><td><strong>add</strong></td><td>FK → <code>users.id</code>, <strong>ON DELETE RESTRICT</strong></td></tr>
+</tbody></table></div>
+<p>Column naming is snake_case set explicitly with <code>name:</code> on each decorator — there is no global naming strategy configured (<code>database.config.ts</code>), so <code>storageKey</code> → <code>name: &#x27;storage_key&#x27;</code> must be written by hand or the column ships as <code>storageKey</code>.</p>
+<p><strong>No <code>deleted_at</code></strong> — the repo has no soft delete anywhere, and this change does not introduce the concept.</p>
+<p><strong>No owner column.</strong> There is deliberately no <code>owner_id</code> / <code>owner_type</code> / <code>project_id</code>. The first consuming domain table adds its own <code>file_id uuid REFERENCES files(id)</code>. The cost is recorded honestly: until a consumer exists, <code>files</code> cannot distinguish a live row from garbage.</p>
+<h2 id="indexes">Indexes</h2>
+<div class='tablewrap'><table><thead><tr><th>index</th><th>verdict</th></tr></thead><tbody>
+<tr><td>PK on <code>id</code></td><td>automatic</td></tr>
+<tr><td>UNIQUE on <code>storage_key</code></td><td><strong>yes</strong> — it is the lookup key for every download and the guard against a key collision. TypeORM emits <code>UQ_&lt;hash&gt;</code> from <code>unique: true</code></td></tr>
+<tr><td><code>uploaded_by</code></td><td><strong>skip for now.</strong> Postgres does <strong>not</strong> auto-index an FK column. Two things would want it: a future &quot;files I uploaded&quot; query (no such screen exists), and the RESTRICT check on user deletion — which currently seq-scans <code>files</code>. With 2 users and no user-delete endpoint in the codebase, that scan costs nothing. Add <code>@Index()</code> on the column the moment either a per-uploader listing or user deletion ships. Worth a <code>ponytail:</code> comment naming exactly that ceiling</td></tr>
+</tbody></table></div>
+<h2 id="impact">Impact</h2>
+<ul>
+<li><strong>No existing reader or writer is affected.</strong> <code>files</code> is new, and no column on <code>users</code> changes. <code>UsersService</code> (<code>backend/src/users/users.service.ts</code>) and <code>AuthService</code> (<code>backend/src/auth/auth.service.ts</code>) are the only code touching <code>users</code>; both are untouched by additive DDL on a separate table.</li>
+<li><strong>ON DELETE RESTRICT is the safe default here</strong> and is already settled: a file row must not outlive a dangling uploader, and cascading would silently delete upload records (and orphan their bytes on disk, which no FK can clean up). There is no user-delete path in the codebase today, so nothing is blocked by the restriction.</li>
+<li><strong>FK direction matters for the future consumer</strong>: <code>files</code> points <em>at</em> <code>users</code>, and consumers point <em>at</em> <code>files</code>. <code>files</code> itself never points at a domain table. That keeps <code>files</code> a leaf that any domain can reference without a circular dependency.</li>
+<li><strong>Migration verdict: purely additive.</strong> One new table, one new FK, zero backfill, zero data reshape, zero destructive operation. Reversible — <code>down()</code> drops only the new table.</li>
+</ul>
+<h2 id="migration-mechanics">Migration mechanics</h2>
+<ul>
+<li>Generated, not hand-written: <code>cd backend &amp;&amp; pnpm migration:generate src/database/migrations/CreateFiles</code>, then <strong>read the emitted SQL before running it</strong>.</li>
+<li><code>pnpm migration:*</code> <strong>builds first and runs against <code>dist/</code></strong> (<code>rules.md</code>) — a TypeScript error surfaces as a confusing migration failure. Compile clean before generating.</li>
+<li>The entity file must end in <code>.entity.ts</code> or the CLI glob <code>src/**/*.entity{.ts,.js}</code> will not see it and the generated migration will be empty.</li>
+<li><code>synchronize: false</code> in <strong>every</strong> environment (<code>database.config.ts:25</code>). The schema only ever changes through a migration.</li>
+<li><code>app.module.ts</code> passes <code>entities: []</code> + <code>autoLoadEntities: true</code> and <code>migrations: []</code> on purpose (vitest chokes on the raw-<code>.ts</code> glob). So the new entity reaches the running app <strong>only</strong> via <code>TypeOrmModule.forFeature([File])</code> in its own module — registering it anywhere else is a silent no-op.</li>
+</ul>
+<h2 id="suggested-verify-hooks-for-capture-s-tasks-md">Suggested verify hooks (for capture&#x27;s <code>tasks.md</code>)</h2>
+<ul>
+<li><strong>Schema assertion</strong> — after <code>migration:run</code>, query <code>information_schema.columns</code> for <code>files</code> and assert all 8 columns with the exact type/nullability above, plus the unique constraint on <code>storage_key</code> and the FK on <code>uploaded_by</code> with <code>RESTRICT</code> via <code>pg_constraint</code>.</li>
+<li><strong><code>size_bytes</code> is a number, not a string</strong> — insert a row, read it back through the repository, assert <code>typeof size_bytes === &#x27;number&#x27;</code>. This is the one assertion that catches a <code>bigint</code> regression, and it fails silently otherwise.</li>
+<li><strong>Migration reverts clean</strong> — <code>pnpm migration:revert</code> drops <code>files</code> and leaves <code>users</code> untouched; <code>pnpm migration:run</code> reapplies. Run against the local dev DB, never prod.</li>
+<li><strong>No regression on <code>users</code></strong> — <code>pnpm test</code> (the existing <code>users.service.spec.ts</code> / <code>auth.service.spec.ts</code>) still passes.</li>
+</ul>
+<h2 id="open-questions">Open questions</h2>
+<ul>
+<li>None on the schema itself — the shape was settled in explore. The one open question in this change is HTTP-layer, not DB (<code>Content-Disposition: inline</code> for images vs uniform <code>attachment</code>); it is recorded in <code>design.md</code>.</li>
+</ul></section><section id="backend"><h2 class="st">Backend — contract</h2><h1 id="spec-add-file-storage">Spec: add-file-storage</h1>
+<p>Behavior contract. Design rationale is in <code>design.md</code>; the schema is in <code>db.md</code>.</p>
+<h3 id="requirement-storage-root-configuration-req-1">Requirement: storage root configuration [req-1]</h3>
+<p>The backend SHALL read its storage root from a required environment variable and SHALL NOT boot without it.</p>
+<h4 id="scenario-variable-missing">Scenario: variable missing</h4>
+<ul>
+<li><strong>WHEN</strong> the backend starts with no <code>FILE_STORAGE_PATH</code> in the environment</li>
+<li><strong>THEN</strong> boot fails with a validation error naming <code>FILE_STORAGE_PATH</code></li>
+<li><strong>AND</strong> no code-level default silently substitutes a path</li>
+</ul>
+<h4 id="scenario-variable-set-directory-absent">Scenario: variable set, directory absent</h4>
+<ul>
+<li><strong>WHEN</strong> the backend starts with <code>FILE_STORAGE_PATH</code> pointing at a directory that does not exist</li>
+<li><strong>THEN</strong> the directory and its <code>tmp</code> subdirectory are created</li>
+<li><strong>AND</strong> boot succeeds</li>
+</ul>
+<h4 id="scenario-directory-cannot-be-created">Scenario: directory cannot be created</h4>
+<ul>
+<li><strong>WHEN</strong> <code>FILE_STORAGE_PATH</code> points somewhere the process cannot write</li>
+<li><strong>THEN</strong> boot fails loudly rather than starting with an unusable write path</li>
+</ul>
+<h3 id="requirement-files-table-req-2">Requirement: files table [req-2]</h3>
+<p>The database SHALL have a <code>files</code> table recording one row per stored file, with a relative storage key and the user who uploaded it.</p>
+<h4 id="scenario-migration-applies">Scenario: migration applies</h4>
+<ul>
+<li><strong>WHEN</strong> the forward migration runs against a database holding only <code>users</code></li>
+<li><strong>THEN</strong> <code>files</code> exists with <code>id</code>, <code>created_at</code>, <code>updated_at</code>, <code>storage_key</code>, <code>original_name</code>, <code>mime_type</code>, <code>size_bytes</code>, <code>uploaded_by</code></li>
+<li><strong>AND</strong> <code>storage_key</code> carries a unique constraint</li>
+<li><strong>AND</strong> <code>uploaded_by</code> is a foreign key to <code>users(id)</code> with <code>ON DELETE RESTRICT</code></li>
+<li><strong>AND</strong> no column on <code>users</code> is added, altered or dropped</li>
+</ul>
+<h4 id="scenario-migration-reverts">Scenario: migration reverts</h4>
+<ul>
+<li><strong>WHEN</strong> the migration is reverted</li>
+<li><strong>THEN</strong> <code>files</code> is dropped and <code>users</code> is untouched</li>
+</ul>
+<h4 id="scenario-size-is-a-number-not-a-string">Scenario: size is a number, not a string</h4>
+<ul>
+<li><strong>WHEN</strong> a stored row is read back through the repository</li>
+<li><strong>THEN</strong> <code>sizeBytes</code> is a JavaScript <code>number</code></li>
+</ul>
+<h4 id="scenario-key-is-relative">Scenario: key is relative</h4>
+<ul>
+<li><strong>WHEN</strong> any row is inserted</li>
+<li><strong>THEN</strong> <code>storage_key</code> is a relative path of the form <code>yyyy/mm/&lt;id&gt;&lt;ext&gt;</code> and contains no absolute path segment</li>
+</ul>
+<h3 id="requirement-authenticated-upload-req-3">Requirement: authenticated upload [req-3]</h3>
+<p>The API SHALL accept a multipart upload from an authenticated user, store the bytes under the storage root, and return the file&#x27;s metadata.</p>
+<h4 id="scenario-accepted-upload">Scenario: accepted upload</h4>
+<ul>
+<li><strong>WHEN</strong> an authenticated user <code>POST</code>s a 1 MB PDF to <code>/files</code></li>
+<li><strong>THEN</strong> the response is 201 with <code>{ id, originalName, mimeType, sizeBytes, createdAt, updatedAt }</code></li>
+<li><strong>AND</strong> a <code>files</code> row exists with <code>uploaded_by</code> set to that user&#x27;s id</li>
+<li><strong>AND</strong> the bytes exist on disk at <code>&lt;FILE_STORAGE_PATH&gt;/&lt;storage_key&gt;</code></li>
+<li><strong>AND</strong> the response body contains no <code>storageKey</code> and no absolute path</li>
+</ul>
+<h4 id="scenario-unauthenticated-upload">Scenario: unauthenticated upload</h4>
+<ul>
+<li><strong>WHEN</strong> an upload is sent with no session cookie</li>
+<li><strong>THEN</strong> the response is 401 and nothing is written to disk or to the database</li>
+</ul>
+<h4 id="scenario-disallowed-type">Scenario: disallowed type</h4>
+<ul>
+<li><strong>WHEN</strong> an authenticated user uploads a file declaring <code>application/x-msdownload</code></li>
+<li><strong>THEN</strong> the response is 415 with code <code>FILE_UNSUPPORTED_TYPE</code></li>
+<li><strong>AND</strong> no row is inserted</li>
+</ul>
+<h4 id="scenario-svg-is-rejected">Scenario: SVG is rejected</h4>
+<ul>
+<li><strong>WHEN</strong> an authenticated user uploads a file declaring <code>image/svg+xml</code></li>
+<li><strong>THEN</strong> the response is 415 with code <code>FILE_UNSUPPORTED_TYPE</code></li>
+</ul>
+<h4 id="scenario-oversize-upload">Scenario: oversize upload</h4>
+<ul>
+<li><strong>WHEN</strong> an authenticated user uploads a file larger than 100 MB</li>
+<li><strong>THEN</strong> the response is 413 with code <code>FILE_TOO_LARGE</code></li>
+<li><strong>AND</strong> no row is inserted</li>
+</ul>
+<h4 id="scenario-on-disk-name-ignores-the-uploaded-filename">Scenario: on-disk name ignores the uploaded filename</h4>
+<ul>
+<li><strong>WHEN</strong> a PDF is uploaded with the original name <code>../../../etc/passwd.pdf</code></li>
+<li><strong>THEN</strong> <code>original_name</code> stores that string verbatim</li>
+<li><strong>AND</strong> <code>storage_key</code> is <code>yyyy/mm/&lt;id&gt;.pdf</code> with the extension taken from the mime type</li>
+<li><strong>AND</strong> nothing is written outside <code>FILE_STORAGE_PATH</code></li>
+</ul>
+<h4 id="scenario-no-field-is-accepted-beyond-the-file">Scenario: no field is accepted beyond the file</h4>
+<ul>
+<li><strong>WHEN</strong> an upload includes an extra form field such as <code>storageKey</code></li>
+<li><strong>THEN</strong> the request is rejected with 400 by the global validation pipe rather than the field being used</li>
+</ul>
+<h3 id="requirement-authenticated-download-req-4">Requirement: authenticated download [req-4]</h3>
+<p>The API SHALL stream a stored file to an authenticated caller and SHALL NOT serve files outside an authenticated request.</p>
+<h4 id="scenario-successful-download">Scenario: successful download</h4>
+<ul>
+<li><strong>WHEN</strong> an authenticated user <code>GET</code>s <code>/files/:id</code> for an existing file</li>
+<li><strong>THEN</strong> the response is 200 with the exact stored bytes</li>
+<li><strong>AND</strong> <code>Content-Type</code> is the stored mime type</li>
+<li><strong>AND</strong> <code>Content-Length</code> is the stored size</li>
+<li><strong>AND</strong> <code>X-Content-Type-Options: nosniff</code> is present</li>
+<li><strong>AND</strong> <code>Content-Disposition</code> carries the original filename</li>
+</ul>
+<h4 id="scenario-unauthenticated-download">Scenario: unauthenticated download</h4>
+<ul>
+<li><strong>WHEN</strong> <code>/files/:id</code> is requested with no session cookie</li>
+<li><strong>THEN</strong> the response is 401 and no bytes are sent</li>
+</ul>
+<h4 id="scenario-unknown-id">Scenario: unknown id</h4>
+<ul>
+<li><strong>WHEN</strong> an authenticated user requests an id with no matching row</li>
+<li><strong>THEN</strong> the response is 404 with code <code>FILE_NOT_FOUND</code></li>
+</ul>
+<h4 id="scenario-row-exists-but-bytes-are-gone">Scenario: row exists but bytes are gone</h4>
+<ul>
+<li><strong>WHEN</strong> a row&#x27;s file is missing from disk</li>
+<li><strong>THEN</strong> the response is 404 with code <code>FILE_NOT_FOUND</code></li>
+<li><strong>AND</strong> the inconsistency is logged at error level</li>
+</ul>
+<h4 id="scenario-image-disposition">Scenario: image disposition</h4>
+<ul>
+<li><strong>WHEN</strong> a stored <code>image/png</code> is downloaded</li>
+<li><strong>THEN</strong> <code>Content-Disposition</code> is <code>inline</code></li>
+<li><strong>AND</strong> <code>nosniff</code> is still present</li>
+</ul>
+<h4 id="scenario-document-disposition">Scenario: document disposition</h4>
+<ul>
+<li><strong>WHEN</strong> a stored PDF or DOCX is downloaded</li>
+<li><strong>THEN</strong> <code>Content-Disposition</code> is <code>attachment</code></li>
+</ul>
+<h3 id="requirement-deletion-removes-row-and-bytes-req-5">Requirement: deletion removes row and bytes [req-5]</h3>
+<p>Deleting a file SHALL remove both its database row and its bytes, and SHALL NOT fail because the bytes were already gone.</p>
+<h4 id="scenario-delete-an-existing-file">Scenario: delete an existing file</h4>
+<ul>
+<li><strong>WHEN</strong> <code>FilesService.remove</code> is called with an existing id</li>
+<li><strong>THEN</strong> the row is deleted and the file no longer exists on disk</li>
+</ul>
+<h4 id="scenario-bytes-already-missing">Scenario: bytes already missing</h4>
+<ul>
+<li><strong>WHEN</strong> <code>remove</code> is called for a row whose file is absent from disk</li>
+<li><strong>THEN</strong> the row is still deleted</li>
+<li><strong>AND</strong> the unlink failure is logged, not thrown</li>
+</ul>
+<h4 id="scenario-unknown-id">Scenario: unknown id</h4>
+<ul>
+<li><strong>WHEN</strong> <code>remove</code> is called with an id that has no row</li>
+<li><strong>THEN</strong> it raises <code>FILE_NOT_FOUND</code></li>
+</ul>
+<h3 id="requirement-errors-follow-the-project-envelope-req-6">Requirement: errors follow the project envelope [req-6]</h3>
+<p>Every failure SHALL use the project&#x27;s domain-error mechanism and emerge in the standard error envelope.</p>
+<h4 id="scenario-error-shape">Scenario: error shape</h4>
+<ul>
+<li><strong>WHEN</strong> any file operation fails</li>
+<li><strong>THEN</strong> the response body is <code>{ statusCode, code, message, path, timestamp }</code> with <code>code</code> one of <code>FILE_NOT_FOUND</code>, <code>FILE_TOO_LARGE</code>, <code>FILE_UNSUPPORTED_TYPE</code></li>
+<li><strong>AND</strong> the error originates from a single <code>defineErrors(&#x27;FILE&#x27;, {...})</code> declaration, not a raw <code>HttpException</code></li>
+</ul>
+<h3 id="requirement-generated-frontend-types-stay-in-sync-req-7">Requirement: generated frontend types stay in sync [req-7]</h3>
+<p>The frontend&#x27;s generated API types SHALL include the new endpoints.</p>
+<h4 id="scenario-types-regenerated">Scenario: types regenerated</h4>
+<ul>
+<li><strong>WHEN</strong> <code>pnpm api:types</code> runs in <code>frontend/</code> against the running backend</li>
+<li><strong>THEN</strong> <code>frontend/app/types/api/</code> includes the <code>/files</code> and <code>/files/{id}</code> operations and the <code>FileDto</code> shape</li>
+<li><strong>AND</strong> <code>npx tsc --noEmit</code> in <code>frontend/</code> is clean</li>
+</ul></section><section id="frontend"><h2 class="st">Frontend</h2><p class="missing">No <code>ui.md</code> — not captured, and correctly so.</p><p>This change adds no screen, no component and no visible element. The only frontend file it touches is <code>frontend/app/types/api/</code>, which is <strong>generated</strong> by <code>pnpm api:types</code> and never hand-edited (task 7.1). Nothing in the frontend calls <code>/files</code> yet — the first consuming feature does that, with its own <code>/devspec-ui-mockup</code> pass.</p></section><section id="tasks"><h2 class="st">Tasks</h2><h3>By layer</h3><p class="note">Scan each layer for a missing piece before approving — this is the last point at which a gap is cheap.</p><h3><span class='layer l-db'>db</span> <span class='cnt'>3 subtasks</span></h3><div class='tablewrap'><table><thead><tr><th>#</th><th>section</th><th>work</th></tr></thead><tbody><tr><td class='mono'>3.1</td><td class='dim'>3. Entity, DTO and migration [req-2]</td><td>New <code>backend/src/files/file.entity.ts</code> — <code>@Entity(&#x27;files&#x27;) export class FileEntity extends BaseEntity</code> with <code>@Column({ name: &#x27;storage_key&#x27;, type: &#x27;varchar&#x27;, length: 255, unique: true }) storageKey</code>, <code>@Column({ name: &#x27;original_name&#x27;, type: &#x27;varchar&#x27;, length: 255 }) originalName</code>, <code>@Column({ name: &#x27;mime_type&#x27;, type: &#x27;varchar&#x27;, length: 127 }) mimeType</code>, <code>@Column({ name: &#x27;size_bytes&#x27;, type: &#x27;int&#x27; }) sizeBytes</code>, <code>@Column({ name: &#x27;uploaded_by&#x27;, type: &#x27;uuid&#x27; }) uploadedBy</code> plus <code>@ManyToOne(() =&gt; User, { onDelete: &#x27;RESTRICT&#x27; }) @JoinColumn({ name: &#x27;uploaded_by&#x27; })</code>. Class is <code>FileEntity</code>, not <code>File</code> (<code>File</code> is a Node global). Every column needs an explicit <code>name:</code> — there is no naming strategy configured. Add a <code>ponytail:</code> comment on <code>sizeBytes</code> (int not bigint, ~2 GB ceiling) and one on <code>uploadedBy</code> (no index until a per-uploader listing or user-delete path exists)</td></tr><tr><td class='mono'>3.3</td><td class='dim'>3. Entity, DTO and migration [req-2]</td><td>Generate the migration: <code>cd backend &amp;&amp; pnpm migration:generate src/database/migrations/CreateFiles</code>. <strong>Read the emitted SQL</strong> — confirm one <code>CREATE TABLE &quot;files&quot;</code>, the unique constraint on <code>storage_key</code>, the FK with <code>ON DELETE RESTRICT</code>, and that nothing touches <code>users</code></td></tr><tr><td class='mono'>3.4</td><td class='dim'>3. Entity, DTO and migration [req-2]</td><td>Apply it: <code>pnpm migration:run</code>, then <code>pnpm migration:revert</code> and <code>pnpm migration:run</code> again to prove it reverts clean</td></tr></tbody></table></div><h3><span class='layer l-backend'>backend</span> <span class='cnt'>14 subtasks</span></h3><div class='tablewrap'><table><thead><tr><th>#</th><th>section</th><th>work</th></tr></thead><tbody><tr><td class='mono'>1.1</td><td class='dim'>1. Storage root in the env contract [req-1]</td><td>Add <code>FILE_STORAGE_PATH: string</code> to <code>EnvironmentVariables</code> (<code>backend/src/config/env.validation.ts</code>) with <code>@IsString()</code> + <code>@IsNotEmpty()</code> and <strong>no default value</strong> — same shape as <code>JWT_SECRET</code>. JSDoc comment: it is the absolute root for stored files; the DB holds relative keys only</td></tr><tr><td class='mono'>1.2</td><td class='dim'>1. Storage root in the env contract [req-1]</td><td>Add the matching row to <code>backend/.env.example</code>: <code>FILE_STORAGE_PATH=./storage</code></td></tr><tr><td class='mono'>1.3</td><td class='dim'>1. Storage root in the env contract [req-1]</td><td>Add <code>FILE_STORAGE_PATH=./storage</code> to the gitignored <code>backend/.env</code> — without it the app no longer boots</td></tr><tr><td class='mono'>1.4</td><td class='dim'>1. Storage root in the env contract [req-1]</td><td>Add <code>backend/storage/</code> to <code>.gitignore</code> so dev uploads are never committed</td></tr><tr><td class='mono'>2.1</td><td class='dim'>2. Constants and domain errors [req-3] [req-6]</td><td>New <code>backend/src/files/files.constants.ts</code> — <code>MAX_FILE_SIZE_BYTES = 100 <em> 1024 </em> 1024</code>, <code>TMP_DIR = &#x27;tmp&#x27;</code>, and <code>MIME_EXTENSIONS: Record&lt;string, string&gt;</code> mapping exactly: <code>application/pdf</code>→<code>.pdf</code>, <code>application/vnd.openxmlformats-officedocument.wordprocessingml.document</code>→<code>.docx</code>, <code>text/plain</code>→<code>.txt</code>, <code>text/markdown</code>→<code>.md</code>, <code>image/png</code>→<code>.png</code>, <code>image/jpeg</code>→<code>.jpg</code>, <code>image/webp</code>→<code>.webp</code>, <code>image/gif</code>→<code>.gif</code>. The map&#x27;s keys ARE the allowlist — do not write a second list. Comment that <code>image/svg+xml</code> is excluded deliberately (SVG is executable XML)</td></tr><tr><td class='mono'>2.2</td><td class='dim'>2. Constants and domain errors [req-3] [req-6]</td><td>New <code>backend/src/files/files.errors.ts</code> — one <code>defineErrors(&#x27;FILE&#x27;, {...})</code> call, copying the shape of <code>backend/src/auth/auth.errors.ts</code>: <code>NOT_FOUND</code> (404, <code>&#x27;File not found&#x27;</code>), <code>TOO_LARGE</code> (413, <code>&#x27;File exceeds the 100 MB limit&#x27;</code>), <code>UNSUPPORTED_TYPE</code> (415, <code>&#x27;File type is not supported&#x27;</code>)</td></tr><tr><td class='mono'>3.2</td><td class='dim'>3. Entity, DTO and migration [req-2]</td><td>New <code>backend/src/files/dto/file.dto.ts</code> — <code>FileDto extends AuditDto</code> with <code>@Expose()</code> on <code>originalName</code>, <code>mimeType</code>, <code>sizeBytes</code> only. <strong><code>storageKey</code> and <code>uploadedBy</code> get no <code>@Expose()</code></strong> — that is what keeps the storage layout and the uploader out of responses</td></tr><tr><td class='mono'>5.1</td><td class='dim'>5. FilesController and FilesModule [req-3] [req-4] [req-6]</td><td>New <code>backend/src/files/files.controller.ts</code> — <code>@Controller(&#x27;files&#x27;)</code>, both routes <code>@UseGuards(JwtAuthGuard)</code> + <code>@ApiCookieAuth(SESSION_COOKIE)</code>. A local <code>toFileDto</code> helper using <code>plainToInstance(FileDto, entity, { excludeExtraneousValues: true })</code>, copying <code>toUserDto</code> in <code>backend/src/auth/auth.controller.ts</code></td></tr><tr><td class='mono'>5.2</td><td class='dim'>5. FilesController and FilesModule [req-3] [req-4] [req-6]</td><td><code>POST /files</code> → <code>@UseInterceptors(FileInterceptor(&#x27;file&#x27;, { storage: diskStorage({ destination: &lt;base&gt;/tmp }), limits: { fileSize: MAX_FILE_SIZE_BYTES }, fileFilter: &lt;reject mime not in MIME_EXTENSIONS&gt; }))</code>. <strong><code>diskStorage</code>, never the default <code>memoryStorage</code></strong> — 100 MB in RAM per concurrent upload. The temp dir must be under <code>FILE_STORAGE_PATH</code> so the later <code>rename</code> stays on one filesystem (cross-device <code>rename</code> fails <code>EXDEV</code>). Handler reads <code>@UploadedFile() file</code> and <code>@Req() req</code> (<code>req.user as User</code> for the uploader id, as <code>AuthController.me</code> does), calls <code>FilesService.store</code>, returns <code>FileDto</code>. Add <code>@ApiConsumes(&#x27;multipart/form-data&#x27;)</code> + <code>@ApiBody</code> with the binary schema — multipart is the one case the Swagger CLI plugin cannot infer</td></tr><tr><td class='mono'>5.3</td><td class='dim'>5. FilesController and FilesModule [req-3] [req-4] [req-6]</td><td>Translate multer&#x27;s rejections into the domain errors: <code>LIMIT_FILE_SIZE</code> → <code>FileErrors.TOO_LARGE()</code> (413), a <code>fileFilter</code> rejection → <code>FileErrors.UNSUPPORTED_TYPE()</code> (415). Simplest route is for <code>fileFilter</code> to pass the domain error to its callback; verify the status and <code>code</code> that actually reach the client, since <code>AppExceptionFilter</code> only maps what reaches it</td></tr><tr><td class='mono'>5.4</td><td class='dim'>5. FilesController and FilesModule [req-3] [req-4] [req-6]</td><td><code>GET /files/:id</code> → <code>findById</code>, then return <code>new StreamableFile(createStream(file))</code>. Set via <code>@Res({ passthrough: true })</code>: <code>Content-Type</code> = stored mime, <code>Content-Length</code> = stored size, <code>X-Content-Type-Options: nosniff</code> always, and <code>Content-Disposition</code> = <code>inline</code> for <code>image/png|image/jpeg|image/webp|image/gif</code>, <code>attachment</code> otherwise — with the original filename quoted and RFC 5987-encoded. <strong>Open question in <code>design.md</code></strong>: if the answer is uniform <code>attachment</code>, change only this helper and the <code>[req-4]</code> image scenario</td></tr><tr><td class='mono'>5.5</td><td class='dim'>5. FilesController and FilesModule [req-3] [req-4] [req-6]</td><td>New <code>backend/src/files/files.module.ts</code> — <code>TypeOrmModule.forFeature([FileEntity])</code>, declares the controller and service, exports <code>FilesService</code> for future consumers. <code>app.module.ts</code> uses <code>entities: []</code> + <code>autoLoadEntities: true</code>, so <code>forFeature</code> here is the <strong>only</strong> thing that registers the entity</td></tr><tr><td class='mono'>5.6</td><td class='dim'>5. FilesController and FilesModule [req-3] [req-4] [req-6]</td><td>Register <code>FilesModule</code> in <code>backend/src/app.module.ts</code> imports, after <code>AuthModule</code></td></tr><tr><td class='mono'>5.7</td><td class='dim'>5. FilesController and FilesModule [req-3] [req-4] [req-6]</td><td>Add <code>@types/multer</code> as a dev dependency (<code>pnpm add -D @types/multer</code>) — <code>@nestjs/platform-express</code> bundles multer but ships no types, so <code>Express.Multer.File</code> will not typecheck without it</td></tr></tbody></table></div><h3><span class='layer l-service'>service</span> <span class='cnt'>7 subtasks</span></h3><div class='tablewrap'><table><thead><tr><th>#</th><th>section</th><th>work</th></tr></thead><tbody><tr><td class='mono'>4.1</td><td class='dim'>4. FilesService [req-3] [req-4] [req-5]</td><td>New <code>backend/src/files/files.service.ts</code> — <code>@Injectable() FilesService</code>, constructor takes <code>@InjectRepository(FileEntity)</code> and <code>ConfigService&lt;EnvironmentVariables, true&gt;</code>. Private <code>baseDir</code> read once via <code>config.get(&#x27;FILE_STORAGE_PATH&#x27;, { infer: true })</code>; private <code>absolute(key)</code> = <code>join(baseDir, key)</code>. Use <code>node:</code> prefixed imports (<code>node:fs/promises</code>, <code>node:path</code>, <code>node:fs</code>) per <code>conventions.md</code></td></tr><tr><td class='mono'>4.2</td><td class='dim'>4. FilesService [req-3] [req-4] [req-5]</td><td><code>onModuleInit()</code> — <code>mkdir(baseDir, { recursive: true })</code> and <code>mkdir(join(baseDir, TMP_DIR), { recursive: true })</code>. Let a failure propagate so boot dies rather than starting with an unusable write path</td></tr><tr><td class='mono'>4.3</td><td class='dim'>4. FilesService [req-3] [req-4] [req-5]</td><td><code>store(file: Express.Multer.File, uploaderId: string): Promise&lt;FileEntity&gt;</code> — derive the extension from <code>MIME_EXTENSIONS[file.mimetype]</code> (throw <code>FileErrors.UNSUPPORTED_TYPE()</code> if absent, as a second line of defence behind the fileFilter); build <code>id = uuidv7()</code>; <code>key = ${yyyy}/${mm}/${id}${ext}</code> from the current date; <code>mkdir</code> the shard; <code>rename(file.path, absolute(key))</code>; then insert the row with that same <code>id</code>, <code>key</code>, <code>file.originalname</code>, <code>file.mimetype</code>, <code>file.size</code>, <code>uploaderId</code>. Bytes move <strong>before</strong> the insert — a crash between the two leaves a sweepable orphan, not a row that 404s</td></tr><tr><td class='mono'>4.4</td><td class='dim'>4. FilesService [req-3] [req-4] [req-5]</td><td>On any failure after the rename, <code>unlink</code> the moved file before rethrowing, so a failed insert does not leave a shard orphan</td></tr><tr><td class='mono'>4.5</td><td class='dim'>4. FilesService [req-3] [req-4] [req-5]</td><td><code>findById(id): Promise&lt;FileEntity&gt;</code> — throw <code>FileErrors.NOT_FOUND()</code> when there is no row</td></tr><tr><td class='mono'>4.6</td><td class='dim'>4. FilesService [req-3] [req-4] [req-5]</td><td><code>createStream(file: FileEntity): ReadStream</code> — <code>existsSync(absolute(key))</code> first; if the bytes are gone, <code>logger.error</code> the id and key, then throw <code>FileErrors.NOT_FOUND()</code> (not a 500 — a retry can never succeed)</td></tr><tr><td class='mono'>4.7</td><td class='dim'>4. FilesService [req-3] [req-4] [req-5]</td><td><code>remove(id): Promise&lt;void&gt;</code> — <code>findById</code>, delete the row, then <code>unlink</code>. Wrap the <code>unlink</code> in try/catch and <code>logger.warn</code> on failure; never rethrow, the row is already gone</td></tr></tbody></table></div><h3><span class='layer l-frontend'>frontend</span> <span class='cnt'>2 subtasks</span></h3><div class='tablewrap'><table><thead><tr><th>#</th><th>section</th><th>work</th></tr></thead><tbody><tr><td class='mono'>7.1</td><td class='dim'>7. Sync the frontend types and the context pack [req-7]</td><td>With the backend running, <code>cd frontend &amp;&amp; pnpm api:types</code>. Confirm <code>frontend/app/types/api/</code> gains the <code>/files</code> and <code>/files/{id}</code> operations plus the <code>FileDto</code> shape. <strong>Never hand-edit that folder</strong></td></tr><tr><td class='mono'>7.2</td><td class='dim'>7. Sync the frontend types and the context pack [req-7]</td><td><code>cd frontend &amp;&amp; npx tsc --noEmit &amp;&amp; pnpm lint</code> — clean. No frontend source changes in this task; the regenerated types must not break any existing call site</td></tr></tbody></table></div><h3><span class='layer l-test'>test</span> <span class='cnt'>14 subtasks</span></h3><div class='tablewrap'><table><thead><tr><th>#</th><th>section</th><th>work</th></tr></thead><tbody><tr><td class='mono'>1.5</td><td class='dim'>1. Storage root in the env contract [req-1]</td><td>Extend <code>backend/src/config/env.validation.spec.ts</code>: a config missing <code>FILE_STORAGE_PATH</code> throws and the message names the variable</td></tr><tr><td class='mono'>2.3</td><td class='dim'>2. Constants and domain errors [req-3] [req-6]</td><td>New <code>backend/src/files/files.errors.spec.ts</code>: each factory produces the right <code>code</code> (<code>FILE_NOT_FOUND</code> etc.) and status</td></tr><tr><td class='mono'>3.5</td><td class='dim'>3. Entity, DTO and migration [req-2]</td><td>New <code>backend/src/files/file.entity.spec.ts</code>: constructing a <code>FileEntity</code> and calling <code>generateId()</code> yields a v7 uuid; the entity&#x27;s declared metadata maps <code>storageKey</code> → column <code>storage_key</code> (guards against a forgotten <code>name:</code>)</td></tr><tr><td class='mono'>4.8</td><td class='dim'>4. FilesService [req-3] [req-4] [req-5]</td><td>New <code>backend/src/files/files.service.spec.ts</code> against a temp dir as <code>FILE_STORAGE_PATH</code> and a mocked repository: store writes to <code>yyyy/mm/&lt;id&gt;&lt;ext&gt;</code> and the key is relative; an unknown mime throws <code>UNSUPPORTED_TYPE</code>; an original name of <code>../../../etc/passwd.pdf</code> yields a key of <code>yyyy/mm/&lt;id&gt;.pdf</code> and writes nothing outside the temp dir; <code>findById</code> on a missing row throws <code>NOT_FOUND</code>; <code>createStream</code> on a row whose file is deleted throws <code>NOT_FOUND</code> and logs; <code>remove</code> deletes the row and tolerates a missing file</td></tr><tr><td class='mono'>6.1</td><td class='dim'>6. Prove it against the running API [req-3] [req-4] [req-6]</td><td>Start the backend (<code>pnpm start:dev</code>) and log in to get a session cookie: <code>curl -i -c /tmp/clarivo.jar -X POST localhost:3000/auth/login -H &#x27;content-type: application/json&#x27; -d &#x27;{&quot;email&quot;:&quot;admin@clarivo.local&quot;,&quot;password&quot;:&quot;Clarivo!2026&quot;,&quot;remember&quot;:false}&#x27;</code> (credentials from <code>devspec/improve/testing.md</code>)</td></tr><tr><td class='mono'>6.2</td><td class='dim'>6. Prove it against the running API [req-3] [req-4] [req-6]</td><td>Upload a PDF with the cookie → 201, body has <code>id</code>/<code>originalName</code>/<code>mimeType</code>/<code>sizeBytes</code> and <strong>no</strong> <code>storageKey</code>. Confirm the bytes landed at <code>backend/storage/&lt;yyyy&gt;/&lt;mm&gt;/&lt;id&gt;.pdf</code> and the row&#x27;s <code>storage_key</code> matches</td></tr><tr><td class='mono'>6.3</td><td class='dim'>6. Prove it against the running API [req-3] [req-4] [req-6]</td><td>Upload with <strong>no</strong> cookie → 401, and nothing new appears under <code>backend/storage/</code> or in <code>files</code></td></tr><tr><td class='mono'>6.4</td><td class='dim'>6. Prove it against the running API [req-3] [req-4] [req-6]</td><td>Upload a <code>.svg</code> and an <code>.exe</code> → both 415 with <code>code: FILE_UNSUPPORTED_TYPE</code></td></tr><tr><td class='mono'>6.5</td><td class='dim'>6. Prove it against the running API [req-3] [req-4] [req-6]</td><td>Upload a 101 MB file (<code>mkfile 101m</code> or <code>dd</code>) → 413 with <code>code: FILE_TOO_LARGE</code>, and no row inserted</td></tr><tr><td class='mono'>6.6</td><td class='dim'>6. Prove it against the running API [req-3] [req-4] [req-6]</td><td>Upload a PDF named <code>../../../etc/passwd.pdf</code> → 201; <code>original_name</code> holds the string verbatim, <code>storage_key</code> is <code>yyyy/mm/&lt;id&gt;.pdf</code>, and nothing exists outside <code>backend/storage/</code></td></tr><tr><td class='mono'>6.7</td><td class='dim'>6. Prove it against the running API [req-3] [req-4] [req-6]</td><td><code>GET /files/&lt;id&gt;</code> with the cookie → 200, bytes identical to the upload (<code>shasum</code> both), <code>content-type</code> correct, <code>x-content-type-options: nosniff</code> present, <code>content-disposition: attachment</code> for the PDF</td></tr><tr><td class='mono'>6.8</td><td class='dim'>6. Prove it against the running API [req-3] [req-4] [req-6]</td><td>Upload a PNG and <code>GET</code> it → <code>content-disposition: inline</code>, <code>nosniff</code> still present</td></tr><tr><td class='mono'>6.9</td><td class='dim'>6. Prove it against the running API [req-3] [req-4] [req-6]</td><td><code>GET /files/&lt;id&gt;</code> with no cookie → 401. <code>GET</code> a random uuid → 404 <code>FILE_NOT_FOUND</code>. Delete a file&#x27;s bytes from disk by hand, <code>GET</code> it → 404 <code>FILE_NOT_FOUND</code> and an error line in the server log</td></tr><tr><td class='mono'>6.10</td><td class='dim'>6. Prove it against the running API [req-3] [req-4] [req-6]</td><td>Record the measured results (status codes, headers, paths) in <code>devspec/changes/add-file-storage/verify/results.md</code></td></tr></tbody></table></div><hr><h3>In execution order</h3><h1 id="tasks-add-file-storage">Tasks: add-file-storage</h1>
+<p>Backend only, plus one generated-types refresh in the frontend. No UI. Run top to bottom — each section depends only on the ones above it.</p>
+<h2 id="1-storage-root-in-the-env-contract-req-1">1. Storage root in the env contract [req-1]</h2>
+<ul class='checks'>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">1.1</span> <span class="layer l-backend">backend</span> Add <code>FILE_STORAGE_PATH: string</code> to <code>EnvironmentVariables</code> (<code>backend/src/config/env.validation.ts</code>) with <code>@IsString()</code> + <code>@IsNotEmpty()</code> and <strong>no default value</strong> — same shape as <code>JWT_SECRET</code>. JSDoc comment: it is the absolute root for stored files; the DB holds relative keys only</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">1.2</span> <span class="layer l-backend">backend</span> Add the matching row to <code>backend/.env.example</code>: <code>FILE_STORAGE_PATH=./storage</code></li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">1.3</span> <span class="layer l-backend">backend</span> Add <code>FILE_STORAGE_PATH=./storage</code> to the gitignored <code>backend/.env</code> — without it the app no longer boots</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">1.4</span> <span class="layer l-backend">backend</span> Add <code>backend/storage/</code> to <code>.gitignore</code> so dev uploads are never committed</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">1.5</span> <span class="layer l-test">test</span> Extend <code>backend/src/config/env.validation.spec.ts</code>: a config missing <code>FILE_STORAGE_PATH</code> throws and the message names the variable</li>
+</ul>
+<p class="verify"><strong>Verify</strong> <code>cd backend &amp;&amp; pnpm test src/config/env.validation.spec.ts</code></p>
+<h2 id="2-constants-and-domain-errors-req-3-req-6">2. Constants and domain errors [req-3] [req-6]</h2>
+<ul class='checks'>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">2.1</span> <span class="layer l-backend">backend</span> New <code>backend/src/files/files.constants.ts</code> — <code>MAX_FILE_SIZE_BYTES = 100 <em> 1024 </em> 1024</code>, <code>TMP_DIR = &#x27;tmp&#x27;</code>, and <code>MIME_EXTENSIONS: Record&lt;string, string&gt;</code> mapping exactly: <code>application/pdf</code>→<code>.pdf</code>, <code>application/vnd.openxmlformats-officedocument.wordprocessingml.document</code>→<code>.docx</code>, <code>text/plain</code>→<code>.txt</code>, <code>text/markdown</code>→<code>.md</code>, <code>image/png</code>→<code>.png</code>, <code>image/jpeg</code>→<code>.jpg</code>, <code>image/webp</code>→<code>.webp</code>, <code>image/gif</code>→<code>.gif</code>. The map&#x27;s keys ARE the allowlist — do not write a second list. Comment that <code>image/svg+xml</code> is excluded deliberately (SVG is executable XML)</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">2.2</span> <span class="layer l-backend">backend</span> New <code>backend/src/files/files.errors.ts</code> — one <code>defineErrors(&#x27;FILE&#x27;, {...})</code> call, copying the shape of <code>backend/src/auth/auth.errors.ts</code>: <code>NOT_FOUND</code> (404, <code>&#x27;File not found&#x27;</code>), <code>TOO_LARGE</code> (413, <code>&#x27;File exceeds the 100 MB limit&#x27;</code>), <code>UNSUPPORTED_TYPE</code> (415, <code>&#x27;File type is not supported&#x27;</code>)</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">2.3</span> <span class="layer l-test">test</span> New <code>backend/src/files/files.errors.spec.ts</code>: each factory produces the right <code>code</code> (<code>FILE_NOT_FOUND</code> etc.) and status</li>
+</ul>
+<p class="verify"><strong>Verify</strong> <code>cd backend &amp;&amp; pnpm test src/files/files.errors.spec.ts</code></p>
+<h2 id="3-entity-dto-and-migration-req-2">3. Entity, DTO and migration [req-2]</h2>
+<ul class='checks'>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">3.1</span> <span class="layer l-db">db</span> New <code>backend/src/files/file.entity.ts</code> — <code>@Entity(&#x27;files&#x27;) export class FileEntity extends BaseEntity</code> with <code>@Column({ name: &#x27;storage_key&#x27;, type: &#x27;varchar&#x27;, length: 255, unique: true }) storageKey</code>, <code>@Column({ name: &#x27;original_name&#x27;, type: &#x27;varchar&#x27;, length: 255 }) originalName</code>, <code>@Column({ name: &#x27;mime_type&#x27;, type: &#x27;varchar&#x27;, length: 127 }) mimeType</code>, <code>@Column({ name: &#x27;size_bytes&#x27;, type: &#x27;int&#x27; }) sizeBytes</code>, <code>@Column({ name: &#x27;uploaded_by&#x27;, type: &#x27;uuid&#x27; }) uploadedBy</code> plus <code>@ManyToOne(() =&gt; User, { onDelete: &#x27;RESTRICT&#x27; }) @JoinColumn({ name: &#x27;uploaded_by&#x27; })</code>. Class is <code>FileEntity</code>, not <code>File</code> (<code>File</code> is a Node global). Every column needs an explicit <code>name:</code> — there is no naming strategy configured. Add a <code>ponytail:</code> comment on <code>sizeBytes</code> (int not bigint, ~2 GB ceiling) and one on <code>uploadedBy</code> (no index until a per-uploader listing or user-delete path exists)</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">3.2</span> <span class="layer l-backend">backend</span> New <code>backend/src/files/dto/file.dto.ts</code> — <code>FileDto extends AuditDto</code> with <code>@Expose()</code> on <code>originalName</code>, <code>mimeType</code>, <code>sizeBytes</code> only. <strong><code>storageKey</code> and <code>uploadedBy</code> get no <code>@Expose()</code></strong> — that is what keeps the storage layout and the uploader out of responses</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">3.3</span> <span class="layer l-db">db</span> Generate the migration: <code>cd backend &amp;&amp; pnpm migration:generate src/database/migrations/CreateFiles</code>. <strong>Read the emitted SQL</strong> — confirm one <code>CREATE TABLE &quot;files&quot;</code>, the unique constraint on <code>storage_key</code>, the FK with <code>ON DELETE RESTRICT</code>, and that nothing touches <code>users</code></li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">3.4</span> <span class="layer l-db">db</span> Apply it: <code>pnpm migration:run</code>, then <code>pnpm migration:revert</code> and <code>pnpm migration:run</code> again to prove it reverts clean</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">3.5</span> <span class="layer l-test">test</span> New <code>backend/src/files/file.entity.spec.ts</code>: constructing a <code>FileEntity</code> and calling <code>generateId()</code> yields a v7 uuid; the entity&#x27;s declared metadata maps <code>storageKey</code> → column <code>storage_key</code> (guards against a forgotten <code>name:</code>)</li>
+</ul>
+<p class="verify"><strong>Verify</strong> <code>cd backend &amp;&amp; pnpm test src/files &amp;&amp; docker exec clarivo-postgres-1 psql -U postgres -d clarivo -c &quot;\d files&quot; -c &quot;select conname, pg_get_constraintdef(oid) from pg_constraint where conrelid=&#x27;files&#x27;::regclass;&quot;</code> — all 8 columns present with the types in <code>db.md</code>, <code>size_bytes</code> is <code>integer</code>, unique on <code>storage_key</code>, FK to <code>users(id)</code> <code>ON DELETE RESTRICT</code></p>
+<h2 id="4-filesservice-req-3-req-4-req-5">4. FilesService [req-3] [req-4] [req-5]</h2>
+<ul class='checks'>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">4.1</span> <span class="layer l-service">service</span> New <code>backend/src/files/files.service.ts</code> — <code>@Injectable() FilesService</code>, constructor takes <code>@InjectRepository(FileEntity)</code> and <code>ConfigService&lt;EnvironmentVariables, true&gt;</code>. Private <code>baseDir</code> read once via <code>config.get(&#x27;FILE_STORAGE_PATH&#x27;, { infer: true })</code>; private <code>absolute(key)</code> = <code>join(baseDir, key)</code>. Use <code>node:</code> prefixed imports (<code>node:fs/promises</code>, <code>node:path</code>, <code>node:fs</code>) per <code>conventions.md</code></li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">4.2</span> <span class="layer l-service">service</span> <code>onModuleInit()</code> — <code>mkdir(baseDir, { recursive: true })</code> and <code>mkdir(join(baseDir, TMP_DIR), { recursive: true })</code>. Let a failure propagate so boot dies rather than starting with an unusable write path</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">4.3</span> <span class="layer l-service">service</span> <code>store(file: Express.Multer.File, uploaderId: string): Promise&lt;FileEntity&gt;</code> — derive the extension from <code>MIME_EXTENSIONS[file.mimetype]</code> (throw <code>FileErrors.UNSUPPORTED_TYPE()</code> if absent, as a second line of defence behind the fileFilter); build <code>id = uuidv7()</code>; <code>key = ${yyyy}/${mm}/${id}${ext}</code> from the current date; <code>mkdir</code> the shard; <code>rename(file.path, absolute(key))</code>; then insert the row with that same <code>id</code>, <code>key</code>, <code>file.originalname</code>, <code>file.mimetype</code>, <code>file.size</code>, <code>uploaderId</code>. Bytes move <strong>before</strong> the insert — a crash between the two leaves a sweepable orphan, not a row that 404s</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">4.4</span> <span class="layer l-service">service</span> On any failure after the rename, <code>unlink</code> the moved file before rethrowing, so a failed insert does not leave a shard orphan</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">4.5</span> <span class="layer l-service">service</span> <code>findById(id): Promise&lt;FileEntity&gt;</code> — throw <code>FileErrors.NOT_FOUND()</code> when there is no row</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">4.6</span> <span class="layer l-service">service</span> <code>createStream(file: FileEntity): ReadStream</code> — <code>existsSync(absolute(key))</code> first; if the bytes are gone, <code>logger.error</code> the id and key, then throw <code>FileErrors.NOT_FOUND()</code> (not a 500 — a retry can never succeed)</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">4.7</span> <span class="layer l-service">service</span> <code>remove(id): Promise&lt;void&gt;</code> — <code>findById</code>, delete the row, then <code>unlink</code>. Wrap the <code>unlink</code> in try/catch and <code>logger.warn</code> on failure; never rethrow, the row is already gone</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">4.8</span> <span class="layer l-test">test</span> New <code>backend/src/files/files.service.spec.ts</code> against a temp dir as <code>FILE_STORAGE_PATH</code> and a mocked repository: store writes to <code>yyyy/mm/&lt;id&gt;&lt;ext&gt;</code> and the key is relative; an unknown mime throws <code>UNSUPPORTED_TYPE</code>; an original name of <code>../../../etc/passwd.pdf</code> yields a key of <code>yyyy/mm/&lt;id&gt;.pdf</code> and writes nothing outside the temp dir; <code>findById</code> on a missing row throws <code>NOT_FOUND</code>; <code>createStream</code> on a row whose file is deleted throws <code>NOT_FOUND</code> and logs; <code>remove</code> deletes the row and tolerates a missing file</li>
+</ul>
+<p class="verify"><strong>Verify</strong> <code>cd backend &amp;&amp; pnpm test src/files/files.service.spec.ts</code></p>
+<h2 id="5-filescontroller-and-filesmodule-req-3-req-4-req-6">5. FilesController and FilesModule [req-3] [req-4] [req-6]</h2>
+<ul class='checks'>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">5.1</span> <span class="layer l-backend">backend</span> New <code>backend/src/files/files.controller.ts</code> — <code>@Controller(&#x27;files&#x27;)</code>, both routes <code>@UseGuards(JwtAuthGuard)</code> + <code>@ApiCookieAuth(SESSION_COOKIE)</code>. A local <code>toFileDto</code> helper using <code>plainToInstance(FileDto, entity, { excludeExtraneousValues: true })</code>, copying <code>toUserDto</code> in <code>backend/src/auth/auth.controller.ts</code></li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">5.2</span> <span class="layer l-backend">backend</span> <code>POST /files</code> → <code>@UseInterceptors(FileInterceptor(&#x27;file&#x27;, { storage: diskStorage({ destination: &lt;base&gt;/tmp }), limits: { fileSize: MAX_FILE_SIZE_BYTES }, fileFilter: &lt;reject mime not in MIME_EXTENSIONS&gt; }))</code>. <strong><code>diskStorage</code>, never the default <code>memoryStorage</code></strong> — 100 MB in RAM per concurrent upload. The temp dir must be under <code>FILE_STORAGE_PATH</code> so the later <code>rename</code> stays on one filesystem (cross-device <code>rename</code> fails <code>EXDEV</code>). Handler reads <code>@UploadedFile() file</code> and <code>@Req() req</code> (<code>req.user as User</code> for the uploader id, as <code>AuthController.me</code> does), calls <code>FilesService.store</code>, returns <code>FileDto</code>. Add <code>@ApiConsumes(&#x27;multipart/form-data&#x27;)</code> + <code>@ApiBody</code> with the binary schema — multipart is the one case the Swagger CLI plugin cannot infer</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">5.3</span> <span class="layer l-backend">backend</span> Translate multer&#x27;s rejections into the domain errors: <code>LIMIT_FILE_SIZE</code> → <code>FileErrors.TOO_LARGE()</code> (413), a <code>fileFilter</code> rejection → <code>FileErrors.UNSUPPORTED_TYPE()</code> (415). Simplest route is for <code>fileFilter</code> to pass the domain error to its callback; verify the status and <code>code</code> that actually reach the client, since <code>AppExceptionFilter</code> only maps what reaches it</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">5.4</span> <span class="layer l-backend">backend</span> <code>GET /files/:id</code> → <code>findById</code>, then return <code>new StreamableFile(createStream(file))</code>. Set via <code>@Res({ passthrough: true })</code>: <code>Content-Type</code> = stored mime, <code>Content-Length</code> = stored size, <code>X-Content-Type-Options: nosniff</code> always, and <code>Content-Disposition</code> = <code>inline</code> for <code>image/png|image/jpeg|image/webp|image/gif</code>, <code>attachment</code> otherwise — with the original filename quoted and RFC 5987-encoded. <strong>Open question in <code>design.md</code></strong>: if the answer is uniform <code>attachment</code>, change only this helper and the <code>[req-4]</code> image scenario</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">5.5</span> <span class="layer l-backend">backend</span> New <code>backend/src/files/files.module.ts</code> — <code>TypeOrmModule.forFeature([FileEntity])</code>, declares the controller and service, exports <code>FilesService</code> for future consumers. <code>app.module.ts</code> uses <code>entities: []</code> + <code>autoLoadEntities: true</code>, so <code>forFeature</code> here is the <strong>only</strong> thing that registers the entity</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">5.6</span> <span class="layer l-backend">backend</span> Register <code>FilesModule</code> in <code>backend/src/app.module.ts</code> imports, after <code>AuthModule</code></li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">5.7</span> <span class="layer l-backend">backend</span> Add <code>@types/multer</code> as a dev dependency (<code>pnpm add -D @types/multer</code>) — <code>@nestjs/platform-express</code> bundles multer but ships no types, so <code>Express.Multer.File</code> will not typecheck without it</li>
+</ul>
+<p class="verify"><strong>Verify</strong> <code>cd backend &amp;&amp; pnpm build &amp;&amp; pnpm lint &amp;&amp; pnpm test src/files</code> — all clean. Do <strong>not</strong> run <code>pnpm test:e2e</code>: <code>test/app.e2e-spec.ts</code> is a pre-existing failure unrelated to this change (see <code>devspec/report/blockers.md</code>)</p>
+<h2 id="6-prove-it-against-the-running-api-req-3-req-4-req-6">6. Prove it against the running API [req-3] [req-4] [req-6]</h2>
+<ul class='checks'>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">6.1</span> <span class="layer l-test">test</span> Start the backend (<code>pnpm start:dev</code>) and log in to get a session cookie: <code>curl -i -c /tmp/clarivo.jar -X POST localhost:3000/auth/login -H &#x27;content-type: application/json&#x27; -d &#x27;{&quot;email&quot;:&quot;admin@clarivo.local&quot;,&quot;password&quot;:&quot;Clarivo!2026&quot;,&quot;remember&quot;:false}&#x27;</code> (credentials from <code>devspec/improve/testing.md</code>)</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">6.2</span> <span class="layer l-test">test</span> Upload a PDF with the cookie → 201, body has <code>id</code>/<code>originalName</code>/<code>mimeType</code>/<code>sizeBytes</code> and <strong>no</strong> <code>storageKey</code>. Confirm the bytes landed at <code>backend/storage/&lt;yyyy&gt;/&lt;mm&gt;/&lt;id&gt;.pdf</code> and the row&#x27;s <code>storage_key</code> matches</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">6.3</span> <span class="layer l-test">test</span> Upload with <strong>no</strong> cookie → 401, and nothing new appears under <code>backend/storage/</code> or in <code>files</code></li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">6.4</span> <span class="layer l-test">test</span> Upload a <code>.svg</code> and an <code>.exe</code> → both 415 with <code>code: FILE_UNSUPPORTED_TYPE</code></li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">6.5</span> <span class="layer l-test">test</span> Upload a 101 MB file (<code>mkfile 101m</code> or <code>dd</code>) → 413 with <code>code: FILE_TOO_LARGE</code>, and no row inserted</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">6.6</span> <span class="layer l-test">test</span> Upload a PDF named <code>../../../etc/passwd.pdf</code> → 201; <code>original_name</code> holds the string verbatim, <code>storage_key</code> is <code>yyyy/mm/&lt;id&gt;.pdf</code>, and nothing exists outside <code>backend/storage/</code></li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">6.7</span> <span class="layer l-test">test</span> <code>GET /files/&lt;id&gt;</code> with the cookie → 200, bytes identical to the upload (<code>shasum</code> both), <code>content-type</code> correct, <code>x-content-type-options: nosniff</code> present, <code>content-disposition: attachment</code> for the PDF</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">6.8</span> <span class="layer l-test">test</span> Upload a PNG and <code>GET</code> it → <code>content-disposition: inline</code>, <code>nosniff</code> still present</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">6.9</span> <span class="layer l-test">test</span> <code>GET /files/&lt;id&gt;</code> with no cookie → 401. <code>GET</code> a random uuid → 404 <code>FILE_NOT_FOUND</code>. Delete a file&#x27;s bytes from disk by hand, <code>GET</code> it → 404 <code>FILE_NOT_FOUND</code> and an error line in the server log</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">6.10</span> <span class="layer l-test">test</span> Record the measured results (status codes, headers, paths) in <code>devspec/changes/add-file-storage/verify/results.md</code></li>
+</ul>
+<p class="verify"><strong>Verify</strong> every curl above returns the status and <code>code</code> named in <code>spec.md</code> — paste the measured output into <code>verify/results.md</code>, do not assert from reasoning</p>
+<h2 id="7-sync-the-frontend-types-and-the-context-pack-req-7">7. Sync the frontend types and the context pack [req-7]</h2>
+<ul class='checks'>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">7.1</span> <span class="layer l-frontend">frontend</span> With the backend running, <code>cd frontend &amp;&amp; pnpm api:types</code>. Confirm <code>frontend/app/types/api/</code> gains the <code>/files</code> and <code>/files/{id}</code> operations plus the <code>FileDto</code> shape. <strong>Never hand-edit that folder</strong></li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">7.2</span> <span class="layer l-frontend">frontend</span> <code>cd frontend &amp;&amp; npx tsc --noEmit &amp;&amp; pnpm lint</code> — clean. No frontend source changes in this task; the regenerated types must not break any existing call site</li>
+<li class="chk"><span class="box">&#9744;</span> <span class="num">7.3</span> Update <code>devspec/context/schema.md</code>: it claims zero domain tables. Record <code>users</code> <strong>and</strong> <code>files</code> as they now exist, and fill in the &quot;Not yet established&quot; section with what these two tables actually settled — table names plural lowercase, FK column <code>&lt;entity&gt;_by</code>/<code>&lt;entity&gt;_id</code> snake_case, <code>ON DELETE RESTRICT</code> as the default, no soft delete, no enum tables yet</li>
+</ul>
+<p class="verify"><strong>Verify</strong> <code>cd frontend &amp;&amp; npx tsc --noEmit &amp;&amp; pnpm lint</code> clean, and <code>git diff --stat frontend/app/types/api</code> shows only generated additions</p></section><section id="coverage"><h2 class="st">Coverage</h2><div class="cov good"><strong>Every requirement is covered.</strong> 7 requirements in <code>spec.md</code>, each with a task section in <code>tasks.md</code>: [req-1], [req-2], [req-3], [req-4], [req-5], [req-6], [req-7]</div><p class="note">Computed by diffing the <code>[req-N]</code> tags in <code>spec.md</code> against those in <code>tasks.md</code>, not eyeballed.</p></section><section id="board"><h2 class="st">Board</h2><p class="missing">Not on the board yet — <code>devspec/changes/tasks.yml</code> has no <code>add-file-storage</code> entry. Approving this spec runs <code>/devspec-plan</code>, which registers it.</p><p>Existing entries and their status:</p><div class='tablewrap'><table><thead><tr><th>change</th><th>status</th><th>relation to this change</th></tr></thead><tbody><tr><td><code>add-login</code></td><td>blocked</td><td>built (users table + JwtAuthGuard this change depends on in code), board status blocked on an unrelated pre-existing e2e failure</td></tr><tr><td><code>add-app-shell</code></td><td>done</td><td>no overlap — frontend only</td></tr><tr><td><code>add-feedback-layer</code></td><td>done</td><td>no overlap — frontend only</td></tr><tr class='self'><td><code>add-file-storage</code></td><td>not registered</td><td>this change</td></tr></tbody></table></div><p><strong>Dependency verdict: <code>depends_on: []</code>.</strong> This change needs <code>users</code> and <code>JwtAuthGuard</code>, both of which are already built and in the working tree. <code>add-login</code> sits at <code>blocked</code> only on the pre-existing <code>test/app.e2e-spec.ts</code> failure, which has nothing to do with file storage — declaring the dep would stall this work behind an unrelated red test. Same call <code>add-app-shell</code> and <code>add-feedback-layer</code> already made.</p></section></main></div></body></html>

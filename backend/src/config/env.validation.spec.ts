@@ -8,6 +8,7 @@ const base = {
   DATABASE_PASSWORD: 'p',
   DATABASE_NAME: 'db',
   JWT_SECRET: 's',
+  FILE_STORAGE_PATH: '/tmp/clarivo-files',
   SEED_ADMIN_EMAIL: 'a@b.c',
   SEED_ADMIN_PASSWORD: 'p',
   SEED_ADMIN_NAME: 'N',
@@ -32,6 +33,16 @@ describe('validate', () => {
   it('refuses to boot without JWT_SECRET', () => {
     const { JWT_SECRET: _omitted, ...withoutSecret } = base;
     expect(() => validate(withoutSecret)).toThrow(/JWT_SECRET/);
+  });
+
+  it('refuses to boot without FILE_STORAGE_PATH', () => {
+    const { FILE_STORAGE_PATH: _omitted, ...withoutPath } = base;
+    expect(() => validate(withoutPath)).toThrow(/FILE_STORAGE_PATH/);
+  });
+
+  it('has no default for FILE_STORAGE_PATH', () => {
+    expect(validate(base).FILE_STORAGE_PATH).toBe('/tmp/clarivo-files');
+    expect(() => validate({ ...base, FILE_STORAGE_PATH: '' })).toThrow(/FILE_STORAGE_PATH/);
   });
 });
 

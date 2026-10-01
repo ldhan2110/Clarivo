@@ -72,6 +72,16 @@ export class EnvironmentVariables {
   @IsNotEmpty()
   JWT_EXPIRES_IN: string = '30d';
 
+  /**
+   * Absolute root directory for stored files. No default: an unset value must
+   * kill the boot rather than silently scattering uploads somewhere unexpected.
+   * The database stores only keys relative to this, so the directory can move
+   * between environments without a data migration.
+   */
+  @IsString()
+  @IsNotEmpty()
+  FILE_STORAGE_PATH: string;
+
   /** Seed account, created by `pnpm seed`. Never read at runtime. */
   @IsString()
   @IsNotEmpty()
