@@ -167,8 +167,8 @@ changes:
     tasks_md: changes/add-projects/tasks.md
     depends_on: []
     skills: [frontend-design, typeorm]
-    status: pending
-    owner: ""
+    status: doing
+    owner: "worker-local"
     notes: >-
       Approved by LE AN on 2026-10-01. Artifacts complete: proposal.md, design.md,
       spec.md, tasks.md, ui.md, db.md (live-schema grounded), 5 approved mockups,
