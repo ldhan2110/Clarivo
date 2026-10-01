@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>add-feedback-layer — confirm dialog</title>
+<style>
+/* Tokens copied verbatim from frontend/app/globals.css. No new token is
+   introduced by this screen — the confirm dialog reuses what already exists. */
+.theme-light {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.2536 0.0553 266.35);
+  --card: oklch(1 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2536 0.0553 266.35);
+  --primary: oklch(0.6016 0.2123 263.59);
+  --primary-foreground: oklch(0.984 0.003 247.858);
+  --secondary: oklch(0.968 0.007 247.896);
+  --muted: oklch(0.968 0.007 247.896);
+  --muted-foreground: oklch(0.554 0.046 257.417);
+  --accent: oklch(0.968 0.007 247.896);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.929 0.013 255.508);
+  --input: oklch(0.929 0.013 255.508);
+  --ring: oklch(0.6016 0.2123 263.59);
+  --sidebar: oklch(0.984 0.003 247.858);
+  --sidebar-foreground: oklch(0.2536 0.0553 266.35);
+  --sidebar-primary: oklch(0.6016 0.2123 263.59);
+  --sidebar-accent: oklch(0.968 0.007 247.896);
+  --sidebar-border: oklch(0.929 0.013 255.508);
+  --success: oklch(0.58 0.14 157);
+  --warning: oklch(0.70 0.15 75);
+  --shadow-dialog: 0 24px 60px -18px oklch(0.2536 0.0553 266.35 / 35%), 0 4px 12px -4px oklch(0.2536 0.0553 266.35 / 14%);
+  --shadow-toast: 0 10px 30px -8px oklch(0.2536 0.0553 266.35 / 22%), 0 2px 6px -2px oklch(0.2536 0.0553 266.35 / 10%);
+  --btn-destructive-bg: var(--destructive);
+  --btn-outline-bg: var(--background);
+  --btn-outline-border: var(--border);
+}
+.theme-dark {
+  --radius: 0.625rem;
+  --background: oklch(0.2536 0.0553 266.35);
+  --foreground: oklch(0.984 0.003 247.858);
+  --card: oklch(0.3 0.05 266.35);
+  --popover: oklch(0.3 0.05 266.35);
+  --popover-foreground: oklch(0.984 0.003 247.858);
+  --primary: oklch(0.6788 0.1756 250.9);
+  --primary-foreground: oklch(0.2536 0.0553 266.35);
+  --secondary: oklch(0.32 0.045 266.35);
+  --muted: oklch(0.32 0.045 266.35);
+  --muted-foreground: oklch(0.704 0.04 256.788);
+  --accent: oklch(0.32 0.045 266.35);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.6788 0.1756 250.9);
+  --sidebar: oklch(0.3 0.05 266.35);
+  --sidebar-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-primary: oklch(0.6788 0.1756 250.9);
+  --sidebar-accent: oklch(0.32 0.045 266.35);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --success: oklch(0.72 0.16 157);
+  --warning: oklch(0.80 0.15 80);
+  --shadow-dialog: 0 24px 60px -18px oklch(0 0 0 / 65%), 0 4px 12px -4px oklch(0 0 0 / 40%);
+  --shadow-toast: 0 10px 30px -8px oklch(0 0 0 / 50%), 0 2px 6px -2px oklch(0 0 0 / 30%);
+  /* button.tsx: dark:bg-destructive/60 — the destructive button is softened in dark */
+  --btn-destructive-bg: oklch(0.704 0.191 22.216 / 60%);
+  --btn-outline-bg: oklch(1 0 0 / 4.5%);          /* dark:bg-input/30 */
+  --btn-outline-border: oklch(1 0 0 / 15%);       /* dark:border-input */
+}
+
+* { box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; }
+body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; background: #eef1f6; color: #16213d; }
+.page { max-width: 1480px; margin: 0 auto; padding: 32px 24px 80px; }
+.page h1 { font-size: 20px; margin: 0 0 4px; letter-spacing: -0.01em; }
+.page .sub { font-size: 13px; color: #5b657d; margin: 0 0 28px; }
+.label { font-size: 10.5px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: #6b7589; margin: 34px 0 10px; display: flex; align-items: center; gap: 10px; }
+.label::after { content: ""; flex: 1; height: 1px; background: #d9dfe9; }
+.note { font-size: 12.5px; color: #5b657d; margin: 10px 0 0; line-height: 1.55; padding-left: 10px; border-left: 2px solid #d9dfe9; }
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 1100px) { .split { grid-template-columns: 1fr; } }
+.frame-cap { font-size: 11px; font-weight: 600; color: #6b7589; margin-bottom: 7px; display: flex; justify-content: space-between; gap: 12px; }
+.frame-cap span:last-child { font-weight: 400; opacity: 0.75; text-align: right; }
+table { border-collapse: collapse; width: 100%; font-size: 12.5px; margin-top: 12px; background: #fff; border-radius: 10px; overflow: hidden; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #e4e9f1; vertical-align: top; }
+th { font-size: 10.5px; letter-spacing: 0.07em; text-transform: uppercase; color: #6b7589; background: #f6f8fb; }
+tr:last-child td { border-bottom: 0; }
+td code, .note code, .sub code { font-size: 12px; background: #f1f4f9; padding: 1px 5px; border-radius: 4px; }
+
+/* ── app canvas (add-app-shell visual language) ─────────────────────── */
+.canvas { position: relative; height: 440px; overflow: hidden; border-radius: 14px; border: 1px solid var(--border); background: var(--muted); display: flex; color: var(--foreground); }
+.sidebar { flex: 0 0 196px; margin: 12px; border-radius: 18px; background: var(--sidebar); border: 1px solid var(--sidebar-border); box-shadow: 0 4px 16px -8px oklch(0 0 0 / 18%); padding: 14px 12px; display: flex; flex-direction: column; gap: 14px; }
+.brand { display: flex; align-items: center; gap: 9px; font-size: 13.5px; font-weight: 600; }
+.brand-mark { width: 24px; height: 24px; border-radius: 7px; flex: 0 0 24px; background: var(--sidebar-primary); opacity: 0.9; }
+.grp { font-size: 9.5px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted-foreground); padding: 0 8px; }
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav-i { height: 32px; border-radius: 10px; display: flex; align-items: center; gap: 9px; padding: 0 9px; font-size: 12.5px; color: var(--sidebar-foreground); opacity: 0.72; }
+.nav-i.on { background: var(--sidebar-accent); opacity: 1; font-weight: 500; }
+.nav-i .dot { width: 14px; height: 14px; border-radius: 4px; background: currentColor; opacity: 0.4; }
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.topbar { height: 58px; display: flex; align-items: center; padding: 0 20px; font-size: 14px; font-weight: 600; }
+.body { flex: 1; padding: 0 20px 20px; }
+.ph { border-radius: 12px; background: var(--card); border: 1px solid var(--border); height: 100%; }
+
+/* ── AlertDialog ────────────────────────────────────────────────────── */
+/* overlay reuses sheet.tsx exactly: bg-foreground/45 */
+.overlay { position: absolute; inset: 0; background: oklch(from var(--foreground) l c h / 45%); display: grid; place-items: center; padding: 20px; z-index: 20; }
+.theme-light .overlay { background: oklch(0.2536 0.0553 266.35 / 45%); }
+.theme-dark  .overlay { background: oklch(0.984 0.003 247.858 / 18%); }
+
+.dialog {
+  width: 100%; max-width: 440px;
+  background: var(--popover); color: var(--popover-foreground);
+  border: 1px solid var(--border); border-radius: 14px;
+  box-shadow: var(--shadow-dialog);
+  padding: 22px 22px 18px;
+}
+.dialog .d-head { display: grid; grid-template-columns: 28px 1fr; gap: 14px; align-items: start; }
+/* Same flat icon as the toast — solid tone fill, glyph knocked out in the
+   surface colour — one size up, and top-aligned to the title because a
+   dialog description runs several lines. */
+.dialog .ico { color: var(--tone); margin-top: -1px; }
+.dialog .ico svg { display: block; width: 28px; height: 28px; }
+.dialog .knock { stroke: var(--popover); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.dialog.t-confirm { --tone: var(--primary); }
+.dialog.t-success { --tone: var(--success); }
+.dialog.t-info    { --tone: var(--primary); }
+.dialog.t-warning { --tone: var(--warning); }
+.dialog.t-error   { --tone: var(--destructive); }
+.dialog .d-title { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; }
+.dialog .d-desc { font-size: 13px; line-height: 1.55; color: var(--muted-foreground); margin-top: 7px; }
+.dialog .d-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 22px; }
+
+/* buttons — classes mirror components/ui/button.tsx cva output */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 36px; padding: 0 16px; border-radius: 8px; border: 1px solid transparent;
+  font-family: inherit; font-size: 14px; font-weight: 500; white-space: nowrap; cursor: pointer;
+}
+.btn-default { background: var(--primary); color: var(--primary-foreground); }
+.btn-destructive { background: var(--btn-destructive-bg); color: #fff; }
+.btn-outline { background: var(--btn-outline-bg); border-color: var(--btn-outline-border); color: var(--popover-foreground); box-shadow: 0 1px 2px 0 oklch(0 0 0 / 5%); }
+.btn[aria-disabled="true"] { opacity: 0.5; pointer-events: none; }
+.btn .spin { width: 15px; height: 15px; animation: spin 0.85s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.btn-focus { outline: none; border-color: var(--ring); box-shadow: 0 0 0 3px oklch(from var(--ring) l c h / 50%); }
+.theme-light .btn-focus { box-shadow: 0 0 0 3px oklch(0.6016 0.2123 263.59 / 50%); }
+.theme-dark  .btn-focus { box-shadow: 0 0 0 3px oklch(0.6788 0.1756 250.9 / 50%); }
+
+/* isolated state gallery */
+.stage { padding: 26px; border-radius: 14px; background: var(--muted); border: 1px solid var(--border); display: grid; place-items: center; }
+.stage .dialog { box-shadow: var(--shadow-dialog); }
+.state-tag { font-size: 10.5px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted-foreground); margin-bottom: 9px; }
+
+/* toast that follows the confirmed action */
+.toast { display: grid; grid-template-columns: 26px 1fr 18px; gap: 12px; align-items: center; padding: 14px; border-radius: 12px; background: var(--popover); color: var(--popover-foreground); border: 1px solid var(--border); box-shadow: var(--shadow-toast); width: 364px; max-width: 100%; }
+.toast .ico { color: var(--tone); align-self: center; }
+.toast .ico svg { display: block; width: 26px; height: 26px; }
+.toast .knock { stroke: var(--popover); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.toast .t { font-size: 13.5px; font-weight: 600; line-height: 1.35; }
+.toast .d { font-size: 12.5px; line-height: 1.45; color: var(--muted-foreground); margin-top: 3px; }
+.toast .x { width: 18px; height: 18px; display: grid; place-items: center; color: var(--muted-foreground); opacity: 0.55; border-radius: 4px; align-self: start; }
+.toast .x svg { width: 13px; height: 13px; display: block; }
+.toast.is-success { --tone: var(--success); }
+.viewport { position: absolute; top: 16px; right: 16px; z-index: 30; display: flex; flex-direction: column; gap: 10px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>add-feedback-layer &mdash; confirm dialog</h1>
+  <p class="sub">
+    Screens 2 and 3. Radix <code>AlertDialog</code> shape: overlay, centred card, title, description,
+    right-aligned Cancel + Confirm. One dialog is mounted for the whole app; <code>tone</code> drives the leading icon and the
+    confirm button&rsquo;s variant, nothing else. All states are stacked down the page.
+  </p>
+
+  <div class="label">A &middot; destructive, in context &mdash; the sign-out confirm this change wires for real</div>
+  <div class="split">
+    <div>
+      <div class="frame-cap"><span>Light</span><span>overlay is <code>--foreground/45</code>, same as sheet.tsx</span></div>
+      <div class="canvas theme-light">
+        <div class="sidebar">
+          <div class="brand"><div class="brand-mark"></div>Clarivo</div>
+          <div><div class="grp">Workspace</div><div class="nav">
+            <div class="nav-i on"><span class="dot"></span>Dashboard</div>
+            <div class="nav-i"><span class="dot"></span>Projects</div>
+            <div class="nav-i"><span class="dot"></span>Meetings</div>
+          </div></div>
+        </div>
+        <div class="main"><div class="topbar">Dashboard</div><div class="body"><div class="ph"></div></div></div>
+        <div class="overlay">
+          <div class="dialog t-error">
+            <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m8.6 8.6 6.8 6.8M15.4 8.6l-6.8 6.8"/></svg></div><div><div class="d-title">Sign out?</div><div class="d-desc">You&rsquo;ll need to sign in again to get back to your projects.</div></div></div>
+            <div class="d-actions">
+              <button class="btn btn-outline">Cancel</button>
+              <button class="btn btn-destructive btn-focus">Sign out</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="frame-cap"><span>Dark</span><span><code>.dark</code> set by hand; destructive button softens to 60%</span></div>
+      <div class="canvas theme-dark">
+        <div class="sidebar">
+          <div class="brand"><div class="brand-mark"></div>Clarivo</div>
+          <div><div class="grp">Workspace</div><div class="nav">
+            <div class="nav-i on"><span class="dot"></span>Dashboard</div>
+            <div class="nav-i"><span class="dot"></span>Projects</div>
+            <div class="nav-i"><span class="dot"></span>Meetings</div>
+          </div></div>
+        </div>
+        <div class="main"><div class="topbar">Dashboard</div><div class="body"><div class="ph"></div></div></div>
+        <div class="overlay">
+          <div class="dialog t-error">
+            <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m8.6 8.6 6.8 6.8M15.4 8.6l-6.8 6.8"/></svg></div><div><div class="d-title">Sign out?</div><div class="d-desc">You&rsquo;ll need to sign in again to get back to your projects.</div></div></div>
+            <div class="d-actions">
+              <button class="btn btn-outline">Cancel</button>
+              <button class="btn btn-destructive btn-focus">Sign out</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="note">
+    Focus lands on the confirm button on open (the ring is drawn on it above) and is trapped in the dialog.
+    <code>Esc</code> and a click on the overlay both cancel &mdash; except while pending, see&nbsp;C.
+  </p>
+
+  <div class="label">B &middot; idle shapes</div>
+  <div class="split">
+    <div>
+      <div class="frame-cap"><span>Light</span><span>four shapes</span></div>
+      <div class="stage theme-light" style="display:block;">
+
+        <div class="state-tag">1 &middot; <code>tone: "error"</code> &mdash; via <code>confirmDelete()</code></div>
+        <div class="dialog t-error" style="margin:0 auto 26px;">
+          <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m8.6 8.6 6.8 6.8M15.4 8.6l-6.8 6.8"/></svg></div><div><div class="d-title">Delete project?</div><div class="d-desc">&ldquo;Clarivo API v2&rdquo; will be permanently deleted, along with all meetings and requirements in it. This can&rsquo;t be undone.</div></div></div>
+          <div class="d-actions">
+            <button class="btn btn-outline">Cancel</button>
+            <button class="btn btn-destructive btn-focus">Delete</button>
+          </div>
+        </div>
+
+        <div class="state-tag">2 &middot; <code>tone: "confirm"</code> &mdash; the default</div>
+        <div class="dialog t-confirm" style="margin:0 auto 26px;">
+          <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="M9.3 9.4a2.75 2.75 0 1 1 4.1 2.5c-.9.55-1.4 1.1-1.4 2.05v.35"/><circle cx="12" cy="17.6" r="1.3" fill="var(--popover)"/></svg></div><div><div class="d-title">Publish 14 requirements?</div><div class="d-desc">They&rsquo;ll become visible to everyone with access to this project.</div></div></div>
+          <div class="d-actions">
+            <button class="btn btn-outline">Cancel</button>
+            <button class="btn btn-default btn-focus">Publish</button>
+          </div>
+        </div>
+
+        <div class="state-tag">3 &middot; no description &mdash; <code>description</code> is optional</div>
+        <div class="dialog t-warning" style="margin:0 auto 26px;">
+          <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10.17 3.3a2.1 2.1 0 0 1 3.66 0l8.1 14.3A2.1 2.1 0 0 1 20.1 20.8H3.9a2.1 2.1 0 0 1-1.83-3.2z"/><path class="knock" d="M12 9v4.4"/><circle cx="12" cy="17" r="1.3" fill="var(--popover)"/></svg></div><div><div class="d-title">Discard this draft?</div></div></div><div class="d-actions">
+            <button class="btn btn-outline">Cancel</button>
+            <button class="btn btn-default btn-focus">Discard</button>
+          </div>
+        </div>
+
+        <div class="state-tag">4 &middot; custom labels &mdash; <code>confirmLabel</code> / <code>cancelLabel</code></div>
+        <div class="dialog t-warning" style="margin:0 auto;">
+          <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10.17 3.3a2.1 2.1 0 0 1 3.66 0l8.1 14.3A2.1 2.1 0 0 1 20.1 20.8H3.9a2.1 2.1 0 0 1-1.83-3.2z"/><path class="knock" d="M12 9v4.4"/><circle cx="12" cy="17" r="1.3" fill="var(--popover)"/></svg></div><div><div class="d-title">Leave without saving?</div><div class="d-desc">Three requirements you edited haven&rsquo;t been saved yet.</div></div></div>
+          <div class="d-actions">
+            <button class="btn btn-outline">Keep editing</button>
+            <button class="btn btn-destructive btn-focus">Leave</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div>
+      <div class="frame-cap"><span>Dark</span><span>same four</span></div>
+      <div class="stage theme-dark" style="display:block;">
+
+        <div class="state-tag">1 &middot; <code>tone: "error"</code> &mdash; via <code>confirmDelete()</code></div>
+        <div class="dialog t-error" style="margin:0 auto 26px;">
+          <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m8.6 8.6 6.8 6.8M15.4 8.6l-6.8 6.8"/></svg></div><div><div class="d-title">Delete project?</div><div class="d-desc">&ldquo;Clarivo API v2&rdquo; will be permanently deleted, along with all meetings and requirements in it. This can&rsquo;t be undone.</div></div></div>
+          <div class="d-actions">
+            <button class="btn btn-outline">Cancel</button>
+            <button class="btn btn-destructive btn-focus">Delete</button>
+          </div>
+        </div>
+
+        <div class="state-tag">2 &middot; <code>tone: "confirm"</code> &mdash; the default</div>
+        <div class="dialog t-confirm" style="margin:0 auto 26px;">
+          <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="M9.3 9.4a2.75 2.75 0 1 1 4.1 2.5c-.9.55-1.4 1.1-1.4 2.05v.35"/><circle cx="12" cy="17.6" r="1.3" fill="var(--popover)"/></svg></div><div><div class="d-title">Publish 14 requirements?</div><div class="d-desc">They&rsquo;ll become visible to everyone with access to this project.</div></div></div>
+          <div class="d-actions">
+            <button class="btn btn-outline">Cancel</button>
+            <button class="btn btn-default btn-focus">Publish</button>
+          </div>
+        </div>
+
+        <div class="state-tag">3 &middot; no description &mdash; <code>description</code> is optional</div>
+        <div class="dialog t-warning" style="margin:0 auto 26px;">
+          <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10.17 3.3a2.1 2.1 0 0 1 3.66 0l8.1 14.3A2.1 2.1 0 0 1 20.1 20.8H3.9a2.1 2.1 0 0 1-1.83-3.2z"/><path class="knock" d="M12 9v4.4"/><circle cx="12" cy="17" r="1.3" fill="var(--popover)"/></svg></div><div><div class="d-title">Discard this draft?</div></div></div><div class="d-actions">
+            <button class="btn btn-outline">Cancel</button>
+            <button class="btn btn-default btn-focus">Discard</button>
+          </div>
+        </div>
+
+        <div class="state-tag">4 &middot; custom labels &mdash; <code>confirmLabel</code> / <code>cancelLabel</code></div>
+        <div class="dialog t-warning" style="margin:0 auto;">
+          <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10.17 3.3a2.1 2.1 0 0 1 3.66 0l8.1 14.3A2.1 2.1 0 0 1 20.1 20.8H3.9a2.1 2.1 0 0 1-1.83-3.2z"/><path class="knock" d="M12 9v4.4"/><circle cx="12" cy="17" r="1.3" fill="var(--popover)"/></svg></div><div><div class="d-title">Leave without saving?</div><div class="d-desc">Three requirements you edited haven&rsquo;t been saved yet.</div></div></div>
+          <div class="d-actions">
+            <button class="btn btn-outline">Keep editing</button>
+            <button class="btn btn-destructive btn-focus">Leave</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="label">B&prime; &middot; the five tones &mdash; same icon vocabulary as the toast</div>
+  <div class="split">
+    <div>
+      <div class="frame-cap"><span>Light</span><span>icon is the only tone carrier</span></div>
+      <div class="stage theme-light" style="display:block;">
+        <div class="state-tag"><code>tone: "confirm"</code> &mdash; Confirm</div>
+        <div class="dialog t-confirm" style="margin:0 auto 24px;">
+          <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="M9.3 9.4a2.75 2.75 0 1 1 4.1 2.5c-.9.55-1.4 1.1-1.4 2.05v.35"/><circle cx="12" cy="17.6" r="1.3" fill="var(--popover)"/></svg></div><div>
+            <div class="d-title">Regenerate the meeting plan?</div>
+            <div class="d-desc">The current plan and its seven questions will be replaced.</div>
+          </div></div>
+          <div class="d-actions">
+            <button class="btn btn-outline">Cancel</button>
+            <button class="btn btn-default btn-focus">Regenerate</button>
+          </div>
+        </div>
+        <div class="state-tag"><code>tone: "success"</code> &mdash; Success</div>
+        <div class="dialog t-success" style="margin:0 auto 24px;">
+          <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m7.5 12.2 3.1 3.1 6-6.6"/></svg></div><div>
+            <div class="d-title">Mark this project complete?</div>
+            <div class="d-desc">It moves to the archive. You can reopen it at any time.</div>
+          </div></div>
+          <div class="d-actions">
+            <button class="btn btn-outline">Cancel</button>
+            <button class="btn btn-default btn-focus">Mark complete</button>
+          </div>
+        </div>
+        <div class="state-tag"><code>tone: "info"</code> &mdash; Info</div>
+        <div class="dialog t-info" style="margin:0 auto 24px;">
+          <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="M12 11.2v5.6"/><circle cx="12" cy="7.6" r="1.35" fill="var(--popover)"/></svg></div><div>
+            <div class="d-title">Send this plan to the team?</div>
+            <div class="d-desc">Everyone with access gets an email with the discovery plan attached.</div>
+          </div></div>
+          <div class="d-actions">
+            <button class="btn btn-outline">Cancel</button>
+            <button class="btn btn-default btn-focus">Send</button>
+          </div>
+        </div>
+        <div class="state-tag"><code>tone: "warning"</code> &mdash; Warning</div>
+        <div class="dialog t-warning" style="margin:0 auto 24px;">
+          <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10.17 3.3a2.1 2.1 0 0 1 3.66 0l8.1 14.3A2.1 2.1 0 0 1 20.1 20.8H3.9a2.1 2.1 0 0 1-1.83-3.2z"/><path class="knock" d="M12 9v4.4"/><circle cx="12" cy="17" r="1.3" fill="var(--popover)"/></svg></div><div>
+            <div class="d-title">Leave without saving?</div>
+            <div class="d-desc">Three requirements you edited haven&rsquo;t been saved yet.</div>
+          </div></div>
+          <div class="d-actions">
+            <button class="btn btn-outline">Cancel</button>
+            <button class="btn btn-default btn-focus">Leave</button>
+          </div>
+        </div>
+        <div class="state-tag"><code>tone: "error"</code> &mdash; Error &rarr; destructive button</div>
+        <div class="dialog t-error" style="margin:0 auto 24px;">
+          <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m8.6 8.6 6.8 6.8M15.4 8.6l-6.8 6.8"/></svg></div><div>
+            <div class="d-title">Delete project?</div>
+            <div class="d-desc">&ldquo;Clarivo API v2&rdquo; will be permanently deleted. This can&rsquo;t be undone.</div>
+          </div></div>
+          <div class="d-actions">
+            <button class="btn btn-outline">Cancel</button>
+            <button class="btn btn-destructive btn-focus">Delete</button>
+          </div>
+        </div></div>
+    </div>
+    <div>
+      <div class="frame-cap"><span>Dark</span><span>same five</span></div>
+      <div class="stage theme-dark" style="display:block;">
+        <div class="state-tag"><code>tone: "confirm"</code> &mdash; Confirm</div>
+        <div class="dialog t-confirm" style="margin:0 auto 24px;">
+          <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="M9.3 9.4a2.75 2.75 0 1 1 4.1 2.5c-.9.55-1.4 1.1-1.4 2.05v.35"/><circle cx="12" cy="17.6" r="1.3" fill="var(--popover)"/></svg></div><div>
+            <div class="d-title">Regenerate the meeting plan?</div>
+            <div class="d-desc">The current plan and its seven questions will be replaced.</div>
+          </div></div>
+          <div class="d-actions">
+            <button class="btn btn-outline">Cancel</button>
+            <button class="btn btn-default btn-focus">Regenerate</button>
+          </div>
+        </div>
+        <div class="state-tag"><code>tone: "success"</code> &mdash; Success</div>
+        <div class="dialog t-success" style="margin:0 auto 24px;">
+          <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m7.5 12.2 3.1 3.1 6-6.6"/></svg></div><div>
+            <div class="d-title">Mark this project complete?</div>
+            <div class="d-desc">It moves to the archive. You can reopen it at any time.</div>
+          </div></div>
+          <div class="d-actions">
+            <button class="btn btn-outline">Cancel</button>
+            <button class="btn btn-default btn-focus">Mark complete</button>
+          </div>
+        </div>
+        <div class="state-tag"><code>tone: "info"</code> &mdash; Info</div>
+        <div class="dialog t-info" style="margin:0 auto 24px;">
+          <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="M12 11.2v5.6"/><circle cx="12" cy="7.6" r="1.35" fill="var(--popover)"/></svg></div><div>
+            <div class="d-title">Send this plan to the team?</div>
+            <div class="d-desc">Everyone with access gets an email with the discovery plan attached.</div>
+          </div></div>
+          <div class="d-actions">
+            <button class="btn btn-outline">Cancel</button>
+            <button class="btn btn-default btn-focus">Send</button>
+          </div>
+        </div>
+        <div class="state-tag"><code>tone: "warning"</code> &mdash; Warning</div>
+        <div class="dialog t-warning" style="margin:0 auto 24px;">
+          <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10.17 3.3a2.1 2.1 0 0 1 3.66 0l8.1 14.3A2.1 2.1 0 0 1 20.1 20.8H3.9a2.1 2.1 0 0 1-1.83-3.2z"/><path class="knock" d="M12 9v4.4"/><circle cx="12" cy="17" r="1.3" fill="var(--popover)"/></svg></div><div>
+            <div class="d-title">Leave without saving?</div>
+            <div class="d-desc">Three requirements you edited haven&rsquo;t been saved yet.</div>
+          </div></div>
+          <div class="d-actions">
+            <button class="btn btn-outline">Cancel</button>
+            <button class="btn btn-default btn-focus">Leave</button>
+          </div>
+        </div>
+        <div class="state-tag"><code>tone: "error"</code> &mdash; Error &rarr; destructive button</div>
+        <div class="dialog t-error" style="margin:0 auto 24px;">
+          <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m8.6 8.6 6.8 6.8M15.4 8.6l-6.8 6.8"/></svg></div><div>
+            <div class="d-title">Delete project?</div>
+            <div class="d-desc">&ldquo;Clarivo API v2&rdquo; will be permanently deleted. This can&rsquo;t be undone.</div>
+          </div></div>
+          <div class="d-actions">
+            <button class="btn btn-outline">Cancel</button>
+            <button class="btn btn-destructive btn-focus">Delete</button>
+          </div>
+        </div></div>
+    </div>
+  </div>
+  <p class="note">
+    <code>tone</code> drives two things and nothing else: which flat icon appears, and whether the confirm
+    button is <code>variant="destructive"</code> (<code>"error"</code> only) or <code>variant="default"</code> (every other tone).
+    The dialog surface never tints. <code>"confirm"</code> is the default when <code>tone</code> is omitted and reuses
+    <code>--primary</code> with a question glyph; <code>"info"</code> is the same colour with an information glyph, so the
+    two are told apart by the glyph, not the hue.
+  </p>
+
+  <div class="label">C &middot; pending &mdash; the dialog owns the spinner</div>
+  <div class="split">
+    <div>
+      <div class="frame-cap"><span>Light</span><span>async <code>onConfirm</code> still running</span></div>
+      <div class="stage theme-light">
+        <div class="dialog t-error">
+          <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m8.6 8.6 6.8 6.8M15.4 8.6l-6.8 6.8"/></svg></div><div><div class="d-title">Delete project?</div><div class="d-desc">&ldquo;Clarivo API v2&rdquo; will be permanently deleted, along with all meetings and requirements in it. This can&rsquo;t be undone.</div></div></div>
+          <div class="d-actions">
+            <button class="btn btn-outline" aria-disabled="true">Cancel</button>
+            <button class="btn btn-destructive" aria-disabled="true">
+              <svg class="spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></svg>
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="frame-cap"><span>Dark</span><span>both buttons at 50% opacity, pointer-events off</span></div>
+      <div class="stage theme-dark">
+        <div class="dialog t-error">
+          <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m8.6 8.6 6.8 6.8M15.4 8.6l-6.8 6.8"/></svg></div><div><div class="d-title">Delete project?</div><div class="d-desc">&ldquo;Clarivo API v2&rdquo; will be permanently deleted, along with all meetings and requirements in it. This can&rsquo;t be undone.</div></div></div>
+          <div class="d-actions">
+            <button class="btn btn-outline" aria-disabled="true">Cancel</button>
+            <button class="btn btn-destructive" aria-disabled="true">
+              <svg class="spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></svg>
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="note">
+    While pending the dialog <strong>stays open</strong> and both buttons are disabled, so the action can&rsquo;t be
+    double-submitted. <code>Esc</code> and overlay clicks are blocked too &mdash; otherwise the user dismisses the
+    dialog mid-delete and believes it was cancelled. The confirm label does <strong>not</strong> change &mdash; the spinner already says the work is running, so there is no
+    <code>pendingLabel</code> option to pass or to translate.
+  </p>
+
+  <div class="label">D &middot; resolved &mdash; dialog closes, the page reports</div>
+  <div class="split">
+    <div>
+      <div class="frame-cap"><span>Light &mdash; success</span><span>caller&rsquo;s <code>onSuccess</code> toasts</span></div>
+      <div class="canvas theme-light" style="height:260px;">
+        <div class="sidebar" style="flex-basis:196px;">
+          <div class="brand"><div class="brand-mark"></div>Clarivo</div>
+          <div><div class="grp">Workspace</div><div class="nav"><div class="nav-i on"><span class="dot"></span>Dashboard</div><div class="nav-i"><span class="dot"></span>Projects</div></div></div>
+        </div>
+        <div class="main"><div class="topbar">Dashboard</div><div class="body"><div class="ph"></div></div></div>
+        <div class="viewport">
+          <div class="toast is-success">
+            <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m7.5 12.2 3.1 3.1 6-6.6"/></svg></div>
+            <div><div class="t">Project deleted</div><div class="d">&ldquo;Clarivo API v2&rdquo; and everything in it is gone.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="frame-cap"><span>Light &mdash; failure</span><span>dialog closes, global error toast fires</span></div>
+      <div class="canvas theme-light" style="height:260px;">
+        <div class="sidebar" style="flex-basis:196px;">
+          <div class="brand"><div class="brand-mark"></div>Clarivo</div>
+          <div><div class="grp">Workspace</div><div class="nav"><div class="nav-i on"><span class="dot"></span>Dashboard</div><div class="nav-i"><span class="dot"></span>Projects</div></div></div>
+        </div>
+        <div class="main"><div class="topbar">Dashboard</div><div class="body"><div class="ph"></div></div></div>
+        <div class="viewport">
+          <div class="toast" style="--tone: var(--destructive);">
+            <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m8.6 8.6 6.8 6.8M15.4 8.6l-6.8 6.8"/></svg></div>
+            <div><div class="t">Couldn&rsquo;t delete project</div><div class="d">The project still has a meeting in progress.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="note">
+    A throw closes the dialog and surfaces as an error toast &mdash; never silently. When the failing call is a
+    mutation it has already been toasted by the global <code>MutationCache.onError</code>, so the provider reuses a
+    fixed toast id and the second call replaces the first instead of stacking two.
+  </p>
+
+  <div class="label">E &middot; measurements, as drawn</div>
+  <table>
+    <tr><th>&nbsp;</th><th>Value</th></tr>
+    <tr><td>overlay</td><td><code>--foreground</code> at 45% (light) &mdash; copied from <code>components/ui/sheet.tsx</code></td></tr>
+    <tr><td>dialog width</td><td>440px max, full width minus 20px gutters below that</td></tr>
+    <tr><td>dialog surface</td><td><code>--popover</code> / <code>--popover-foreground</code>, 1px <code>--border</code>, radius 14px</td></tr>
+    <tr><td>dialog padding</td><td>22px sides and top, 18px bottom</td></tr>
+    <tr><td>title</td><td>16px / 600</td></tr>
+    <tr><td>description</td><td>13px / 400 / <code>--muted-foreground</code>, 7px below the title</td></tr>
+    <tr><td>actions</td><td>right-aligned, 8px gap, 22px above</td></tr>
+    <tr><td>buttons</td><td><code>&lt;Button&gt;</code> default size (h-9 / 36px, px-4, radius 8px, 14px&nbsp;/&nbsp;500)</td></tr>
+    <tr><td>cancel</td><td><code>variant="outline"</code></td></tr>
+    <tr><td>confirm button</td><td><code>variant="default"</code>, or <code>"destructive"</code> when <code>tone: "error"</code></td></tr>
+    <tr><td>icon</td><td>28px, flat solid <code>var(--tone)</code> fill, glyph knocked out in <code>--popover</code> &mdash; same treatment as the toast, one size up, top-aligned to the title</td></tr>
+    <tr><td>icon &rarr; text gap</td><td>14px</td></tr>
+    <tr><td>tones</td><td><code>confirm</code> (default, <code>--primary</code>) &middot; <code>success</code> (<code>--success</code>) &middot; <code>info</code> (<code>--primary</code>) &middot; <code>warning</code> (<code>--warning</code>) &middot; <code>error</code> (<code>--destructive</code>)</td></tr>
+    <tr><td>pending</td><td>both buttons <code>disabled</code> (opacity 50%), 15px spinner on the confirm button</td></tr>
+    <tr><td>focus</td><td>confirm button on open; ring is <code>--ring</code> at 50%, 3px &mdash; button.tsx&rsquo;s own focus style</td></tr>
+  </table>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spec review — add-feedback-layer</title>
+<style>
+*{box-sizing:border-box}
+:root{--ink:#16213d;--dim:#5b657d;--line:#e2e8f1;--bg:#f4f6fa;--card:#fff;--blue:#3a75fd;--good:#17805a;--bad:#c62f3b;--warn:#b26a00}
+body{margin:0;font:14px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:216px minmax(0,1fr);gap:0;max-width:1340px;margin:0 auto}
+nav{position:sticky;top:0;align-self:start;height:100dvh;padding:26px 16px;border-right:1px solid var(--line)}
+nav .brand{font-weight:700;font-size:13px;letter-spacing:-.01em;margin-bottom:3px}
+nav .sub{font-size:11px;color:var(--dim);margin-bottom:18px}
+nav a{display:block;padding:6px 9px;border-radius:7px;color:var(--dim);text-decoration:none;font-size:12.5px}
+nav a:hover{background:#e9eef7;color:var(--ink)}
+main{padding:26px 30px 90px;min-width:0}
+h1{font-size:23px;letter-spacing:-.02em;margin:0 0 4px}
+.lede{color:var(--dim);font-size:13px;margin:0 0 22px}
+section{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:22px 24px;margin-bottom:18px}
+section>h2{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+h3{font-size:15px;margin:22px 0 8px;letter-spacing:-.01em}
+h4{font-size:13.5px;margin:16px 0 6px}
+h4.req{margin:22px 0 8px;padding:9px 12px;background:#eef3fd;border-left:3px solid var(--blue);border-radius:0 8px 8px 0;font-size:14px}
+h5,h6{font-size:12.5px;margin:12px 0 5px;color:var(--dim)}
+h5.scn{color:var(--ink);font-weight:600}
+p{margin:9px 0}
+code{font:12px ui-monospace,SFMono-Regular,Menlo,monospace;background:#eff3f9;padding:1.5px 5px;border-radius:4px}
+pre{background:#121a2e;color:#dfe7f5;padding:15px 17px;border-radius:10px;overflow-x:auto;font-size:12px;line-height:1.55}
+pre code{background:none;color:inherit;padding:0;font-size:12px}
+.tw{overflow-x:auto;margin:11px 0}
+table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:440px}
+th,td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);background:#f7f9fc}
+tr.rowbad td{background:#fdf0f1}
+ul,ol{margin:9px 0;padding-left:22px}
+ul.checks{list-style:none;padding-left:0}
+ul.checks li{padding:4px 0 4px 2px;font-size:13px;display:flex;gap:9px;align-items:baseline}
+ul.checks .box{color:var(--dim);flex:0 0 auto}
+ul.checks li.done{color:var(--dim)}
+.layer{display:inline-block;font:600 9.5px/1.6 ui-sans-serif,system-ui;letter-spacing:.07em;text-transform:uppercase;padding:1px 6px;border-radius:5px;margin-right:7px;vertical-align:1px}
+.l-frontend{background:#e4edff;color:#1f49b8}.l-backend{background:#e6f6ec;color:#146b45}
+.l-service{background:#f3e9ff;color:#6b32b8}.l-db{background:#fff2dc;color:#8a5a00}.l-test{background:#eceff4;color:#4c5768}
+.reqtag{display:inline-block;font:600 10px/1.6 ui-monospace,monospace;background:var(--blue);color:#fff;padding:1px 6px;border-radius:5px;margin-left:7px;text-decoration:none;vertical-align:1px}
+.banner{padding:12px 15px;border-radius:9px;font-size:13px;margin:0 0 14px}
+.banner.good{background:#e8f7ef;color:var(--good);border:1px solid #bce5ce}
+.banner.bad{background:#fdeced;color:var(--bad);border:1px solid #f3c2c6}
+.banner.warn{background:#fff6e6;color:var(--warn);border:1px solid #f0dcb4}
+.kv{display:grid;grid-template-columns:120px 1fr;gap:4px 14px;font-size:13px}
+.kv dt{color:var(--dim);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding-top:3px}
+.kv dd{margin:0}
+.pill{display:inline-block;font:600 10.5px/1.7 ui-sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:0 8px;border-radius:999px;background:#eceff4;color:#4c5768}
+.pill.unreg{background:#fff6e6;color:var(--warn)}
+.meta{font-size:12.5px;color:var(--dim)}
+.mock{margin:16px 0 22px}
+.mock-cap{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:var(--dim);margin-bottom:7px}
+.mock-cap a{color:var(--blue);text-decoration:none}
+iframe{width:100%;height:620px;border:1px solid var(--line);border-radius:11px;background:#fff}
+blockquote{margin:10px 0;padding:9px 14px;border-left:3px solid var(--line);color:var(--dim);font-size:13px}
+hr{border:0;border-top:1px solid var(--line);margin:20px 0}
+@media (max-width:900px){.wrap{grid-template-columns:1fr}nav{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:4px;padding:14px 16px}nav .brand,nav .sub{flex:1 0 100%}main{padding:20px 16px 70px}}
+</style></head><body>
+<div class="wrap">
+<nav>
+  <div class="brand">add-feedback-layer</div>
+  <div class="sub">spec review</div>
+  <a href="#ctx">Context</a><a href="#prop">Proposal</a><a href="#arch">Architecture</a><a href="#imp">Impact Area</a><a href="#be">Backend</a><a href="#fe">Frontend</a><a href="#tasks">Tasks</a><a href="#cov">Coverage</a><a href="#board">Board</a>
+</nav>
+<main>
+  <h1>add-feedback-layer</h1>
+  <p class="lede">Read top to bottom before the worker runs. Generated from the artifacts in <code>devspec/changes/add-feedback-layer/</code> on 2026-10-01 &mdash; regenerate it, never edit it.</p>
+
+  <section id="ctx"><h2>Context</h2>
+    <dl class="kv">
+      <dt>Change</dt><dd><code>add-feedback-layer</code></dd>
+      <dt>Title</dt><dd>toast notifications and confirm dialogs as reusable frontend scaffold</dd>
+      <dt>Status</dt><dd><span class="pill unreg">not registered yet</span> &mdash; <code>/devspec-plan</code> adds it on approval</dd>
+      <dt>Depends on</dt><dd>nothing. <code>add-login</code> is <code>blocked</code> on a pre-existing backend e2e failure unrelated to this change, and this change consumes none of its unbuilt output</dd>
+      <dt>Skills</dt><dd><code>frontend-design</code></dd>
+      <dt>Scope</dt><dd>frontend only &mdash; no backend file, entity, migration, endpoint, DTO or env var; <code>types/api/</code> untouched, so <code>pnpm api:types</code> never runs</dd>
+      <dt>Artifacts</dt><dd><code>proposal.md</code> &middot; <code>design.md</code> &middot; <code>spec.md</code> &middot; <code>tasks.md</code> &middot; <code>ui.md</code> &middot; 3 mockups. <code>db.md</code> not captured &mdash; no database work</dd>
+    </dl>
+  </section>
+
+  <section id="prop"><h2>Proposal</h2><h2 id="proposal-add-feedback-layer">Proposal: add-feedback-layer</h2>
+<h3 id="why">Why</h3>
+<p>The app has no way to tell the user that anything happened. Every outcome today is either silent or hand-wired: the login form renders its own 401 inline via <code>setError(&quot;root&quot;)</code>, and <code>useLogout</code> just navigates away. Nothing confirms a destructive action before it runs, and nothing reports a failure that isn&#x27;t part of a form.</p>
+<p>Clarivo&#x27;s MVP screens are full of actions that need both — creating a project, uploading context documents, generating a meeting plan, deleting a requirement. Each of those will otherwise invent its own feedback, and the result is fifteen screens that each report success differently.</p>
+<p>This change lands the feedback layer once, as reusable scaffold, before the screens that need it exist.</p>
+<h3 id="what-it-delivers">What it delivers</h3>
+<p><strong>Toasts</strong> — four tones (success, info, warning, error), each with a title and an optional description, stacked top-right. Built on <code>sonner</code>, styled from the project&#x27;s own OKLCH semantic tokens so a toast matches the sidebar and cards it appears over, in both light and dark.</p>
+<p><strong>Global error reporting</strong> — a failed mutation produces an error toast automatically, with no per-call wiring. A mutation that defines its own <code>onError</code> stands the global toast down, so a form keeps owning its inline error.</p>
+<p><strong>Confirm dialogs</strong> — one <code>confirm()</code> call, available anywhere, that returns a promise <em>and</em> fires <code>onConfirm</code> / <code>onCancel</code> callbacks. Built on Radix <code>AlertDialog</code>, mounted once. An async <code>onConfirm</code> keeps the dialog open with a disabled, spinning confirm button until the work resolves, so a slow delete can&#x27;t be double-submitted or dismissed mid-flight.</p>
+<p><strong>One preset</strong> — <code>confirmDelete(entity, name?)</code>, so every delete dialog in the app reads the same.</p>
+<h3 id="scope">Scope</h3>
+<p><strong>In</strong></p>
+<ul><li><code>sonner</code> added as a dependency; its <code>&lt;Toaster&gt;</code> wrapper hand-written against our tokens.</li><li><code>--success</code> and <code>--warning</code> added to the theme (<code>:root</code>, <code>.dark</code>, <code>@theme inline</code>).</li><li><code>components/ui/alert-dialog.tsx</code> hand-copied from the installed <code>radix-ui</code> umbrella.</li><li>A confirm provider + <code>useConfirm</code> hook + <code>ConfirmOptions</code> type + <code>confirmDelete</code> preset.</li><li><code>lib/api-error.ts</code> — the backend error envelope rendered as a human message.</li><li><code>MutationCache.onError</code> wired into the existing <code>query-provider.tsx</code>.</li><li><code>&lt;Toaster&gt;</code> and <code>&lt;ConfirmProvider&gt;</code> mounted in <code>app/layout.tsx</code>.</li><li>Sign-out routed through a confirm dialog + success toast — the one real action that exists today.</li><li>A temporary demo card on the dashboard, firing all four tones and a confirm, so the</li></ul>
+<p>  tones can be reviewed side by side. Marked for deletion once real screens land.</p>
+<p><strong>Out</strong></p>
+<ul><li>A persistent notification centre (bell, unread count, history). That needs a table,</li></ul>
+<p>  an entity and endpoints, and the backend has no domain entities yet. Separate change.</p>
+<ul><li>A theme toggle. <code>.dark</code> exists as a class but nothing sets it; the toasts are built</li></ul>
+<p>  to follow it the day something does.</p>
+<ul><li>A <code>useToast</code> hook. <code>sonner</code>&#x27;s <code>toast</code> is importable anywhere — a wrapper would be an</li></ul>
+<p>  abstraction with a single implementation.</p>
+<ul><li>Global <em>success</em> toasts. The right success message is always feature-specific, so it</li></ul>
+<p>  stays an explicit <code>onSuccess</code> per mutation.</p>
+<ul><li>Cancel-reason discrimination, typed confirmation (&quot;type the name to delete&quot;), and</li></ul>
+<p>  stacked confirms. None has a screen that needs it.</p>
+<ul><li>Any backend work. No entity, migration, endpoint, env var or DTO is touched.</li></ul>
+<h3 id="cost">Cost</h3>
+<p>Roughly 300 lines across ten files, one new dependency. Two shared files are touched — <code>query-provider.tsx</code> and <code>app/layout.tsx</code> — plus one edit to shipped code in <code>hooks/use-auth.ts</code> so the login 401 doesn&#x27;t report twice.</p></section>
+
+  <section id="arch"><h2>Architecture</h2>
+    <p class="meta">Rendered as the ASCII block from <code>design.md</code>. The <code>archify</code> skill is installed and would draw this as an SVG; it was not invoked on this pass to keep the capture run unattended.</p>
+    <pre><code>  any component / hook
+         │
+         │  toast.success(&quot;…&quot;, { description })         confirm({ …, onConfirm })
+         │  toast.error / .info / .warning                     │
+         ▼                                                     ▼
+  sonner `toast`                                        useConfirm()  ──▶ ConfirmContext
+         │                                                     │
+         ▼                                                     ▼
+  &lt;Toaster&gt;  (components/ui/sonner.tsx)            &lt;ConfirmProvider&gt;  (components/provider/)
+  token classNames + ToneIcon                      one &lt;AlertDialog&gt;, open/pending state
+         │                                                     │
+         └──────────────── app/layout.tsx ◀────────────────────┘
+
+
+  mutation fails
+         │
+         ▼
+  MutationCache.onError  (components/provider/query-provider.tsx)
+         │
+         ├── mutation.options.onError defined? ──▶ stand down, the call site owns it
+         │
+         └── otherwise ──▶ apiErrorMessage(error)  (lib/api-error.ts)
+                                   │
+                                   ▼
+                           toast.error(message)</code></pre>
+<p>Flow for a confirmed destructive action:</p>
+<pre><code>click ─▶ confirm({tone:&quot;error&quot;, onConfirm}) ─▶ dialog opens, focus on Confirm
+      ─▶ click Confirm ─▶ pending (buttons disabled, Esc/overlay blocked)
+      ─▶ onConfirm resolves ─▶ dialog closes ─▶ promise true ─▶ caller&#x27;s onSuccess toasts
+      ─▶ onConfirm throws   ─▶ dialog closes ─▶ promise false ─▶ error toast (fixed id)</code></pre>
+  </section>
+
+  <section id="imp"><h2>Impact Area</h2><h5 id="decision-defaults">Decision Defaults</h5>
+<div class='tw'><table><thead><tr><th>Gray area</th><th>Default decision</th><th>Fallback if default doesn&#x27;t fit</th></tr></thead><tbody><tr><td>Tone icons: lucide components or inline SVG?</td><td><strong>Inline SVG</strong>, in one shared <code>components/ui/tone-icon.tsx</code> exporting <code>&lt;ToneIcon tone&gt;</code>. lucide glyphs are stroke-outline; the approved look is a solid tone fill with the glyph knocked out in <code>--popover</code>, which an outline glyph cannot produce. Copy the five SVGs verbatim from <code>mockups/toast-stack.html</code> / <code>confirm-dialog.html</code>.</td><td>If a lucide icon can be made to match (<code>fill=&quot;currentColor&quot;</code> + a knockout path), use lucide and delete <code>tone-icon.tsx</code></td></tr><tr><td>Two consumers for <code>ToneIcon</code> — is a shared file justified?</td><td>Yes. The toast wrapper and the confirm provider both need the same five icons; this is deduplication, not speculation</td><td>—</td></tr><tr><td>How the Toaster gets the icons</td><td><code>&lt;Toaster icons={{ success: …, info: …, warning: …, error: … }} /&gt;</code></td><td>If the installed sonner version lacks <code>icons</code>, render them through <code>toastOptions.classNames</code> + a CSS mask, or pass <code>icon</code> per <code>toast()</code> call from a small local helper</td></tr><tr><td>Mobile 66px top offset</td><td><code>&lt;Toaster offset={16} mobileOffset={{ top: 66, left: 16, right: 16 }} /&gt;</code></td><td>If the installed sonner lacks <code>mobileOffset</code>, set it in <code>globals.css</code> on <code>[data-sonner-toaster]</code> inside a <code>@media (max-width: 767px)</code> block</td></tr><tr><td><code>apiErrorMessage</code> for a 5xx</td><td>Return the generic <code>&quot;Something went wrong. Please try again.&quot;</code> — never the server&#x27;s message. <code>AppExceptionFilter</code> already replaces 5xx messages with <code>&#x27;Internal server error&#x27;</code> (<code>rules.md</code>), which is not user copy</td><td>—</td></tr><tr><td><code>apiErrorMessage</code> for a 4xx</td><td>Use the envelope&#x27;s <code>message</code> when present; fall back to the generic string. The envelope is <code>{statusCode, code, message, details?}</code> (<code>patterns.md</code>)</td><td>For a 401 outside the login form, <code>&quot;Your session has expired. Please sign in again.&quot;</code></td></tr><tr><td><code>apiErrorMessage</code> for a non-axios throw</td><td>Generic string. Never render <code>error.message</code> from an unknown throw</td><td>—</td></tr><tr><td>Toast id for a confirm failure</td><td>A module constant, <code>CONFIRM_ERROR_TOAST_ID = &quot;confirm-error&quot;</code>, passed as <code>{ id }</code> so a second toast replaces the first instead of stacking on an already-toasted mutation error</td><td>—</td></tr><tr><td><code>confirm()</code> called while a dialog is already open</td><td>The new call replaces the open one; the first promise resolves <code>false</code> and its <code>onCancel</code> does <strong>not</strong> fire (the user didn&#x27;t cancel — the app moved on). No queue</td><td>If a real screen needs stacking, that&#x27;s a new change</td></tr><tr><td>Provider nesting order in <code>app/layout.tsx</code></td><td><code>QueryProvider</code> → <code>AuthProvider</code> → <code>ConfirmProvider</code> → children, with <code>&lt;Toaster /&gt;</code> as the last child of <code>&lt;body&gt;</code>, outside the providers</td><td>—</td></tr><tr><td>Opening the dialog from a <code>DropdownMenuItem</code> (sign-out)</td><td>No <code>preventDefault</code> needed — the confirm is imperative, so the menu closes normally and the provider&#x27;s dialog opens after.</td><td>If focus visibly fights between the closing menu and the dialog, <code>onSelect={(e) =&gt; { e.preventDefault(); confirm(…); }}</code></td></tr><tr><td><code>useLogin</code> would now report a 401 twice</td><td>Add <code>onError: () =&gt; {}</code> to the mutation in <code>hooks/use-auth.ts</code> with a comment naming why — the login form renders the 401 inline via <code>errors.root</code>, and defining <code>onError</code> at all stands the global toast down</td><td>—</td></tr><tr><td><code>useLogout</code> has <code>onSettled</code> but no <code>onError</code></td><td>Add the same no-op <code>onError</code>. The cookie is gone either way and the user is already being redirected to <code>/login</code>; an error toast there is noise</td><td>—</td></tr><tr><td>Where <code>ConfirmOptions</code> lives</td><td><code>types/confirm.ts</code>, per the layer split established by the last refactor (<code>types/</code> for types, <code>constants/</code> for values)</td><td>—</td></tr><tr><td>Where <code>confirmDelete</code> lives</td><td><code>constants/confirm.ts</code></td><td>—</td></tr><tr><td>Confirm pending label</td><td>Does not change. The spinner carries the state; there is no <code>pendingLabel</code> option</td><td>—</td></tr><tr><td>Demo card placement</td><td>A <code>&lt;Card&gt;</code> at the bottom of <code>app/(app)/page.tsx</code>, marked <code>// ponytail: demo — delete when real screens land</code></td><td>If the dashboard is already crowded, a <code>app/(app)/_demo/page.tsx</code> route instead</td></tr><tr><td>Dark-mode verification with no theme toggle</td><td>Set <code>class=&quot;dark&quot;</code> on <code>&lt;html&gt;</code> by hand in devtools for the dark pass. Do <strong>not</strong> add a toggle — out of scope</td><td>—</td></tr></tbody></table></div>
+<h5 id="blast-radius">Blast Radius</h5>
+<p>New files — all additive:</p>
+<pre><code>frontend/components/ui/sonner.tsx                      (new)  — safe/reversible
+frontend/components/ui/alert-dialog.tsx                (new)  — safe/reversible
+frontend/components/ui/tone-icon.tsx                   (new)  — safe/reversible
+frontend/components/provider/confirm-provider.tsx      (new)  — safe/reversible
+frontend/hooks/use-confirm.ts                          (new)  — safe/reversible
+frontend/types/confirm.ts                              (new)  — safe/reversible
+frontend/constants/confirm.ts                          (new)  — safe/reversible
+frontend/lib/api-error.ts                              (new)  — safe/reversible
+frontend/package.json                                  (+ sonner)  — safe/reversible</code></pre>
+<p>Existing files touched:</p>
+<pre><code>frontend/app/globals.css                 (+ --success, --warning in :root, .dark, @theme inline)  — safe/reversible
+frontend/app/layout.tsx                  (+ &lt;ConfirmProvider&gt;, + &lt;Toaster /&gt;)                     — safe/reversible
+frontend/components/provider/query-provider.tsx  (+ mutationCache)                                — safe/reversible
+frontend/hooks/use-auth.ts               (+ no-op onError on useLogin and useLogout)               — safe/reversible
+frontend/components/sidebar/nav-user.tsx (sign-out routed through confirm + success toast)         — safe/reversible
+frontend/app/(app)/page.tsx              (+ temporary demo card)                                   — safe/reversible</code></pre>
+<p>Reach, resolved by import graph (the frontend is not in the code-review-graph index — <code>summary.md</code> — so this is from <code>grep</code> over <code>app/</code>, <code>components/</code>, <code>hooks/</code>):</p>
+<ul><li><code>query-provider.tsx</code> has exactly one importer: <code>app/layout.tsx:4</code>. Its change is additive — the existing <code>defaultOptions.queries</code> block is untouched — so every query in the app keeps its <code>staleTime: 60_000</code> / no-refetch-on-focus behaviour.</li><li><code>hooks/use-auth.ts</code> has two consumers: <code>app/(auth)/login/page.tsx:14</code> (<code>useLogin</code>, <code>authErrorMessage</code>) and <code>components/sidebar/nav-user.tsx:15</code> (<code>useLogout</code>). Both are read and both are accounted for above. <code>authErrorMessage</code> keeps its current behaviour and is <strong>not</strong> replaced by <code>apiErrorMessage</code> — the login 401 must stay deliberately generic (<code>frontend/CLAUDE.md</code>), which is a different rule from &quot;render the envelope message&quot;.</li><li><code>nav-user.tsx:83</code> currently calls <code>logout.mutate()</code> directly from a <code>DropdownMenuItem</code>. That line is the only sign-out in the app — <code>mobile-nav.tsx</code> renders nav items only.</li><li>No backend file, entity, migration, endpoint, DTO or env var is touched. <code>types/api/</code> is untouched, so <code>pnpm api:types</code> does not need to run.</li></ul>
+<h5 id="risk-reversibility">Risk + reversibility</h5>
+<p>Every entry above is <strong>safe/reversible</strong>: all additive, no destructive operation, no migration, no security check weakened, no external side effect. The two riskiest lines for a reviewer to read are <code>query-provider.tsx</code> (a behaviour change that reaches every mutation in the app) and the two no-op <code>onError</code> handlers in <code>use-auth.ts</code> (which look like dead code unless the comment explains them) — both are flagged here precisely because a reviewer would otherwise skim them.</p></section>
+
+  <section id="be"><h2>Backend</h2>
+    <div class="banner warn"><strong>Not applicable.</strong> This change adds no endpoint, entity, DTO, migration or env var. Nothing under <code>backend/</code> is touched, and the only API contract it reads is the existing error envelope <code>{statusCode, code, message, details?}</code> that <code>AppExceptionFilter</code> already returns.</div>
+  </section>
+
+  <section id="fe"><h2>Frontend</h2><h2 id="ui-add-feedback-layer">UI: add-feedback-layer</h2>
+<p><strong>Mockups</strong> (approved 2026-10-01 by An Le):</p>
+<ul><li><code>mockups/toast-stack.html</code> — 4 frames: A three stacked over the app canvas (light + dark, 4th toast dimmed to show the queue), B the four tones isolated + a title-only variant, C the two new tokens with swatches, D measurements.</li><li><code>mockups/confirm-dialog.html</code> — 5 frames: A destructive dialog in context (light + dark), B four idle shapes, B′ all five tones, C pending, D resolved (success toast / failure toast), E measurements.</li><li><code>mockups/mobile.html</code> — 3 frames: A toast at 390px with the 58/66px offset guides drawn, B confirm dialog at 390px, C mobile-vs-desktop measurements.</li></ul>
+<p><strong>References</strong>: no new reference image. Both surfaces are siblings of the shipped app shell — <code>devspec/archive/add-app-shell/mockups/app-shell.html</code> supplied the visual language (floating card over a <code>--muted</code> canvas, 58px transparent topbar, mobile bar of <code>hamburger · brand · spacer · bell</code>, no bottom tab bar) and the mockups reproduce that canvas so the new surfaces are judged in place rather than on a blank page.</p>
+<p><strong>Style source</strong>: every colour, radius, height and weight is copied from the real files.</p>
+<ul><li>Tokens from <code>frontend/app/globals.css</code> — <code>--popover</code>, <code>--popover-foreground</code>, <code>--border</code>, <code>--muted</code>, <code>--muted-foreground</code>, <code>--accent</code>, <code>--primary</code>, <code>--destructive</code>, <code>--input</code>, <code>--ring</code>, <code>--card</code>, <code>--sidebar*</code>.</li><li>Button geometry and variants from <code>frontend/components/ui/button.tsx</code> — default size (h-9/36px, px-4, radius-md, 14px/500), <code>outline</code>, <code>default</code>, <code>destructive</code> including <code>dark:bg-destructive/60</code>, and the <code>--ring/50</code> 3px focus ring.</li><li>Overlay from <code>frontend/components/ui/sheet.tsx</code> — <code>bg-foreground/45</code>, reused unchanged.</li><li>Surface recipe from <code>frontend/components/ui/card.tsx</code> / <code>dropdown-menu.tsx</code> — <code>--popover</code> fill, 1px <code>--border</code>.</li><li>Icons are <code>lucide-react</code> glyphs redrawn as flat solids (see below). Typography is <code>--font-geist-sans</code>; the standalone mockups fall back to a system stack because a single file cannot load <code>next/font</code>.</li></ul>
+<p><strong>New tokens</strong> — the only two this change adds, in <code>:root</code>, <code>.dark</code> and <code>@theme inline</code>:</p>
+<div class='tw'><table><thead><tr><th>Token</th><th><code>:root</code></th><th><code>.dark</code></th><th>Why</th></tr></thead><tbody><tr><td><code>--success</code></td><td><code>oklch(0.58 0.14 157)</code></td><td><code>oklch(0.72 0.16 157)</code></td><td>Same lightness pair as <code>--destructive</code> (0.577 / 0.704) so all tones carry one visual weight</td></tr><tr><td><code>--warning</code></td><td><code>oklch(0.70 0.15 75)</code></td><td><code>oklch(0.80 0.15 80)</code></td><td>Deliberately lighter than the rest — amber at L 0.58 reads brown, not warning</td></tr></tbody></table></div>
+<p>Neither gets a <code>--*-foreground</code> pair: tone never fills a surface in this change, so nothing is ever laid on top of these colours. Add the pair the day a <code>success</code> Button variant exists.</p>
+<p><code>info</code> deliberately reuses <code>--primary</code> (the brand blue). No <code>--info</code> token.</p>
+<hr>
+<h3 id="toast">toast</h3>
+<p>Layout — viewport is top-right, stacking downward:</p>
+<pre><code>                                      ┌──────────────────────────────────┐
+                                      │  ●●   Project created         ✕  │
+                                      │ ████  &quot;Clarivo API v2&quot; is ready  │
+                                      │  ●●   for its first meeting.     │
+                                      └──────────────────────────────────┘
+                                      ┌──────────────────────────────────┐
+                                      │  ▲    2 requirements conflict  ✕ │
+                                      │ ███   REQ-14 and REQ-27 …        │
+                                      └──────────────────────────────────┘
+                                      ┌──────────────────────────────────┐
+                                      │  ✖    Couldn&#x27;t upload document ✕ │
+                                      │ ███   The file is larger than …  │
+                                      └──────────────────────────────────┘
+   ↑ icon is 26px, flat solid           ↑ max 3 mounted; a 4th waits in the queue
+     fill in the tone colour, glyph
+     knocked out in --popover, and
+     vertically centred so it spans
+     title through description</code></pre>
+<p><strong>Tone lives in the icon and nowhere else.</strong> No coloured rail, no tinted background, no coloured border or edge. The surface is always <code>--popover</code> / <code>--popover-foreground</code> / 1px <code>--border</code>, identical to the existing dropdown-menu, so a toast and the user menu read as the same material. This is why sonner&#x27;s <code>richColors</code> is rejected — it floods the whole surface and stops matching the app.</p>
+<div class='tw'><table><thead><tr><th>Tone</th><th>Colour</th><th>Glyph (flat solid, knocked out)</th></tr></thead><tbody><tr><td><code>success</code></td><td><code>--success</code></td><td>filled circle + check</td></tr><tr><td><code>info</code></td><td><code>--primary</code></td><td>filled circle + <code>i</code></td></tr><tr><td><code>warning</code></td><td><code>--warning</code></td><td>filled rounded triangle + <code>!</code></td></tr><tr><td><code>error</code></td><td><code>--destructive</code></td><td>filled circle + <code>✕</code></td></tr></tbody></table></div>
+<p>Measurements:</p>
+<div class='tw'><table><thead><tr><th></th><th>Desktop</th><th>Mobile (&lt;768px)</th></tr></thead><tbody><tr><td>viewport offset</td><td>top 16px, right 16px</td><td>top <strong>66px</strong>, left/right 16px</td></tr><tr><td>toast width</td><td>364px fixed</td><td>fluid — 358px at 390px wide</td></tr><tr><td>why that top offset</td><td>no topbar to clear</td><td>58px top bar + 8px, so it never covers the hamburger or the bell</td></tr><tr><td>gap between toasts</td><td>10px</td><td>10px</td></tr><tr><td>radius</td><td>12px — matches dropdown-menu</td><td>12px</td></tr><tr><td>padding</td><td>14px, even on all sides</td><td>14px</td></tr><tr><td>icon</td><td>26px, <code>var(--tone)</code> fill, <code>--popover</code> knockout, 12px to the text</td><td>same</td></tr><tr><td>title</td><td>13.5px / 600 / <code>--popover-foreground</code></td><td>same</td></tr><tr><td>description</td><td>12.5px / 400 / <code>--muted-foreground</code>, 3px below the title</td><td>same</td></tr><tr><td>close</td><td>13px ✕, <code>--muted-foreground</code> at 55% → 100% + <code>--accent</code> on hover</td><td>same</td></tr><tr><td>duration</td><td>4s</td><td>4s</td></tr><tr><td>stack cap</td><td>3</td><td>3 — ~265px of a 560px viewport; not reduced to 2, since filling it needs three simultaneous failures and it clears in 4s</td></tr></tbody></table></div>
+<p>States: <code>description</code> is optional — a title-only toast collapses to two columns and keeps the icon. Nothing else varies; a toast has no loading or empty state.</p>
+<p>Components: <code>sonner</code>&#x27;s <code>&lt;Toaster&gt;</code>, wrapped in <code>frontend/components/ui/sonner.tsx</code> and styled through <code>toastOptions.classNames</code> with the tokens above. <strong>No <code>theme</code> prop and no <code>richColors</code></strong> — the wrapper uses Tailwind classes so the toast follows the <code>.dark</code> class the day something sets it. There is no <code>useToast</code> hook; <code>toast</code> imports from <code>sonner</code> directly.</p>
+<h3 id="confirm-dialog">confirm dialog</h3>
+<p>Layout — Radix <code>AlertDialog</code>: overlay + centred card.</p>
+<pre><code>   ┌──────────────────────────────────────────────┐
+   │  ●●                                          │
+   │ ████   Delete project?                       │
+   │  ●●    &quot;Clarivo API v2&quot; will be permanently  │
+   │        deleted, along with all meetings and  │
+   │        requirements in it. This can&#x27;t be     │
+   │        undone.                               │
+   │                                              │
+   │                   [ Cancel ]  [  Delete  ]   │
+   └──────────────────────────────────────────────┘
+     ↑ 28px flat icon, same treatment as the        ↑ right-aligned, 8px gap.
+       toast, top-aligned to the title because        Cancel = outline,
+       a description runs several lines               Confirm = default or
+                                                      destructive</code></pre>
+<p><code>tone</code> drives exactly two things: which icon appears, and whether the confirm button is <code>variant=&quot;destructive&quot;</code> (<code>&quot;error&quot;</code> only) or <code>variant=&quot;default&quot;</code> (every other tone). The dialog surface never tints.</p>
+<div class='tw'><table><thead><tr><th><code>tone</code></th><th>Colour</th><th>Glyph</th><th>Confirm button</th></tr></thead><tbody><tr><td><code>confirm</code> <em>(default)</em></td><td><code>--primary</code></td><td>filled circle + <code>?</code></td><td><code>default</code></td></tr><tr><td><code>success</code></td><td><code>--success</code></td><td>filled circle + check</td><td><code>default</code></td></tr><tr><td><code>info</code></td><td><code>--primary</code></td><td>filled circle + <code>i</code></td><td><code>default</code></td></tr><tr><td><code>warning</code></td><td><code>--warning</code></td><td>filled triangle + <code>!</code></td><td><code>default</code></td></tr><tr><td><code>error</code></td><td><code>--destructive</code></td><td>filled circle + <code>✕</code></td><td><code>destructive</code></td></tr></tbody></table></div>
+<p><code>confirm</code> and <code>info</code> share <code>--primary</code> and are told apart by the glyph, not the hue — a third blue would be noise.</p>
+<p>States:</p>
+<div class='tw'><table><thead><tr><th>State</th><th>What it looks like</th></tr></thead><tbody><tr><td><strong>idle</strong></td><td>As drawn. Focus is on the confirm button at open and trapped in the dialog.</td></tr><tr><td><strong>no description</strong></td><td><code>description</code> omitted — the title sits alone beside the icon, actions move up.</td></tr><tr><td><strong>pending</strong></td><td>Only when <code>onConfirm</code> returns a promise. The dialog <strong>stays open</strong>; both buttons go <code>disabled</code> (50% opacity, pointer-events off); a 15px spinner appears on the confirm button. The confirm <strong>label does not change</strong> — the spinner already says the work is running, so there is no <code>pendingLabel</code> to pass or translate.</td></tr><tr><td><strong>resolved</strong></td><td>Dialog closes. Reporting is the caller&#x27;s job — its <code>onSuccess</code> toasts.</td></tr><tr><td><strong>rejected</strong></td><td>Dialog closes; the error surfaces as an error toast, never silently. A failing mutation has already been toasted by the global <code>MutationCache.onError</code>, so the provider reuses a fixed toast id and the second call replaces the first rather than stacking two.</td></tr></tbody></table></div>
+<p>Interactions:</p>
+<div class='tw'><table><thead><tr><th>Trigger</th><th>Result</th></tr></thead><tbody><tr><td>Click confirm</td><td><code>onConfirm</code> runs; async → pending state until it settles</td></tr><tr><td>Click cancel</td><td><code>onCancel</code> runs, dialog closes, promise resolves <code>false</code></td></tr><tr><td><code>Esc</code></td><td>Same as cancel — <strong>blocked while pending</strong> (<code>onEscapeKeyDown</code> preventDefault)</td></tr><tr><td>Click the overlay</td><td>Same as cancel — <strong>blocked while pending</strong> (<code>onPointerDownOutside</code> preventDefault)</td></tr><tr><td>Click confirm twice</td><td>Impossible — the button is disabled from the first click until the work settles</td></tr></tbody></table></div>
+<p>The two pending guards exist for one reason: without them the user dismisses the dialog mid-delete and believes the action was cancelled.</p>
+<p>Measurements:</p>
+<div class='tw'><table><thead><tr><th></th><th>Desktop</th><th>Mobile</th></tr></thead><tbody><tr><td>overlay</td><td><code>--foreground</code> at 45%, copied from <code>sheet.tsx</code></td><td>same</td></tr><tr><td>width</td><td>440px max, centred</td><td>fills the 16px gutters — <code>max-width: 440px</code> already exceeds 390−32, so no mobile rule is needed</td></tr><tr><td>surface</td><td><code>--popover</code>, 1px <code>--border</code>, radius 14px</td><td>same</td></tr><tr><td>padding</td><td>22px sides/top, 18px bottom</td><td>20px / 16px bottom</td></tr><tr><td>title</td><td>16px / 600</td><td>same</td></tr><tr><td>description</td><td>13px / 400 / <code>--muted-foreground</code>, 7px below the title</td><td>same</td></tr><tr><td>icon</td><td>28px, <code>var(--tone)</code> fill, <code>--popover</code> knockout, 14px to the text, top-aligned</td><td>same</td></tr><tr><td>actions</td><td>right-aligned, 8px gap, 22px above</td><td>side by side, <strong>not stacked</strong> — two short labels fit 358px, and stacking would put the destructive action under the thumb&#x27;s resting spot</td></tr><tr><td>buttons</td><td><code>&lt;Button&gt;</code> default size — h-9/36px, px-4, radius 8px, 14px/500</td><td>same</td></tr><tr><td>focus ring</td><td><code>--ring</code> at 50%, 3px — <code>button.tsx</code>&#x27;s own style</td><td>same</td></tr></tbody></table></div>
+<h3 id="components">Components</h3>
+<p>Existing, reuse as-is:</p>
+<ul><li><code>frontend/components/ui/button.tsx:Button</code> — every button in the dialog. Cancel is <code>variant=&quot;outline&quot;</code>, confirm is <code>variant=&quot;default&quot;</code> or <code>variant=&quot;destructive&quot;</code>, both at the default size. <strong>Do not hand-roll a button in the confirm provider.</strong></li><li><code>frontend/components/ui/sheet.tsx</code> — read it for the overlay recipe (<code>bg-foreground/45</code> + the <code>data-[state]</code> animation classes); the new <code>alert-dialog.tsx</code> matches it so the two overlays behave the same.</li><li><code>frontend/lib/utils.ts:cn</code> — every conditional class.</li><li><code>lucide-react</code> (already a dependency) — <code>CircleCheck</code>, <code>Info</code>, <code>TriangleAlert</code>, <code>CircleX</code>, <code>CircleHelp</code>, <code>X</code>, <code>Loader2</code>. <strong>The mockups draw flat solid versions</strong>: the lucide outline glyph is not what ships — the shipped icon is a solid tone-filled shape with the glyph knocked out in <code>--popover</code>, so either pass <code>fill</code>/<code>className</code> accordingly or inline the 5 small SVGs in the sonner wrapper and the confirm provider. Decide in <code>design.md</code>; the visual result must match the mockups.</li></ul>
+<p>To add by hand — <strong>the shadcn CLI hangs in this repo</strong> (<code>devspec/context/rules.md</code>), so copy the source from ui.shadcn.com into <code>frontend/components/ui/</code> by hand; the radix dependency is already covered by the installed <code>radix-ui</code> umbrella:</p>
+<ul><li><code>alert-dialog.tsx</code> — <code>AlertDialog</code>, <code>AlertDialogTrigger</code>, <code>AlertDialogContent</code>, <code>AlertDialogTitle</code>, <code>AlertDialogDescription</code>, <code>AlertDialogAction</code>, <code>AlertDialogCancel</code>. Import shape is <code>import { AlertDialog as AlertDialogPrimitive } from &quot;radix-ui&quot;</code> — the umbrella exports namespace objects, not named components (see <code>sheet.tsx</code>, <code>tooltip.tsx</code>).</li></ul>
+<p>New dependency: <code>sonner</code> (<code>pnpm add sonner</code>). Its <code>&lt;Toaster&gt;</code> is wrapped, never used raw.</p>
+    <h3>Approved mockups</h3>
+  <div class="mock">
+    <div class="mock-cap"><code>mockups/confirm-dialog.html</code> <a href="mockups/confirm-dialog.html" target="_blank">open standalone &nearr;</a></div>
+    <iframe src="mockups/confirm-dialog.html" loading="lazy"></iframe>
+  </div>
+  <div class="mock">
+    <div class="mock-cap"><code>mockups/mobile.html</code> <a href="mockups/mobile.html" target="_blank">open standalone &nearr;</a></div>
+    <iframe src="mockups/mobile.html" loading="lazy"></iframe>
+  </div>
+  <div class="mock">
+    <div class="mock-cap"><code>mockups/toast-stack.html</code> <a href="mockups/toast-stack.html" target="_blank">open standalone &nearr;</a></div>
+    <iframe src="mockups/toast-stack.html" loading="lazy"></iframe>
+  </div>
+  </section>
+
+  <section id="tasks"><h2>Tasks</h2><p class='meta'>This change touches a single layer. Every subtask is tagged <span class='layer l-frontend'>frontend</span> &mdash; there is no backend, service, db or test layer in scope (no test runner exists in <code>frontend/</code>).</p>
+<h3>Layer: <span class='layer l-frontend'>frontend</span> &mdash; 11 sections, 62 subtasks</h3><h2 id="tasks-add-feedback-layer">Tasks: add-feedback-layer</h2>
+<p>All work is in <code>frontend/</code>. No backend file, entity, migration, endpoint or env var is touched, so <code>pnpm api:types</code> is never run. <code>@/*</code> resolves from the frontend root (<code>frontend/CLAUDE.md</code>) — not from <code>app/</code>, whatever <code>devspec/context/conventions.md</code> still says.</p>
+<h3 id="1-dependency-and-theme-tones">1. Dependency and theme tones <a class="reqtag" href="#cov">req-1</a></h3>
+<ul class='checks'><li class="todo"><span class="box">&#9744;</span>1.1 <span class="layer l-frontend">frontend</span> <code>cd frontend &amp;&amp; pnpm add sonner</code> — the only new dependency in this change</li><li class="todo"><span class="box">&#9744;</span>1.2 <span class="layer l-frontend">frontend</span> <code>app/globals.css</code>: add <code>--success: oklch(0.58 0.14 157)</code> and <code>--warning: oklch(0.70 0.15 75)</code> to <code>:root</code>, beside <code>--destructive</code></li><li class="todo"><span class="box">&#9744;</span>1.3 <span class="layer l-frontend">frontend</span> <code>app/globals.css</code>: add <code>--success: oklch(0.72 0.16 157)</code> and <code>--warning: oklch(0.80 0.15 80)</code> to <code>.dark</code></li><li class="todo"><span class="box">&#9744;</span>1.4 <span class="layer l-frontend">frontend</span> <code>app/globals.css</code>: map both in <code>@theme inline</code> — <code>--color-success: var(--success)</code>, <code>--color-warning: var(--warning)</code> — so <code>text-success</code> / <code>text-warning</code> resolve</li><li class="todo"><span class="box">&#9744;</span>1.5 <span class="layer l-frontend">frontend</span> Add no other token: no <code>--info</code>, no <code>--success-foreground</code>, no <code>--warning-foreground</code> (<code>design.md</code> → Rejected approaches)</li></ul>
+<p>Verify: <code>cd frontend &amp;&amp; npx tsc --noEmit &amp;&amp; pnpm build</code> — and <code>grep -c &quot;success&quot; app/globals.css</code> shows the three declarations plus the <code>@theme inline</code> line</p>
+<h3 id="2-tone-icons">2. Tone icons <a class="reqtag" href="#cov">req-2</a> <a class="reqtag" href="#cov">req-8</a></h3>
+<ul class='checks'><li class="todo"><span class="box">&#9744;</span>2.1 <span class="layer l-frontend">frontend</span> New <code>components/ui/tone-icon.tsx</code> — <code>&lt;ToneIcon tone size&gt;</code> for the five tones <code>confirm | success | info | warning | error</code>, each a solid <code>currentColor</code>-filled shape with the glyph knocked out using <code>stroke: var(--popover)</code></li><li class="todo"><span class="box">&#9744;</span>2.2 <span class="layer l-frontend">frontend</span> Copy the five SVG bodies verbatim from <code>mockups/toast-stack.html</code> and <code>mockups/confirm-dialog.html</code> — do <strong>not</strong> substitute a lucide outline glyph; <code>lucide-react</code>&#x27;s stroked icons cannot produce the approved knockout look (<code>design.md</code> → Decision Defaults)</li><li class="todo"><span class="box">&#9744;</span>2.3 <span class="layer l-frontend">frontend</span> Colour comes from the caller via <code>--tone</code> / a <code>className</code>, so the same component serves the toast (26px) and the dialog (28px)</li></ul>
+<p>Verify: <code>cd frontend &amp;&amp; npx tsc --noEmit &amp;&amp; npx eslint components/ui/tone-icon.tsx</code></p>
+<h3 id="3-toast-wrapper-and-mount">3. Toast wrapper and mount <a class="reqtag" href="#cov">req-2</a> <a class="reqtag" href="#cov">req-3</a> <a class="reqtag" href="#cov">req-13</a></h3>
+<ul class='checks'><li class="todo"><span class="box">&#9744;</span>3.1 <span class="layer l-frontend">frontend</span> New <code>components/ui/sonner.tsx</code> — <code>&quot;use client&quot;</code>, wraps sonner&#x27;s <code>&lt;Toaster&gt;</code>; export it as <code>Toaster</code></li><li class="todo"><span class="box">&#9744;</span>3.2 <span class="layer l-frontend">frontend</span> Style it through <code>toastOptions.classNames</code> using Tailwind semantic tokens only: <code>bg-popover text-popover-foreground border border-border</code> for <code>toast</code>, <code>text-muted-foreground</code> for <code>description</code>, 12px radius, 364px width, 14px padding — matching <code>components/ui/dropdown-menu.tsx</code>&#x27;s surface</li><li class="todo"><span class="box">&#9744;</span>3.3 <span class="layer l-frontend">frontend</span> Pass the tone icons via <code>&lt;Toaster icons={{ success: &lt;ToneIcon tone=&quot;success&quot;/&gt;, info: …, warning: …, error: … }} /&gt;</code></li><li class="todo"><span class="box">&#9744;</span>3.4 <span class="layer l-frontend">frontend</span> <strong>No <code>theme</code> prop and no <code>richColors</code></strong> — the classNames already follow the <code>.dark</code> class, and <code>theme</code> would read the OS preference the app does not use</li><li class="todo"><span class="box">&#9744;</span>3.5 <span class="layer l-frontend">frontend</span> Placement: <code>position=&quot;top-right&quot;</code>, <code>duration={4000}</code>, <code>visibleToasts={3}</code>, <code>offset={16}</code>, <code>mobileOffset={{ top: 66, left: 16, right: 16 }}</code> — 66px clears the 58px mobile app bar by 8px</li><li class="todo"><span class="box">&#9744;</span>3.6 <span class="layer l-frontend">frontend</span> <code>app/layout.tsx</code>: render <code>&lt;Toaster /&gt;</code> as the last child of <code>&lt;body&gt;</code>, outside the providers</li><li class="todo"><span class="box">&#9744;</span>3.7 <span class="layer l-frontend">frontend</span> Do <strong>not</strong> add a <code>hooks/use-toast.ts</code> — <code>toast</code> imports from <code>sonner</code> directly at every call site</li></ul>
+<p>Verify: <code>cd frontend &amp;&amp; npx tsc --noEmit &amp;&amp; npx eslint components/ui/sonner.tsx app/layout.tsx &amp;&amp; pnpm build</code></p>
+<h3 id="4-api-error-messages-and-the-global-mutation-toast">4. API error messages and the global mutation toast <a class="reqtag" href="#cov">req-4</a> <a class="reqtag" href="#cov">req-5</a></h3>
+<ul class='checks'><li class="todo"><span class="box">&#9744;</span>4.1 <span class="layer l-frontend">frontend</span> New <code>lib/api-error.ts</code> — <code>apiErrorMessage(error: unknown): string</code>, reading the backend envelope <code>{statusCode, code, message, details?}</code> off an Axios error response (<code>devspec/context/patterns.md</code>)</li><li class="todo"><span class="box">&#9744;</span>4.2 <span class="layer l-frontend">frontend</span> Mapping: 4xx with an envelope <code>message</code> → that message; 5xx → the generic <code>&quot;Something went wrong. Please try again.&quot;</code>, never the body; non-Axios throw → the generic string, never <code>error.message</code></li><li class="todo"><span class="box">&#9744;</span>4.3 <span class="layer l-frontend">frontend</span> Leave <code>hooks/use-auth.ts:authErrorMessage</code> alone — the login 401 stays deliberately generic; the two functions coexist on purpose (<code>design.md</code> → Open questions)</li><li class="todo"><span class="box">&#9744;</span>4.4 <span class="layer l-frontend">frontend</span> <code>components/provider/query-provider.tsx</code>: pass <code>mutationCache: new MutationCache({ onError })</code> to the existing <code>new QueryClient({...})</code>, leaving <code>defaultOptions.queries</code> (<code>staleTime: 60_000</code>, <code>refetchOnWindowFocus: false</code>) untouched</li><li class="todo"><span class="box">&#9744;</span>4.5 <span class="layer l-frontend">frontend</span> The handler is <code>(error, _vars, _ctx, mutation) =&gt; { if (mutation.options.onError) return; toast.error(apiErrorMessage(error)); }</code> — React Query runs cache-level and mutation-level handlers both, so this check is what makes a local <code>onError</code> an override</li><li class="todo"><span class="box">&#9744;</span>4.6 <span class="layer l-frontend">frontend</span> Add a comment above the check naming the trade: a mutation defining <code>onError</code> for an unrelated reason (optimistic rollback) loses its error toast, and the fix at that call site is one <code>toast.error(apiErrorMessage(error))</code> line</li><li class="todo"><span class="box">&#9744;</span>4.7 <span class="layer l-frontend">frontend</span> Do <strong>not</strong> wire <code>QueryCache.onError</code> — a failed background refetch must not toast</li></ul>
+<p>Verify: <code>cd frontend &amp;&amp; npx tsc --noEmit &amp;&amp; npx eslint lib/api-error.ts components/provider/query-provider.tsx &amp;&amp; pnpm build</code></p>
+<h3 id="5-alertdialog-primitive">5. AlertDialog primitive <a class="reqtag" href="#cov">req-8</a></h3>
+<ul class='checks'><li class="todo"><span class="box">&#9744;</span>5.1 <span class="layer l-frontend">frontend</span> New <code>components/ui/alert-dialog.tsx</code>, hand-copied from ui.shadcn.com — <strong>the shadcn CLI hangs in this repo</strong> (<code>devspec/context/rules.md</code>)</li><li class="todo"><span class="box">&#9744;</span>5.2 <span class="layer l-frontend">frontend</span> Import shape is <code>import { AlertDialog as AlertDialogPrimitive } from &quot;radix-ui&quot;</code> — the installed umbrella exports namespace objects, not named components; copy the pattern from <code>components/ui/sheet.tsx</code> and <code>components/ui/tooltip.tsx</code></li><li class="todo"><span class="box">&#9744;</span>5.3 <span class="layer l-frontend">frontend</span> Export <code>AlertDialog</code>, <code>AlertDialogContent</code>, <code>AlertDialogTitle</code>, <code>AlertDialogDescription</code>, <code>AlertDialogAction</code>, <code>AlertDialogCancel</code>; no <code>AlertDialogTrigger</code> is needed by this change (the provider drives <code>open</code> itself) but keep it if the copied source ships it</li><li class="todo"><span class="box">&#9744;</span>5.4 <span class="layer l-frontend">frontend</span> Overlay reuses <code>sheet.tsx</code>&#x27;s recipe verbatim — <code>bg-foreground/45</code> plus its <code>data-[state=open]</code>/<code>data-[state=closed]</code> animation classes — so the two overlays behave identically</li><li class="todo"><span class="box">&#9744;</span>5.5 <span class="layer l-frontend">frontend</span> Content: <code>--popover</code> surface, 1px <code>--border</code>, radius 14px, 440px max width, 22px/18px padding, centred</li></ul>
+<p>Verify: <code>cd frontend &amp;&amp; npx tsc --noEmit &amp;&amp; npx eslint components/ui/alert-dialog.tsx</code></p>
+<h3 id="6-confirm-type-preset-provider-and-hook">6. Confirm type, preset, provider and hook <a class="reqtag" href="#cov">req-6</a> <a class="reqtag" href="#cov">req-7</a> <a class="reqtag" href="#cov">req-8</a> <a class="reqtag" href="#cov">req-9</a></h3>
+<ul class='checks'><li class="todo"><span class="box">&#9744;</span>6.1 <span class="layer l-frontend">frontend</span> New <code>types/confirm.ts</code> — <code>ConfirmTone = &quot;confirm&quot; | &quot;success&quot; | &quot;info&quot; | &quot;warning&quot; | &quot;error&quot;</code> and <code>ConfirmOptions = { title; description?; confirmLabel?; cancelLabel?; tone?: ConfirmTone; onConfirm?: () =&gt; void | Promise&lt;void&gt;; onCancel?: () =&gt; void }</code></li><li class="todo"><span class="box">&#9744;</span>6.2 <span class="layer l-frontend">frontend</span> New <code>constants/confirm.ts</code> — <code>confirmDelete(entity: string, name?: string): ConfirmOptions</code> returning title <code>Delete ${entity}?</code>, a description that names <code>name</code> when given and always says it cannot be undone, <code>confirmLabel: &quot;Delete&quot;</code>, <code>tone: &quot;error&quot;</code>. Add no other preset</li><li class="todo"><span class="box">&#9744;</span>6.3 <span class="layer l-frontend">frontend</span> New <code>components/provider/confirm-provider.tsx</code> — <code>&quot;use client&quot;</code>, mounts exactly one <code>&lt;AlertDialog&gt;</code> and provides <code>confirm(options) =&gt; Promise&lt;boolean&gt;</code> through a context</li><li class="todo"><span class="box">&#9744;</span>6.4 <span class="layer l-frontend">frontend</span> Render with <code>ToneIcon</code> at 28px top-aligned to the title, 14px gap; title 16px/600; description 13px <code>--muted-foreground</code>; actions right-aligned with 8px gap</li><li class="todo"><span class="box">&#9744;</span>6.5 <span class="layer l-frontend">frontend</span> Buttons are <code>components/ui/button.tsx:Button</code> — cancel <code>variant=&quot;outline&quot;</code>, confirm <code>variant=&quot;destructive&quot;</code> when <code>tone === &quot;error&quot;</code> else <code>variant=&quot;default&quot;</code>, both default size. Do not hand-roll a button</li><li class="todo"><span class="box">&#9744;</span>6.6 <span class="layer l-frontend">frontend</span> Confirm flow: run <code>onConfirm</code>, <code>await</code> it, resolve the promise <code>true</code>, close. Cancel flow: run <code>onCancel</code>, resolve <code>false</code>, close</li><li class="todo"><span class="box">&#9744;</span>6.7 <span class="layer l-frontend">frontend</span> Pending state: while an awaited <code>onConfirm</code> is unsettled keep the dialog open, set both buttons <code>disabled</code>, show a <code>Loader2</code> spinner on the confirm button, and leave the label unchanged — there is no <code>pendingLabel</code></li><li class="todo"><span class="box">&#9744;</span>6.8 <span class="layer l-frontend">frontend</span> Pending guards: <code>onEscapeKeyDown</code> and <code>onPointerDownOutside</code> both <code>preventDefault()</code> while pending, so the dialog cannot be dismissed mid-work</li><li class="todo"><span class="box">&#9744;</span>6.9 <span class="layer l-frontend">frontend</span> A rejected <code>onConfirm</code> closes the dialog, resolves <code>false</code>, and raises <code>toast.error(apiErrorMessage(error))</code> with a module-constant id (<code>&quot;confirm-error&quot;</code>) so it replaces rather than stacks on an already-toasted mutation error</li><li class="todo"><span class="box">&#9744;</span>6.10 <span class="layer l-frontend">frontend</span> A <code>confirm()</code> call while a dialog is open replaces it: the first promise resolves <code>false</code> and the first <code>onCancel</code> does not fire. No queue</li><li class="todo"><span class="box">&#9744;</span>6.11 <span class="layer l-frontend">frontend</span> New <code>hooks/use-confirm.ts</code> — <code>useConfirm()</code> reads the context and throws a clear error when called outside the provider</li></ul>
+<p>Verify: <code>cd frontend &amp;&amp; npx tsc --noEmit &amp;&amp; npx eslint types/confirm.ts constants/confirm.ts components/provider/confirm-provider.tsx hooks/use-confirm.ts</code></p>
+<h3 id="7-mount-the-confirm-provider">7. Mount the confirm provider <a class="reqtag" href="#cov">req-6</a></h3>
+<ul class='checks'><li class="todo"><span class="box">&#9744;</span>7.1 <span class="layer l-frontend">frontend</span> <code>app/layout.tsx</code>: nest as <code>QueryProvider</code> → <code>AuthProvider</code> → <code>ConfirmProvider</code> → <code>{children}</code>, with <code>&lt;Toaster /&gt;</code> still the last child of <code>&lt;body&gt;</code></li></ul>
+<p>Verify: <code>cd frontend &amp;&amp; npx tsc --noEmit &amp;&amp; pnpm build</code></p>
+<h3 id="8-auth-flows-one-report-each-confirmed-sign-out">8. Auth flows: one report each, confirmed sign-out <a class="reqtag" href="#cov">req-10</a> <a class="reqtag" href="#cov">req-11</a></h3>
+<ul class='checks'><li class="todo"><span class="box">&#9744;</span>8.1 <span class="layer l-frontend">frontend</span> <code>hooks/use-auth.ts</code> <code>useLogin</code>: add <code>onError: () =&gt; {}</code> with a comment saying the login form renders the 401 inline via <code>errors.root</code>, and that defining <code>onError</code> at all stands the global toast down</li><li class="todo"><span class="box">&#9744;</span>8.2 <span class="layer l-frontend">frontend</span> <code>hooks/use-auth.ts</code> <code>useLogout</code>: add the same no-op <code>onError</code> — the cookie is gone either way and the user is already being redirected, so an error toast is noise</li><li class="todo"><span class="box">&#9744;</span>8.3 <span class="layer l-frontend">frontend</span> <code>components/sidebar/nav-user.tsx:83</code>: replace <code>onSelect={() =&gt; logout.mutate()}</code> with a <code>confirm()</code> call — title <code>Sign out?</code>, description <code>You&#x27;ll need to sign in again to get back to your projects.</code>, <code>confirmLabel: &quot;Sign out&quot;</code>, <code>tone: &quot;error&quot;</code>, <code>onConfirm: () =&gt; logout.mutateAsync()</code></li><li class="todo"><span class="box">&#9744;</span>8.4 <span class="layer l-frontend">frontend</span> Raise the success toast from the confirm&#x27;s resolution, not from <code>useLogout</code> — <code>useLogout.onSettled</code> already clears the store and redirects, and a toast belongs to the action, not the hook</li><li class="todo"><span class="box">&#9744;</span>8.5 <span class="layer l-frontend">frontend</span> Leave <code>logout.isPending</code> on the menu item&#x27;s <code>disabled</code>; if focus visibly fights between the closing dropdown and the opening dialog, add <code>e.preventDefault()</code> in <code>onSelect</code> (<code>design.md</code> → Decision Defaults)</li></ul>
+<p>Verify: <code>cd frontend &amp;&amp; npx tsc --noEmit &amp;&amp; npx eslint hooks/use-auth.ts components/sidebar/nav-user.tsx &amp;&amp; pnpm build</code></p>
+<h3 id="9-demo-card">9. Demo card <a class="reqtag" href="#cov">req-12</a></h3>
+<ul class='checks'><li class="todo"><span class="box">&#9744;</span>9.1 <span class="layer l-frontend">frontend</span> <code>app/(app)/page.tsx</code>: add a <code>&lt;Card&gt;</code> at the bottom of the dashboard with buttons raising each of the four tones, every one with a title and a description</li><li class="todo"><span class="box">&#9744;</span>9.2 <span class="layer l-frontend">frontend</span> Add one button opening a <code>confirmDelete(&quot;project&quot;, &quot;Clarivo API v2&quot;)</code> dialog whose <code>onConfirm</code> waits ~1.2s before resolving, so the pending state is exercisable by hand</li><li class="todo"><span class="box">&#9744;</span>9.3 <span class="layer l-frontend">frontend</span> Add one button whose <code>onConfirm</code> rejects, so the failure path and the shared toast id are exercisable</li><li class="todo"><span class="box">&#9744;</span>9.4 <span class="layer l-frontend">frontend</span> Reuse <code>components/ui/card.tsx:Card</code> / <code>CardHeader</code> / <code>CardTitle</code> / <code>CardContent</code> and <code>components/ui/button.tsx:Button</code> — no new styling</li><li class="todo"><span class="box">&#9744;</span>9.5 <span class="layer l-frontend">frontend</span> Mark the whole card <code>// ponytail: demo — delete when real screens land</code></li></ul>
+<p>Verify: <code>cd frontend &amp;&amp; npx tsc --noEmit &amp;&amp; npx eslint &quot;app/(app)/page.tsx&quot; &amp;&amp; pnpm build</code></p>
+<h3 id="10-prove-it-in-the-browser">10. Prove it in the browser <a class="reqtag" href="#cov">req-3</a> <a class="reqtag" href="#cov">req-7</a> <a class="reqtag" href="#cov">req-12</a> <a class="reqtag" href="#cov">req-13</a></h3>
+<ul class='checks'><li class="todo"><span class="box">&#9744;</span>10.1 <span class="layer l-frontend">frontend</span> Run the app (<code>pnpm dev</code> on :3001, backend on :3000) and sign in</li><li class="todo"><span class="box">&#9744;</span>10.2 <span class="layer l-frontend">frontend</span> Desktop ≥1280px: raise each tone from the demo card; measure that the toast sits 16px from the top and right and is 364px wide, that the surface is <code>--popover</code> and the icon carries the tone, and that a fourth toast never makes a fourth mount</li><li class="todo"><span class="box">&#9744;</span>10.3 <span class="layer l-frontend">frontend</span> 390px: measure the toast&#x27;s top offset is 66px and that it covers neither the hamburger nor the bell; confirm the dialog fills the 16px gutters with its buttons side by side</li><li class="todo"><span class="box">&#9744;</span>10.4 <span class="layer l-frontend">frontend</span> Exercise the pending state: confirm the slow demo action, and check the dialog stays open, both buttons are disabled, <code>Esc</code> does nothing, and an overlay click does nothing</li><li class="todo"><span class="box">&#9744;</span>10.5 <span class="layer l-frontend">frontend</span> Exercise the failure path: confirm the rejecting demo action, and check the dialog closes and exactly one error toast appears</li><li class="todo"><span class="box">&#9744;</span>10.6 <span class="layer l-frontend">frontend</span> Sign-out: cancel it (no request fires, user stays), then confirm it (redirect to <code>/login</code> plus a success toast)</li><li class="todo"><span class="box">&#9744;</span>10.7 <span class="layer l-frontend">frontend</span> Bad login: check the 401 shows once inline and raises no toast</li><li class="todo"><span class="box">&#9744;</span>10.8 <span class="layer l-frontend">frontend</span> Dark pass: set <code>class=&quot;dark&quot;</code> on <code>&lt;html&gt;</code> in devtools and repeat the tone sweep and one dialog; check the computed styles are the <code>.dark</code> token values and the destructive button renders at the <code>dark:bg-destructive/60</code> weight</li><li class="todo"><span class="box">&#9744;</span>10.9 <span class="layer l-frontend">frontend</span> Save baseline screenshots of both themes, both breakpoints, under <code>devspec/changes/add-feedback-layer/verify/</code></li></ul>
+<p>Verify: <code>/devspec-verify add-feedback-layer</code> — agent-browser drives the running app and reports the measured offsets, computed token colours, stack cap and pending-guard behaviour against <code>ui.md</code></p>
+<h3 id="11-gates">11. Gates <a class="reqtag" href="#cov">req-1</a> … <a class="reqtag" href="#cov">req-13</a></h3>
+<ul class='checks'><li class="todo"><span class="box">&#9744;</span>11.1 <span class="layer l-frontend">frontend</span> <code>cd frontend &amp;&amp; npx tsc --noEmit</code> clean</li><li class="todo"><span class="box">&#9744;</span>11.2 <span class="layer l-frontend">frontend</span> <code>cd frontend &amp;&amp; pnpm lint</code> clean, warnings included</li><li class="todo"><span class="box">&#9744;</span>11.3 <span class="layer l-frontend">frontend</span> <code>cd frontend &amp;&amp; pnpm build</code> succeeds</li><li class="todo"><span class="box">&#9744;</span>11.4 <span class="layer l-frontend">frontend</span> <code>git status</code> shows no stray file: no <code>use-toast.ts</code>, no new token beyond <code>--success</code>/<code>--warning</code>, nothing under <code>types/api/</code></li></ul>
+<p>Verify: <code>cd frontend &amp;&amp; npx tsc --noEmit &amp;&amp; pnpm lint &amp;&amp; pnpm build</code></p></section>
+
+  <section id="cov"><h2>Coverage</h2><div class="banner good"><strong>Every requirement is covered.</strong> 13 requirements, 49 scenarios, all mapped to a task section. No orphan tags.</div>
+<div class='tw'><table><thead><tr><th>Req</th><th>Requirement</th><th>Task section(s)</th></tr></thead><tbody>
+<tr><td><code>req-1</code></td><td>theme tones</td><td>1. Dependency and theme tones<br>11. Gates …</td></tr>
+<tr><td><code>req-2</code></td><td>toast presentation</td><td>2. Tone icons<br>3. Toast wrapper and mount</td></tr>
+<tr><td><code>req-3</code></td><td>toast placement and lifetime</td><td>3. Toast wrapper and mount<br>10. Prove it in the browser</td></tr>
+<tr><td><code>req-4</code></td><td>global mutation error reporting</td><td>4. API error messages and the global mutation toast</td></tr>
+<tr><td><code>req-5</code></td><td>API error messages</td><td>4. API error messages and the global mutation toast</td></tr>
+<tr><td><code>req-6</code></td><td>confirm resolution contract</td><td>6. Confirm type, preset, provider and hook<br>7. Mount the confirm provider</td></tr>
+<tr><td><code>req-7</code></td><td>confirm pending state</td><td>6. Confirm type, preset, provider and hook<br>10. Prove it in the browser</td></tr>
+<tr><td><code>req-8</code></td><td>confirm presentation</td><td>2. Tone icons<br>5. AlertDialog primitive<br>6. Confirm type, preset, provider and hook</td></tr>
+<tr><td><code>req-9</code></td><td>delete confirmation preset</td><td>6. Confirm type, preset, provider and hook</td></tr>
+<tr><td><code>req-10</code></td><td>sign-out is confirmed</td><td>8. Auth flows: one report each, confirmed sign-out</td></tr>
+<tr><td><code>req-11</code></td><td>no double-reported auth errors</td><td>8. Auth flows: one report each, confirmed sign-out</td></tr>
+<tr><td><code>req-12</code></td><td>reviewable demo surface</td><td>9. Demo card<br>10. Prove it in the browser</td></tr>
+<tr><td><code>req-13</code></td><td>dark theme parity</td><td>3. Toast wrapper and mount<br>10. Prove it in the browser<br>11. Gates …</td></tr>
+</tbody></table></div>
+    <h3>Requirements and scenarios</h3><h2 id="spec-add-feedback-layer">Spec: add-feedback-layer</h2>
+<h4 id="requirement-theme-tones" class="req">Requirement: theme tones <a class="reqtag" href="#cov">req-1</a></h4>
+<p>The theme SHALL define a <code>--success</code> and a <code>--warning</code> token for both the light and dark palettes, and SHALL NOT introduce any other new token.</p>
+<h5 id="scenario-light-palette" class="scn">Scenario: light palette</h5>
+<ul><li><strong>WHEN</strong> <code>app/globals.css</code> is read</li><li><strong>THEN</strong> <code>:root</code> declares <code>--success: oklch(0.58 0.14 157)</code> and <code>--warning: oklch(0.70 0.15 75)</code></li><li><strong>AND</strong> <code>@theme inline</code> maps both to <code>--color-success</code> / <code>--color-warning</code> so <code>text-success</code> and <code>text-warning</code> resolve</li></ul>
+<h5 id="scenario-dark-palette" class="scn">Scenario: dark palette</h5>
+<ul><li><strong>WHEN</strong> <code>.dark</code> is read</li><li><strong>THEN</strong> it declares <code>--success: oklch(0.72 0.16 157)</code> and <code>--warning: oklch(0.80 0.15 80)</code></li></ul>
+<h5 id="scenario-no-other-token-is-added" class="scn">Scenario: no other token is added</h5>
+<ul><li><strong>WHEN</strong> the change&#x27;s diff on <code>globals.css</code> is reviewed</li><li><strong>THEN</strong> no <code>--info</code>, <code>--success-foreground</code> or <code>--warning-foreground</code> token appears</li><li><strong>AND</strong> the <code>info</code> tone resolves to the existing <code>--primary</code>, the <code>error</code> tone to the existing <code>--destructive</code></li></ul>
+<h4 id="requirement-toast-presentation" class="req">Requirement: toast presentation <a class="reqtag" href="#cov">req-2</a></h4>
+<p>A toast SHALL render a flat tone icon, a title, and an optional description on the app&#x27;s <code>--popover</code> surface, carrying its tone in the icon only.</p>
+<h5 id="scenario-title-and-description" class="scn">Scenario: title and description</h5>
+<ul><li><strong>WHEN</strong> <code>toast.success(&quot;Project created&quot;, { description: &quot;Clarivo API v2 is ready.&quot; })</code> is called</li><li><strong>THEN</strong> a toast appears with the title in 13.5px/600 <code>--popover-foreground</code> and the description in 12.5px <code>--muted-foreground</code> below it</li></ul>
+<h5 id="scenario-title-only" class="scn">Scenario: title only</h5>
+<ul><li><strong>WHEN</strong> <code>toast.info(&quot;Analysis still running&quot;)</code> is called with no description</li><li><strong>THEN</strong> the toast renders the icon and title alone, with no empty description row</li></ul>
+<h5 id="scenario-the-four-tones" class="scn">Scenario: the four tones</h5>
+<ul><li><strong>WHEN</strong> each of <code>toast.success</code>, <code>toast.info</code>, <code>toast.warning</code>, <code>toast.error</code> is called</li><li><strong>THEN</strong> the icon colour is <code>--success</code>, <code>--primary</code>, <code>--warning</code>, <code>--destructive</code> respectively</li><li><strong>AND</strong> the icon is a solid tone-filled shape with its glyph knocked out in <code>--popover</code></li></ul>
+<h5 id="scenario-tone-never-touches-the-surface" class="scn">Scenario: tone never touches the surface</h5>
+<ul><li><strong>WHEN</strong> any toast is rendered</li><li><strong>THEN</strong> its background is <code>--popover</code>, its border is 1px <code>--border</code>, and neither varies by tone</li><li><strong>AND</strong> no tone-coloured rail, edge or tint appears anywhere on the toast</li></ul>
+<h4 id="requirement-toast-placement-and-lifetime" class="req">Requirement: toast placement and lifetime <a class="reqtag" href="#cov">req-3</a></h4>
+<p>Toasts SHALL stack from the top-right on desktop and full-width below the top bar on mobile, auto-dismiss after 4 seconds, and never exceed three on screen.</p>
+<h5 id="scenario-desktop-placement" class="scn">Scenario: desktop placement</h5>
+<ul><li><strong>WHEN</strong> a toast appears on a viewport ≥768px wide</li><li><strong>THEN</strong> it sits 16px from the top and 16px from the right edge, 364px wide</li></ul>
+<h5 id="scenario-mobile-placement-clears-the-top-bar" class="scn">Scenario: mobile placement clears the top bar</h5>
+<ul><li><strong>WHEN</strong> a toast appears on a 390px-wide viewport</li><li><strong>THEN</strong> its top edge is 66px from the top of the viewport — below the 58px app bar — and it spans the full width inside 16px gutters</li><li><strong>AND</strong> it covers neither the hamburger nor the bell</li></ul>
+<h5 id="scenario-auto-dismiss" class="scn">Scenario: auto-dismiss</h5>
+<ul><li><strong>WHEN</strong> 4 seconds pass without interaction</li><li><strong>THEN</strong> the toast leaves on its own</li></ul>
+<h5 id="scenario-manual-dismiss" class="scn">Scenario: manual dismiss</h5>
+<ul><li><strong>WHEN</strong> the close affordance is clicked</li><li><strong>THEN</strong> that toast leaves immediately and the others close the gap</li></ul>
+<h5 id="scenario-stack-cap" class="scn">Scenario: stack cap</h5>
+<ul><li><strong>WHEN</strong> a fourth toast is raised while three are on screen</li><li><strong>THEN</strong> at most three are mounted at any time</li></ul>
+<h4 id="requirement-global-mutation-error-reporting" class="req">Requirement: global mutation error reporting <a class="reqtag" href="#cov">req-4</a></h4>
+<p>A failed mutation SHALL raise an error toast automatically, unless that mutation defines its own <code>onError</code>.</p>
+<h5 id="scenario-unhandled-mutation-failure" class="scn">Scenario: unhandled mutation failure</h5>
+<ul><li><strong>WHEN</strong> a mutation with no <code>onError</code> of its own rejects</li><li><strong>THEN</strong> exactly one error toast appears, carrying <code>apiErrorMessage(error)</code></li></ul>
+<h5 id="scenario-the-call-site-takes-over" class="scn">Scenario: the call site takes over</h5>
+<ul><li><strong>WHEN</strong> a mutation that defines its own <code>onError</code> rejects</li><li><strong>THEN</strong> no global toast appears and only the mutation&#x27;s own handler runs</li></ul>
+<h5 id="scenario-queries-are-not-toasted" class="scn">Scenario: queries are not toasted</h5>
+<ul><li><strong>WHEN</strong> a <code>useQuery</code> fetch fails</li><li><strong>THEN</strong> no toast appears</li></ul>
+<h5 id="scenario-success-is-never-global" class="scn">Scenario: success is never global</h5>
+<ul><li><strong>WHEN</strong> any mutation succeeds</li><li><strong>THEN</strong> no toast appears unless that mutation&#x27;s own <code>onSuccess</code> raises one</li></ul>
+<h5 id="scenario-existing-query-behaviour-is-preserved" class="scn">Scenario: existing query behaviour is preserved</h5>
+<ul><li><strong>WHEN</strong> the <code>QueryClient</code> is constructed</li><li><strong>THEN</strong> <code>defaultOptions.queries</code> still carries <code>staleTime: 60_000</code> and <code>refetchOnWindowFocus: false</code></li></ul>
+<h4 id="requirement-api-error-messages" class="req">Requirement: API error messages <a class="reqtag" href="#cov">req-5</a></h4>
+<p><code>apiErrorMessage</code> SHALL turn a thrown request error into user-facing copy without ever surfacing a server-internal message.</p>
+<h5 id="scenario-4xx-with-an-envelope" class="scn">Scenario: 4xx with an envelope</h5>
+<ul><li><strong>WHEN</strong> the error is an Axios error whose response body is <code>{statusCode: 400, code: &quot;PROJECT_NAME_TAKEN&quot;, message: &quot;A project with that name exists&quot;}</code></li><li><strong>THEN</strong> the returned string is that <code>message</code></li></ul>
+<h5 id="scenario-5xx" class="scn">Scenario: 5xx</h5>
+<ul><li><strong>WHEN</strong> the error is an Axios error with status 500</li><li><strong>THEN</strong> the returned string is the generic <code>&quot;Something went wrong. Please try again.&quot;</code> and never the response body&#x27;s message</li></ul>
+<h5 id="scenario-not-an-axios-error" class="scn">Scenario: not an Axios error</h5>
+<ul><li><strong>WHEN</strong> the error is an arbitrary thrown value</li><li><strong>THEN</strong> the returned string is the generic message and never <code>error.message</code></li></ul>
+<h4 id="requirement-confirm-resolution-contract" class="req">Requirement: confirm resolution contract <a class="reqtag" href="#cov">req-6</a></h4>
+<p><code>confirm(options)</code> SHALL return a promise resolving <code>true</code> on confirm and <code>false</code> on cancel, and SHALL fire <code>onConfirm</code> / <code>onCancel</code> when supplied.</p>
+<h5 id="scenario-confirmed" class="scn">Scenario: confirmed</h5>
+<ul><li><strong>WHEN</strong> the user clicks the confirm button</li><li><strong>THEN</strong> <code>onConfirm</code> runs, the dialog closes, and the promise resolves <code>true</code></li></ul>
+<h5 id="scenario-cancelled-by-button" class="scn">Scenario: cancelled by button</h5>
+<ul><li><strong>WHEN</strong> the user clicks the cancel button</li><li><strong>THEN</strong> <code>onCancel</code> runs, the dialog closes, and the promise resolves <code>false</code></li></ul>
+<h5 id="scenario-cancelled-by-escape-or-overlay" class="scn">Scenario: cancelled by Escape or overlay</h5>
+<ul><li><strong>WHEN</strong> the user presses <code>Esc</code>, or clicks the overlay, while not pending</li><li><strong>THEN</strong> the outcome is identical to clicking cancel</li></ul>
+<h5 id="scenario-promise-only-call-site" class="scn">Scenario: promise-only call site</h5>
+<ul><li><strong>WHEN</strong> <code>confirm()</code> is called with neither callback</li><li><strong>THEN</strong> the dialog still works and the promise alone reports the outcome</li></ul>
+<h5 id="scenario-a-second-confirm-while-one-is-open" class="scn">Scenario: a second confirm while one is open</h5>
+<ul><li><strong>WHEN</strong> <code>confirm()</code> is called while a dialog is already open</li><li><strong>THEN</strong> the new options replace the open dialog, the first promise resolves <code>false</code>, and the first <code>onCancel</code> does not fire</li></ul>
+<h4 id="requirement-confirm-pending-state" class="req">Requirement: confirm pending state <a class="reqtag" href="#cov">req-7</a></h4>
+<p>While an async <code>onConfirm</code> is in flight the dialog SHALL stay open, disable both buttons, and refuse to be dismissed.</p>
+<h5 id="scenario-spinner-while-working" class="scn">Scenario: spinner while working</h5>
+<ul><li><strong>WHEN</strong> <code>onConfirm</code> returns a promise that has not settled</li><li><strong>THEN</strong> the dialog is still open, the confirm button shows a spinner, and its label is unchanged</li></ul>
+<h5 id="scenario-no-double-submit" class="scn">Scenario: no double submit</h5>
+<ul><li><strong>WHEN</strong> the confirm button is clicked twice in a row</li><li><strong>THEN</strong> <code>onConfirm</code> runs exactly once</li></ul>
+<h5 id="scenario-dismissal-is-blocked-while-pending" class="scn">Scenario: dismissal is blocked while pending</h5>
+<ul><li><strong>WHEN</strong> <code>Esc</code> is pressed or the overlay is clicked while pending</li><li><strong>THEN</strong> the dialog stays open and nothing is cancelled</li></ul>
+<h5 id="scenario-failure-is-never-silent" class="scn">Scenario: failure is never silent</h5>
+<ul><li><strong>WHEN</strong> <code>onConfirm</code> rejects</li><li><strong>THEN</strong> the dialog closes, the promise resolves <code>false</code>, and an error toast appears</li><li><strong>AND</strong> when the rejection came from a mutation that was already toasted globally, the confirm toast reuses a fixed id so the two do not stack</li></ul>
+<h5 id="scenario-sync-confirm-does-not-flash-a-spinner" class="scn">Scenario: sync confirm does not flash a spinner</h5>
+<ul><li><strong>WHEN</strong> <code>onConfirm</code> is synchronous or absent</li><li><strong>THEN</strong> the dialog closes immediately with no pending state</li></ul>
+<h4 id="requirement-confirm-presentation" class="req">Requirement: confirm presentation <a class="reqtag" href="#cov">req-8</a></h4>
+<p>A confirm dialog SHALL render a flat tone icon, title, optional description and right-aligned Cancel/Confirm buttons, with <code>tone</code> affecting only the icon and the confirm button&#x27;s variant.</p>
+<h5 id="scenario-default-tone" class="scn">Scenario: default tone</h5>
+<ul><li><strong>WHEN</strong> <code>confirm({ title: &quot;Publish 14 requirements?&quot; })</code> is called with no <code>tone</code></li><li><strong>THEN</strong> the tone is <code>confirm</code>: a <code>--primary</code> question icon and a <code>variant=&quot;default&quot;</code> confirm button</li></ul>
+<h5 id="scenario-error-tone-drives-the-destructive-button" class="scn">Scenario: error tone drives the destructive button</h5>
+<ul><li><strong>WHEN</strong> <code>tone: &quot;error&quot;</code> is passed</li><li><strong>THEN</strong> the icon is <code>--destructive</code> and the confirm button is <code>variant=&quot;destructive&quot;</code></li></ul>
+<h5 id="scenario-the-other-tones-do-not-change-the-button" class="scn">Scenario: the other tones do not change the button</h5>
+<ul><li><strong>WHEN</strong> <code>tone</code> is <code>success</code>, <code>info</code> or <code>warning</code></li><li><strong>THEN</strong> the icon colour follows the tone and the confirm button stays <code>variant=&quot;default&quot;</code></li></ul>
+<h5 id="scenario-optional-description" class="scn">Scenario: optional description</h5>
+<ul><li><strong>WHEN</strong> <code>description</code> is omitted</li><li><strong>THEN</strong> the title sits alone beside the icon with no empty row</li></ul>
+<h5 id="scenario-custom-labels" class="scn">Scenario: custom labels</h5>
+<ul><li><strong>WHEN</strong> <code>confirmLabel</code> and <code>cancelLabel</code> are passed</li><li><strong>THEN</strong> the buttons use them; otherwise they read &quot;Confirm&quot; and &quot;Cancel&quot;</li></ul>
+<h5 id="scenario-buttons-are-the-project-s-button" class="scn">Scenario: buttons are the project&#x27;s Button</h5>
+<ul><li><strong>WHEN</strong> the dialog is rendered</li><li><strong>THEN</strong> both buttons are <code>components/ui/button.tsx:Button</code>, not hand-rolled elements</li></ul>
+<h5 id="scenario-focus" class="scn">Scenario: focus</h5>
+<ul><li><strong>WHEN</strong> the dialog opens</li><li><strong>THEN</strong> focus is on the confirm button and is trapped inside the dialog until it closes</li></ul>
+<h4 id="requirement-delete-confirmation-preset" class="req">Requirement: delete confirmation preset <a class="reqtag" href="#cov">req-9</a></h4>
+<p>A <code>confirmDelete</code> preset SHALL supply the standard copy and tone for a deletion, so no screen writes its own.</p>
+<h5 id="scenario-with-a-name" class="scn">Scenario: with a name</h5>
+<ul><li><strong>WHEN</strong> <code>confirmDelete(&quot;project&quot;, &quot;Clarivo API v2&quot;)</code> is spread into <code>confirm()</code></li><li><strong>THEN</strong> the title reads <code>Delete project?</code>, the description names <code>&quot;Clarivo API v2&quot;</code> and says it cannot be undone, the confirm label is <code>Delete</code>, and the tone is <code>error</code></li></ul>
+<h5 id="scenario-without-a-name" class="scn">Scenario: without a name</h5>
+<ul><li><strong>WHEN</strong> <code>confirmDelete(&quot;meeting&quot;)</code> is used</li><li><strong>THEN</strong> the description omits the name but still says the action cannot be undone</li></ul>
+<h4 id="requirement-sign-out-is-confirmed" class="req">Requirement: sign-out is confirmed <a class="reqtag" href="#cov">req-10</a></h4>
+<p>Signing out SHALL ask for confirmation first and report success with a toast.</p>
+<h5 id="scenario-confirmed-sign-out" class="scn">Scenario: confirmed sign-out</h5>
+<ul><li><strong>WHEN</strong> <code>Sign out</code> is chosen in the user menu and the dialog is confirmed</li><li><strong>THEN</strong> the logout mutation runs, the auth store is cleared, the browser lands on <code>/login</code>, and a success toast appears</li></ul>
+<h5 id="scenario-cancelled-sign-out" class="scn">Scenario: cancelled sign-out</h5>
+<ul><li><strong>WHEN</strong> the dialog is cancelled</li><li><strong>THEN</strong> no logout request is made and the user stays where they were</li></ul>
+<h4 id="requirement-no-double-reported-auth-errors" class="req">Requirement: no double-reported auth errors <a class="reqtag" href="#cov">req-11</a></h4>
+<p>The login and logout flows SHALL NOT raise a global error toast on top of their existing handling.</p>
+<h5 id="scenario-bad-login-credentials" class="scn">Scenario: bad login credentials</h5>
+<ul><li><strong>WHEN</strong> login fails with a 401</li><li><strong>THEN</strong> the message appears once, inline in the form, and no toast appears</li><li><strong>AND</strong> the message stays the generic <code>&quot;Incorrect email or password.&quot;</code>, revealing nothing about whether the email exists</li></ul>
+<h5 id="scenario-logout-request-fails" class="scn">Scenario: logout request fails</h5>
+<ul><li><strong>WHEN</strong> the logout request fails</li><li><strong>THEN</strong> no error toast appears and the user is still cleared and redirected to <code>/login</code></li></ul>
+<h4 id="requirement-reviewable-demo-surface" class="req">Requirement: reviewable demo surface <a class="reqtag" href="#cov">req-12</a></h4>
+<p>The dashboard SHALL carry a temporary demo card that raises every tone and opens a confirm dialog, marked for deletion.</p>
+<h5 id="scenario-all-four-tones-from-one-place" class="scn">Scenario: all four tones from one place</h5>
+<ul><li><strong>WHEN</strong> each demo button is clicked</li><li><strong>THEN</strong> a success, info, warning and error toast can each be raised, with title and description</li></ul>
+<h5 id="scenario-confirm-from-the-demo-card" class="scn">Scenario: confirm from the demo card</h5>
+<ul><li><strong>WHEN</strong> the demo&#x27;s confirm button is clicked</li><li><strong>THEN</strong> a destructive confirm dialog opens, and confirming it raises a success toast after a short artificial delay that exercises the pending state</li></ul>
+<h5 id="scenario-marked-as-temporary" class="scn">Scenario: marked as temporary</h5>
+<ul><li><strong>WHEN</strong> the demo card&#x27;s source is read</li><li><strong>THEN</strong> a <code>// ponytail:</code> comment marks it as a demo to delete when real screens land</li></ul>
+<h4 id="requirement-dark-theme-parity" class="req">Requirement: dark theme parity <a class="reqtag" href="#cov">req-13</a></h4>
+<p>Every surface this change adds SHALL follow the <code>.dark</code> class without a per-component override.</p>
+<h5 id="scenario-toast-in-dark" class="scn">Scenario: toast in dark</h5>
+<ul><li><strong>WHEN</strong> <code>class=&quot;dark&quot;</code> is set on <code>&lt;html&gt;</code> and a toast of each tone is raised</li><li><strong>THEN</strong> each uses the <code>.dark</code> values of <code>--popover</code>, <code>--border</code>, <code>--muted-foreground</code> and its tone token</li></ul>
+<h5 id="scenario-dialog-in-dark" class="scn">Scenario: dialog in dark</h5>
+<ul><li><strong>WHEN</strong> <code>class=&quot;dark&quot;</code> is set and a confirm dialog opens</li><li><strong>THEN</strong> the dialog uses <code>.dark</code> <code>--popover</code> and the destructive confirm button renders at the <code>dark:bg-destructive/60</code> weight from <code>button.tsx</code></li></ul>
+<h5 id="scenario-no-os-preference-styling" class="scn">Scenario: no OS-preference styling</h5>
+<ul><li><strong>WHEN</strong> the Toaster&#x27;s props are read</li><li><strong>THEN</strong> no <code>theme</code> prop and no <code>richColors</code> prop is set, and nothing in the change reads <code>prefers-color-scheme</code></li></ul>
+  </section>
+
+  <section id="board"><h2>Board</h2>
+    <p class="meta">This change is <strong>not on the board yet</strong> — approving this page runs <code>/devspec-plan</code>, which adds it. Current <code>devspec/changes/tasks.yml</code>:</p>
+    <pre><code># DevSpec board — one entry per change, not per subtask.
+# Subtasks live in each change&#x27;s tasks.md; this file carries status and
+# cross-change ordering only.
+changes:
+  add-login:
+    title: login page, JWT cookie session, users table + seeded admin
+    tasks_md: changes/add-login/tasks.md
+    depends_on: []
+    skills: [frontend-design, typeorm]
+    status: blocked
+    owner: &quot;worker-local&quot;
+    notes: &gt;-
+      BLOCKED at section 9 only: `pnpm test:e2e` fails on the PRE-EXISTING
+      test/app.e2e-spec.ts (asserts GET / -&gt; &quot;Hello World!&quot; from an AppController
+      this repo does not have). All 4 tests this change added pass; sections 1-8
+      are verified. See devspec/report/blockers.md and
+      devspec/changes/add-login/verify/fixes.md.
+      First change in the repo. Establishes three precedents everything after
+      copies: the first domain modules (src/users/, src/auth/), the first
+      migration this project has ever run, and the table/column naming recorded
+      in devspec/context/schema.md. Refresh schema.md once the migration lands.
+      Section 1 fixes the frontend dev port and CORS_ORIGINS; nothing in the
+      change works in a browser until it does.
+  add-app-shell:
+    title: collapsible sidebar shell, mobile drawer, sample dashboard
+    tasks_md: archive/add-app-shell/tasks.md
+    depends_on: []
+    skills: [frontend-design]
+    status: done
+    owner: &quot;worker-local&quot;
+    notes: &gt;-
+      Frontend only — nothing under backend/ is touched, no endpoint, entity,
+      migration or env var, and no new npm dependency.
+      NOT declared as depends_on [add-login] on purpose. This change does consume
+      add-login&#x27;s output (stores/auth.ts, hooks/use-auth.ts, components/ui/button.tsx,
+      the cookie session), but that code is already built and verified in the working
+      tree. add-login sits at status: blocked only on the PRE-EXISTING
+      test/app.e2e-spec.ts failure in the backend, which has nothing to do with this
+      change — declaring the dep would stall this work behind an unrelated red test.
+      Flip to depends_on: [add-login] if the board must mirror strict lineage.
+      Two deletions are part of the work and must land in the same commit as their
+      replacements: frontend/app/page.tsx (its route moves to app/(app)/page.tsx —
+      two files cannot own &quot;/&quot;) and frontend/components/auth/user-chip.tsx (absorbed
+      by components/nav/nav-user.tsx).
+      Section 1 hand-copies eight shadcn primitives because the shadcn CLI hangs in
+      this environment (devspec/context/rules.md). Transcription error is the most
+      likely defect in this change; tsc + eslint + rendering each one is the check.
+      devspec/context/conventions.md is STALE for the frontend — it still describes
+      @/* -&gt; ./app/* with everything under app/. frontend/CLAUDE.md is authoritative:
+      @/* resolves to the frontend root. Refreshing the context pack is a separate job.
+</code></pre>
+    <h3>Dependency graph</h3>
+    <pre><code>add-login        blocked   (pre-existing backend e2e failure)
+add-app-shell    done      archived
+add-feedback-layer   unregistered   depends_on: []  -- runs independently of both</code></pre>
+  </section>
+</main></div></body></html>

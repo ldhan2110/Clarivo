@@ -48,3 +48,44 @@ changes:
       devspec/context/conventions.md is STALE for the frontend — it still describes
       @/* -> ./app/* with everything under app/. frontend/CLAUDE.md is authoritative:
       @/* resolves to the frontend root. Refreshing the context pack is a separate job.
+  add-feedback-layer:
+    title: toast notifications and confirm dialogs as reusable frontend scaffold
+    tasks_md: changes/add-feedback-layer/tasks.md
+    depends_on: []
+    skills: [frontend-design]
+    status: done
+    owner: "worker-local"
+    notes: >-
+      Frontend only. No backend file, entity, migration, endpoint, DTO or env var
+      is touched, so `pnpm api:types` never runs. One new dependency: sonner.
+      NOT declared as depends_on [add-login] on purpose, for the same reason
+      add-app-shell wasn't. This change edits add-login's `hooks/use-auth.ts` (a
+      no-op onError on useLogin and useLogout) and add-app-shell's
+      `components/sidebar/nav-user.tsx` (sign-out routed through confirm), but both
+      files are already built and verified in the working tree. add-login sits at
+      status blocked only on the PRE-EXISTING `test/app.e2e-spec.ts` failure in the
+      backend, which has nothing to do with this change; declaring the dep would
+      stall frontend work behind an unrelated red test. Flip to
+      depends_on: [add-login] if the board must mirror strict lineage.
+      Two SHARED files are touched and are where a reviewer should look hardest:
+      `components/provider/query-provider.tsx` (adds a MutationCache whose onError
+      reaches every mutation in the app) and `app/layout.tsx` (two new providers).
+      The override mechanism is `if (mutation.options.onError) return;` — React Query
+      runs cache-level AND mutation-level handlers, so that check is the only thing
+      making a local onError an override. Its known cost is recorded in design.md:
+      a mutation defining onError for an unrelated reason (optimistic rollback)
+      silently loses its error toast.
+      Section 1 adds the only two new theme tokens (`--success`, `--warning`).
+      Section 5 hand-copies the alert-dialog primitive because the shadcn CLI hangs
+      in this environment (devspec/context/rules.md) — transcription error is the
+      most likely defect, and tsc + eslint + rendering it is the check.
+      Section 9 adds a TEMPORARY demo card to `app/(app)/page.tsx`, marked with a
+      `ponytail:` comment. It exists so the four tones and the pending/failure paths
+      are reviewable before any real screen uses them. Delete it in the first change
+      that ships real actions — nothing enforces that.
+      Dark mode has no toggle (nothing sets `.dark`), so section 10's dark pass means
+      setting the class by hand in devtools. Adding a toggle is out of scope.
+      devspec/context/conventions.md is STALE for the frontend — it still describes
+      `@/*` -> ./app/* with everything under app/. frontend/CLAUDE.md is
+      authoritative: `@/*` resolves from the frontend root. Refreshing the context
+      pack is a separate job.

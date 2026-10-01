@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>add-feedback-layer — toast stack</title>
+<style>
+/* ──────────────────────────────────────────────────────────────────────
+   Tokens copied verbatim from frontend/app/globals.css.
+   The only additions are --success and --warning (this change proposes them).
+   ────────────────────────────────────────────────────────────────────── */
+.theme-light {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.2536 0.0553 266.35);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2536 0.0553 266.35);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2536 0.0553 266.35);
+  --primary: oklch(0.6016 0.2123 263.59);
+  --primary-foreground: oklch(0.984 0.003 247.858);
+  --muted: oklch(0.968 0.007 247.896);
+  --muted-foreground: oklch(0.554 0.046 257.417);
+  --accent: oklch(0.968 0.007 247.896);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.929 0.013 255.508);
+  --sidebar: oklch(0.984 0.003 247.858);
+  --sidebar-foreground: oklch(0.2536 0.0553 266.35);
+  --sidebar-primary: oklch(0.6016 0.2123 263.59);
+  --sidebar-accent: oklch(0.968 0.007 247.896);
+  --sidebar-border: oklch(0.929 0.013 255.508);
+  /* NEW — proposed by add-feedback-layer */
+  --success: oklch(0.58 0.14 157);
+  --warning: oklch(0.70 0.15 75);
+  --shadow-toast: 0 10px 30px -8px oklch(0.2536 0.0553 266.35 / 22%), 0 2px 6px -2px oklch(0.2536 0.0553 266.35 / 10%);
+}
+.theme-dark {
+  --radius: 0.625rem;
+  --background: oklch(0.2536 0.0553 266.35);
+  --foreground: oklch(0.984 0.003 247.858);
+  --card: oklch(0.3 0.05 266.35);
+  --card-foreground: oklch(0.984 0.003 247.858);
+  --popover: oklch(0.3 0.05 266.35);
+  --popover-foreground: oklch(0.984 0.003 247.858);
+  --primary: oklch(0.6788 0.1756 250.9);
+  --primary-foreground: oklch(0.2536 0.0553 266.35);
+  --muted: oklch(0.32 0.045 266.35);
+  --muted-foreground: oklch(0.704 0.04 256.788);
+  --accent: oklch(0.32 0.045 266.35);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --sidebar: oklch(0.3 0.05 266.35);
+  --sidebar-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-primary: oklch(0.6788 0.1756 250.9);
+  --sidebar-accent: oklch(0.32 0.045 266.35);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  /* NEW — proposed by add-feedback-layer */
+  --success: oklch(0.72 0.16 157);
+  --warning: oklch(0.80 0.15 80);
+  --shadow-toast: 0 10px 30px -8px oklch(0 0 0 / 50%), 0 2px 6px -2px oklch(0 0 0 / 30%);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; }
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: #eef1f6;
+  color: #16213d;
+}
+
+/* page chrome — mockup scaffolding, not part of the app */
+.page { max-width: 1480px; margin: 0 auto; padding: 32px 24px 80px; }
+.page h1 { font-size: 20px; margin: 0 0 4px; letter-spacing: -0.01em; }
+.page .sub { font-size: 13px; color: #5b657d; margin: 0 0 28px; }
+.label {
+  font-size: 10.5px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase;
+  color: #6b7589; margin: 32px 0 10px; display: flex; align-items: center; gap: 10px;
+}
+.label::after { content: ""; flex: 1; height: 1px; background: #d9dfe9; }
+.note {
+  font-size: 12.5px; color: #5b657d; margin: 10px 0 0; line-height: 1.5;
+  padding-left: 10px; border-left: 2px solid #d9dfe9;
+}
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 1100px) { .split { grid-template-columns: 1fr; } }
+.frame-cap {
+  font-size: 11px; font-weight: 600; color: #6b7589; margin-bottom: 7px;
+  display: flex; justify-content: space-between;
+}
+.frame-cap span:last-child { font-weight: 400; opacity: 0.75; }
+
+/* ── the app canvas, as established by add-app-shell ───────────────── */
+.canvas {
+  position: relative; height: 420px; overflow: hidden;
+  border-radius: 14px; border: 1px solid var(--border);
+  background: var(--muted); display: flex;
+  font-family: inherit; color: var(--foreground);
+}
+.sidebar {
+  flex: 0 0 200px; margin: 12px; border-radius: 18px;
+  background: var(--sidebar); border: 1px solid var(--sidebar-border);
+  box-shadow: 0 4px 16px -8px oklch(0 0 0 / 18%);
+  padding: 14px 12px; display: flex; flex-direction: column; gap: 14px;
+}
+.brand { display: flex; align-items: center; gap: 9px; font-size: 13.5px; font-weight: 600; }
+.brand-mark {
+  width: 24px; height: 24px; border-radius: 7px; flex: 0 0 24px;
+  background: var(--sidebar-primary); opacity: 0.9;
+}
+.grp { font-size: 9.5px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted-foreground); padding: 0 8px; }
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav-i {
+  height: 32px; border-radius: 10px; display: flex; align-items: center; gap: 9px;
+  padding: 0 9px; font-size: 12.5px; color: var(--sidebar-foreground); opacity: 0.72;
+}
+.nav-i.on { background: var(--sidebar-accent); opacity: 1; font-weight: 500; }
+.nav-i .dot { width: 14px; height: 14px; border-radius: 4px; background: currentColor; opacity: 0.4; }
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.topbar { height: 58px; display: flex; align-items: center; padding: 0 20px; font-size: 14px; font-weight: 600; }
+.body { flex: 1; padding: 0 20px 20px; }
+.ph { border-radius: 12px; background: var(--card); border: 1px solid var(--border); height: 100%; }
+
+/* ── TOAST — the subject of this mockup ────────────────────────────── */
+.viewport {
+  position: absolute; top: 16px; right: 16px; z-index: 10;
+  display: flex; flex-direction: column; gap: 10px; width: 364px; max-width: calc(100% - 32px);
+}
+.toast {
+  position: relative; display: grid; grid-template-columns: 26px 1fr 18px;
+  gap: 12px; align-items: center;
+  padding: 14px;
+  border-radius: 12px; overflow: hidden;
+  background: var(--popover); color: var(--popover-foreground);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-toast);
+}
+/* Tone lives in the icon and NOWHERE else — no rail, no tinted surface, no
+   coloured edge. The icon is flat: a solid tone-filled shape with the glyph
+   knocked out in the surface colour. It is vertically centred, so it spans
+   from the title down through the description. */
+.toast .ico { color: var(--tone); align-self: center; }
+.toast .ico svg { display: block; width: 26px; height: 26px; }
+.toast .ico .knock { stroke: var(--popover); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.toast .t { font-size: 13.5px; font-weight: 600; line-height: 1.35; letter-spacing: -0.005em; }
+.toast .d { font-size: 12.5px; line-height: 1.45; color: var(--muted-foreground); margin-top: 3px; }
+.toast .x {
+  width: 18px; height: 18px; display: grid; place-items: center; margin-top: 1px;
+  color: var(--muted-foreground); opacity: 0.55; cursor: pointer; border-radius: 4px;
+  align-self: start;
+}
+.toast .x:hover { opacity: 1; background: var(--accent); }
+.toast .x svg { width: 13px; height: 13px; display: block; }
+.toast.is-success { --tone: var(--success); }
+.toast.is-info    { --tone: var(--primary); }
+.toast.is-warning { --tone: var(--warning); }
+.toast.is-error   { --tone: var(--destructive); }
+/* only the newest three are mounted; the 4th is shown dimmed to mean "queued" */
+.toast.queued { opacity: 0.4; }
+.queue-cap { font-size: 11px; color: var(--muted-foreground); text-align: right; margin-top: -4px; }
+
+/* isolated-tone gallery */
+.gallery { padding: 22px; border-radius: 14px; background: var(--muted); border: 1px solid var(--border); }
+.gallery .viewport { position: static; width: 100%; }
+
+/* token table */
+table { border-collapse: collapse; width: 100%; font-size: 12.5px; margin-top: 12px; background: #fff; border-radius: 10px; overflow: hidden; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #e4e9f1; }
+th { font-size: 10.5px; letter-spacing: 0.07em; text-transform: uppercase; color: #6b7589; background: #f6f8fb; }
+tr:last-child td { border-bottom: 0; }
+td code { font-size: 12px; background: #f1f4f9; padding: 1px 5px; border-radius: 4px; }
+.sw { display: inline-block; width: 13px; height: 13px; border-radius: 3px; vertical-align: -2px; margin-right: 7px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>add-feedback-layer &mdash; toast stack</h1>
+  <p class="sub">
+    Screen 1 of 4. Top-right viewport, four tones, title + description, max three stacked. Tone is carried by the flat icon alone.
+    Light and dark side by side. Every colour is a token from <code>frontend/app/globals.css</code>;
+    <code>--success</code> and <code>--warning</code> are the two this change adds.
+  </p>
+
+  <div class="label">A &middot; three stacked over the app canvas</div>
+  <div class="split">
+
+    <div>
+      <div class="frame-cap"><span>Light &mdash; <code>:root</code></span><span>default theme</span></div>
+      <div class="canvas theme-light">
+        <div class="sidebar">
+          <div class="brand"><div class="brand-mark"></div>Clarivo</div>
+          <div><div class="grp">Workspace</div>
+            <div class="nav">
+              <div class="nav-i on"><span class="dot"></span>Dashboard</div>
+              <div class="nav-i"><span class="dot"></span>Projects</div>
+              <div class="nav-i"><span class="dot"></span>Meetings</div>
+            </div>
+          </div>
+          <div><div class="grp">Insights</div>
+            <div class="nav">
+              <div class="nav-i"><span class="dot"></span>Requirements</div>
+              <div class="nav-i"><span class="dot"></span>Questions</div>
+            </div>
+          </div>
+        </div>
+        <div class="main">
+          <div class="topbar">Dashboard</div>
+          <div class="body"><div class="ph"></div></div>
+        </div>
+
+        <div class="viewport">
+          <div class="toast is-success">
+            <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m7.5 12.2 3.1 3.1 6-6.6"/></svg></div>
+            <div><div class="t">Project created</div><div class="d">&ldquo;Clarivo API v2&rdquo; is ready for its first meeting.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+          <div class="toast is-warning">
+            <div class="ico"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10.17 3.3a2.1 2.1 0 0 1 3.66 0l8.1 14.3A2.1 2.1 0 0 1 20.1 20.8H3.9a2.1 2.1 0 0 1-1.83-3.2z"/><path class="knock" d="M12 9v4.4"/><circle cx="12" cy="17" r="1.3" fill="var(--popover)"/></svg></div>
+            <div><div class="t">2 requirements conflict</div><div class="d">REQ-14 and REQ-27 disagree on retention. Review before publishing.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+          <div class="toast is-error">
+            <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m8.6 8.6 6.8 6.8M15.4 8.6l-6.8 6.8"/></svg></div>
+            <div><div class="t">Couldn&rsquo;t upload document</div><div class="d">The file is larger than 25&nbsp;MB.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+          <div class="toast is-info queued">
+            <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="M12 11.2v5.6"/><circle cx="12" cy="7.6" r="1.35" fill="var(--popover)"/></svg></div>
+            <div><div class="t">Analysis still running</div><div class="d">The transcript is being processed in the background.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+          <div class="queue-cap">&uarr; 4th toast is queued, not mounted (max 3)</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="frame-cap"><span>Dark &mdash; <code>.dark</code></span><span>class set by hand; no toggle exists yet</span></div>
+      <div class="canvas theme-dark">
+        <div class="sidebar">
+          <div class="brand"><div class="brand-mark"></div>Clarivo</div>
+          <div><div class="grp">Workspace</div>
+            <div class="nav">
+              <div class="nav-i on"><span class="dot"></span>Dashboard</div>
+              <div class="nav-i"><span class="dot"></span>Projects</div>
+              <div class="nav-i"><span class="dot"></span>Meetings</div>
+            </div>
+          </div>
+          <div><div class="grp">Insights</div>
+            <div class="nav">
+              <div class="nav-i"><span class="dot"></span>Requirements</div>
+              <div class="nav-i"><span class="dot"></span>Questions</div>
+            </div>
+          </div>
+        </div>
+        <div class="main">
+          <div class="topbar">Dashboard</div>
+          <div class="body"><div class="ph"></div></div>
+        </div>
+
+        <div class="viewport">
+          <div class="toast is-success">
+            <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m7.5 12.2 3.1 3.1 6-6.6"/></svg></div>
+            <div><div class="t">Project created</div><div class="d">&ldquo;Clarivo API v2&rdquo; is ready for its first meeting.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+          <div class="toast is-warning">
+            <div class="ico"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10.17 3.3a2.1 2.1 0 0 1 3.66 0l8.1 14.3A2.1 2.1 0 0 1 20.1 20.8H3.9a2.1 2.1 0 0 1-1.83-3.2z"/><path class="knock" d="M12 9v4.4"/><circle cx="12" cy="17" r="1.3" fill="var(--popover)"/></svg></div>
+            <div><div class="t">2 requirements conflict</div><div class="d">REQ-14 and REQ-27 disagree on retention. Review before publishing.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+          <div class="toast is-error">
+            <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m8.6 8.6 6.8 6.8M15.4 8.6l-6.8 6.8"/></svg></div>
+            <div><div class="t">Couldn&rsquo;t upload document</div><div class="d">The file is larger than 25&nbsp;MB.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+          <div class="toast is-info queued">
+            <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="M12 11.2v5.6"/><circle cx="12" cy="7.6" r="1.35" fill="var(--popover)"/></svg></div>
+            <div><div class="t">Analysis still running</div><div class="d">The transcript is being processed in the background.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+          <div class="queue-cap">&uarr; 4th toast is queued, not mounted (max 3)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="note">
+    The toast surface is <code>--popover</code> / <code>--popover-foreground</code> / <code>--border</code> &mdash;
+    identical to the existing dropdown-menu, so a toast and the user menu read as the same material.
+    Tone appears in <strong>one place only</strong>: the icon &mdash; a flat, solid tone-filled shape with the
+    glyph knocked out in the surface colour. No coloured rail, no tinted background, no coloured edge.
+    This is why sonner&rsquo;s <code>richColors</code> was rejected: it floods the whole surface and stops
+    matching the app.
+  </p>
+
+  <div class="label">B &middot; the four tones in isolation</div>
+  <div class="split">
+    <div>
+      <div class="frame-cap"><span>Light</span><span>title + description</span></div>
+      <div class="gallery theme-light">
+        <div class="viewport">
+          <div class="toast is-success">
+            <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m7.5 12.2 3.1 3.1 6-6.6"/></svg></div>
+            <div><div class="t">success</div><div class="d">Saved. <code>--success</code> &mdash; new token.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+          <div class="toast is-info">
+            <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="M12 11.2v5.6"/><circle cx="12" cy="7.6" r="1.35" fill="var(--popover)"/></svg></div>
+            <div><div class="t">info</div><div class="d">Reuses <code>--primary</code>, the brand blue. No new token.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+          <div class="toast is-warning">
+            <div class="ico"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10.17 3.3a2.1 2.1 0 0 1 3.66 0l8.1 14.3A2.1 2.1 0 0 1 20.1 20.8H3.9a2.1 2.1 0 0 1-1.83-3.2z"/><path class="knock" d="M12 9v4.4"/><circle cx="12" cy="17" r="1.3" fill="var(--popover)"/></svg></div>
+            <div><div class="t">warning</div><div class="d"><code>--warning</code> &mdash; new token, deliberately lighter than destructive.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+          <div class="toast is-error">
+            <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m8.6 8.6 6.8 6.8M15.4 8.6l-6.8 6.8"/></svg></div>
+            <div><div class="t">error</div><div class="d">Reuses <code>--destructive</code>. The global mutation toast.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+          <div class="toast is-info" style="grid-template-columns:26px 1fr;">
+            <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="M12 11.2v5.6"/><circle cx="12" cy="7.6" r="1.35" fill="var(--popover)"/></svg></div>
+            <div><div class="t">Title only &mdash; description omitted</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="frame-cap"><span>Dark</span><span>same markup, <code>.dark</code> tokens</span></div>
+      <div class="gallery theme-dark">
+        <div class="viewport">
+          <div class="toast is-success">
+            <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m7.5 12.2 3.1 3.1 6-6.6"/></svg></div>
+            <div><div class="t">success</div><div class="d">Saved. <code>--success</code> &mdash; new token.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+          <div class="toast is-info">
+            <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="M12 11.2v5.6"/><circle cx="12" cy="7.6" r="1.35" fill="var(--popover)"/></svg></div>
+            <div><div class="t">info</div><div class="d">Reuses <code>--primary</code>, the brand blue. No new token.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+          <div class="toast is-warning">
+            <div class="ico"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10.17 3.3a2.1 2.1 0 0 1 3.66 0l8.1 14.3A2.1 2.1 0 0 1 20.1 20.8H3.9a2.1 2.1 0 0 1-1.83-3.2z"/><path class="knock" d="M12 9v4.4"/><circle cx="12" cy="17" r="1.3" fill="var(--popover)"/></svg></div>
+            <div><div class="t">warning</div><div class="d"><code>--warning</code> &mdash; new token, deliberately lighter than destructive.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+          <div class="toast is-error">
+            <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m8.6 8.6 6.8 6.8M15.4 8.6l-6.8 6.8"/></svg></div>
+            <div><div class="t">error</div><div class="d">Reuses <code>--destructive</code>. The global mutation toast.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+          <div class="toast is-info" style="grid-template-columns:26px 1fr;">
+            <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="M12 11.2v5.6"/><circle cx="12" cy="7.6" r="1.35" fill="var(--popover)"/></svg></div>
+            <div><div class="t">Title only &mdash; description omitted</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="label">C &middot; the two tokens this change adds</div>
+  <table>
+    <tr><th>Token</th><th>:root (light)</th><th>.dark</th><th>Why this value</th></tr>
+    <tr>
+      <td><code>--success</code></td>
+      <td><span class="sw" style="background:oklch(0.58 0.14 157)"></span><code>oklch(0.58 0.14 157)</code></td>
+      <td><span class="sw" style="background:oklch(0.72 0.16 157)"></span><code>oklch(0.72 0.16 157)</code></td>
+      <td>Same lightness pair as <code>--destructive</code> (0.577 / 0.704), so the tones sit at one visual weight.</td>
+    </tr>
+    <tr>
+      <td><code>--warning</code></td>
+      <td><span class="sw" style="background:oklch(0.70 0.15 75)"></span><code>oklch(0.70 0.15 75)</code></td>
+      <td><span class="sw" style="background:oklch(0.80 0.15 80)"></span><code>oklch(0.80 0.15 80)</code></td>
+      <td>Lighter than the others on purpose &mdash; amber at L&nbsp;0.58 reads brown, not warning.</td>
+    </tr>
+  </table>
+  <p class="note">
+    Neither token gets a <code>--*-foreground</code> pair. Tone never fills a surface here, so nothing
+    is ever laid on top of these colours. Add the pair the day a <code>success</code> Button variant exists.
+  </p>
+
+  <div class="label">D &middot; measurements, as drawn</div>
+  <table>
+    <tr><th>&nbsp;</th><th>Value</th></tr>
+    <tr><td>viewport offset</td><td>16px from top, 16px from right</td></tr>
+    <tr><td>toast width</td><td>364px</td></tr>
+    <tr><td>gap between toasts</td><td>10px</td></tr>
+    <tr><td>icon &rarr; text gap</td><td>12px</td></tr>
+    <tr><td>radius</td><td>12px &mdash; between <code>--radius-md</code> and <code>--radius-xl</code>, matches dropdown-menu</td></tr>
+    <tr><td>padding</td><td>14px, even on all sides</td></tr>
+    <tr><td>tone rail</td><td>none &mdash; removed; the icon is the only tone carrier</td></tr>
+    <tr><td>icon</td><td>26px, flat solid <code>var(--tone)</code> fill, glyph knocked out in <code>--popover</code>, vertically centred across title + description</td></tr>
+    <tr><td>title</td><td>13.5px / 600 / <code>--popover-foreground</code></td></tr>
+    <tr><td>description</td><td>12.5px / 400 / <code>--muted-foreground</code>, 3px below the title</td></tr>
+    <tr><td>close</td><td>13px X, <code>--muted-foreground</code> at 55% &rarr; 100% + <code>--accent</code> on hover</td></tr>
+    <tr><td>duration / stack</td><td>4s, max 3 mounted</td></tr>
+  </table>
+
+</div>
+</body>
+</html>

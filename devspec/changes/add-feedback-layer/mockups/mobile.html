@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>add-feedback-layer — mobile at 390px</title>
+<style>
+.theme-light {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.2536 0.0553 266.35);
+  --card: oklch(1 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2536 0.0553 266.35);
+  --primary: oklch(0.6016 0.2123 263.59);
+  --primary-foreground: oklch(0.984 0.003 247.858);
+  --muted: oklch(0.968 0.007 247.896);
+  --muted-foreground: oklch(0.554 0.046 257.417);
+  --accent: oklch(0.968 0.007 247.896);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.929 0.013 255.508);
+  --input: oklch(0.929 0.013 255.508);
+  --ring: oklch(0.6016 0.2123 263.59);
+  --success: oklch(0.58 0.14 157);
+  --warning: oklch(0.70 0.15 75);
+  --shadow-toast: 0 10px 30px -8px oklch(0.2536 0.0553 266.35 / 22%), 0 2px 6px -2px oklch(0.2536 0.0553 266.35 / 10%);
+  --shadow-dialog: 0 24px 60px -18px oklch(0.2536 0.0553 266.35 / 35%);
+  --btn-destructive-bg: var(--destructive);
+  --btn-outline-bg: var(--background);
+  --btn-outline-border: var(--border);
+  --scrim: oklch(0.2536 0.0553 266.35 / 45%);
+}
+.theme-dark {
+  --background: oklch(0.2536 0.0553 266.35);
+  --foreground: oklch(0.984 0.003 247.858);
+  --card: oklch(0.3 0.05 266.35);
+  --popover: oklch(0.3 0.05 266.35);
+  --popover-foreground: oklch(0.984 0.003 247.858);
+  --primary: oklch(0.6788 0.1756 250.9);
+  --primary-foreground: oklch(0.2536 0.0553 266.35);
+  --muted: oklch(0.32 0.045 266.35);
+  --muted-foreground: oklch(0.704 0.04 256.788);
+  --accent: oklch(0.32 0.045 266.35);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.6788 0.1756 250.9);
+  --success: oklch(0.72 0.16 157);
+  --warning: oklch(0.80 0.15 80);
+  --shadow-toast: 0 10px 30px -8px oklch(0 0 0 / 50%), 0 2px 6px -2px oklch(0 0 0 / 30%);
+  --shadow-dialog: 0 24px 60px -18px oklch(0 0 0 / 65%);
+  --btn-destructive-bg: oklch(0.704 0.191 22.216 / 60%);
+  --btn-outline-bg: oklch(1 0 0 / 4.5%);
+  --btn-outline-border: oklch(1 0 0 / 15%);
+  --scrim: oklch(0.984 0.003 247.858 / 18%);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; }
+body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; background: #eef1f6; color: #16213d; }
+.page { max-width: 1480px; margin: 0 auto; padding: 32px 24px 80px; }
+h1 { font-size: 20px; margin: 0 0 4px; letter-spacing: -0.01em; }
+.sub { font-size: 13px; color: #5b657d; margin: 0 0 28px; max-width: 760px; line-height: 1.55; }
+.label { font-size: 10.5px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: #6b7589; margin: 34px 0 12px; display: flex; align-items: center; gap: 10px; }
+.label::after { content: ""; flex: 1; height: 1px; background: #d9dfe9; }
+.note { font-size: 12.5px; color: #5b657d; margin: 12px 0 0; line-height: 1.55; padding-left: 10px; border-left: 2px solid #d9dfe9; max-width: 860px; }
+.row { display: flex; flex-wrap: wrap; gap: 22px; }
+.phone-cap { font-size: 11px; font-weight: 600; color: #6b7589; margin-bottom: 7px; }
+.phone-cap em { font-weight: 400; font-style: normal; opacity: 0.75; }
+table { border-collapse: collapse; width: 100%; font-size: 12.5px; margin-top: 12px; background: #fff; border-radius: 10px; overflow: hidden; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #e4e9f1; vertical-align: top; }
+th { font-size: 10.5px; letter-spacing: 0.07em; text-transform: uppercase; color: #6b7589; background: #f6f8fb; }
+tr:last-child td { border-bottom: 0; }
+td code, .note code, .sub code { font-size: 12px; background: #f1f4f9; padding: 1px 5px; border-radius: 4px; }
+
+/* ── 390px phone viewport ───────────────────────────────────────────── */
+.phone {
+  position: relative; width: 390px; height: 560px; overflow: hidden;
+  border-radius: 22px; border: 1px solid var(--border);
+  background: var(--muted); color: var(--foreground); flex: 0 0 390px;
+}
+/* mobile topbar: hamburger · brand · spacer · bell — 58px, per add-app-shell */
+.mtop { height: 58px; display: flex; align-items: center; gap: 12px; padding: 0 16px; position: relative; z-index: 5; }
+.icon-btn { width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; color: var(--foreground); opacity: 0.8; flex: 0 0 34px; }
+.icon-btn svg { width: 18px; height: 18px; }
+.mbrand { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
+.mbrand .mark { width: 22px; height: 22px; border-radius: 6px; background: var(--primary); opacity: 0.9; }
+.mtop .spacer { flex: 1; }
+.mbody { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 12px; }
+.mbody .h { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+.mbody .p { font-size: 12.5px; color: var(--muted-foreground); }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+.stat b { display: block; font-size: 19px; }
+.stat span { font-size: 10.5px; color: var(--muted-foreground); }
+.ph { background: var(--card); border: 1px solid var(--border); border-radius: 12px; height: 110px; }
+
+/* ── toast, mobile ──────────────────────────────────────────────────── */
+/* full width minus the shell's own 16px gutters; offset below the 58px topbar */
+.mviewport {
+  position: absolute; top: 66px; left: 16px; right: 16px; z-index: 10;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.toast {
+  display: grid; grid-template-columns: 26px 1fr 18px; gap: 12px; align-items: center;
+  padding: 14px; border-radius: 12px;
+  background: var(--popover); color: var(--popover-foreground);
+  border: 1px solid var(--border); box-shadow: var(--shadow-toast);
+}
+.toast .ico { color: var(--tone); align-self: center; }
+.toast .ico svg { display: block; width: 26px; height: 26px; }
+.toast .knock { stroke: var(--popover); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.toast .t { font-size: 13.5px; font-weight: 600; line-height: 1.35; }
+.toast .d { font-size: 12.5px; line-height: 1.45; color: var(--muted-foreground); margin-top: 3px; }
+.toast .x { width: 18px; height: 18px; display: grid; place-items: center; color: var(--muted-foreground); opacity: 0.55; border-radius: 4px; align-self: start; }
+.toast .x svg { width: 13px; height: 13px; display: block; }
+.toast.is-success { --tone: var(--success); }
+.toast.is-info { --tone: var(--primary); }
+.toast.is-warning { --tone: var(--warning); }
+.toast.is-error { --tone: var(--destructive); }
+
+/* guide lines for the offset */
+.guide { position: absolute; left: 0; right: 0; height: 0; border-top: 1px dashed oklch(0.6016 0.2123 263.59 / 70%); z-index: 20; }
+.guide span { position: absolute; right: 6px; top: -16px; font-size: 9.5px; font-weight: 600; color: oklch(0.6016 0.2123 263.59); background: var(--popover); padding: 1px 5px; border-radius: 4px; }
+.guide.at58 { top: 58px; }
+.guide.at66 { top: 66px; border-top-style: solid; }
+
+/* ── confirm, mobile ────────────────────────────────────────────────── */
+.moverlay { position: absolute; inset: 0; background: var(--scrim); display: grid; place-items: center; padding: 16px; z-index: 30; }
+.dialog { width: 100%; background: var(--popover); color: var(--popover-foreground); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow-dialog); padding: 20px 20px 16px; }
+.dialog .d-head { display: grid; grid-template-columns: 28px 1fr; gap: 14px; align-items: start; }
+.dialog .ico { color: var(--tone); margin-top: -1px; }
+.dialog .ico svg { display: block; width: 28px; height: 28px; }
+.dialog .knock { stroke: var(--popover); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.dialog.t-error { --tone: var(--destructive); }
+.dialog.t-warning { --tone: var(--warning); }
+.dialog .d-title { font-size: 16px; font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; }
+.dialog .d-desc { font-size: 13px; line-height: 1.55; color: var(--muted-foreground); margin-top: 7px; }
+.dialog .d-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 36px; padding: 0 16px; border-radius: 8px; border: 1px solid transparent; font-family: inherit; font-size: 14px; font-weight: 500; white-space: nowrap; }
+.btn-outline { background: var(--btn-outline-bg); border-color: var(--btn-outline-border); color: var(--popover-foreground); }
+.btn-destructive { background: var(--btn-destructive-bg); color: #fff; }
+.btn-default { background: var(--primary); color: var(--primary-foreground); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>add-feedback-layer &mdash; mobile at 390px</h1>
+  <p class="sub">
+    Screen 4. The app shell has no sidebar below 768px &mdash; a 58px top bar carries
+    <em>hamburger &middot; brand &middot; spacer &middot; bell</em>, and there is no bottom tab bar. So the toast viewport goes
+    full width inside the shell&rsquo;s own 16px gutters, offset <strong>66px</strong> from the top: clear of the bar by
+    8px, not floating over the hamburger.
+  </p>
+
+  <div class="label">A &middot; one toast &mdash; the offset that clears the top bar</div>
+  <div class="row">
+    <div>
+      <div class="phone-cap">Light <em>&mdash; 390 &times; 560, guides shown</em></div>
+      <div class="phone theme-light">
+        <div class="mtop">
+          <div class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
+          <div class="mbrand"><div class="mark"></div>Clarivo</div>
+          <div class="spacer"></div>
+          <div class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/><path d="M4 17h16a1 1 0 0 0 .7-1.7C19.8 14.4 19 13 19 9a7 7 0 0 0-14 0c0 4-.8 5.4-1.7 6.3A1 1 0 0 0 4 17"/></svg></div>
+        </div>
+        <div class="mbody">
+          <div><div class="h">Good morning, An 👋</div><div class="p">Here&rsquo;s what&rsquo;s happening.</div></div>
+          <div class="stats">
+            <div class="stat"><b>3</b><span>PROJECTS</span></div>
+            <div class="stat"><b>12</b><span>MEETINGS</span></div>
+            <div class="stat"><b>48</b><span>REQUIREMENTS</span></div>
+            <div class="stat"><b>7</b><span>QUESTIONS</span></div>
+          </div>
+          <div class="ph"></div>
+        </div>
+        <div class="guide at58"><span>58 &mdash; top bar</span></div>
+        <div class="guide at66"><span>66 &mdash; viewport</span></div>
+        <div class="mviewport">
+          <div class="toast is-success">
+            <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m7.5 12.2 3.1 3.1 6-6.6"/></svg></div>
+            <div><div class="t">Project created</div><div class="d">&ldquo;Clarivo API v2&rdquo; is ready for its first meeting.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="phone-cap">Dark <em>&mdash; same offsets</em></div>
+      <div class="phone theme-dark">
+        <div class="mtop">
+          <div class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
+          <div class="mbrand"><div class="mark"></div>Clarivo</div>
+          <div class="spacer"></div>
+          <div class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/><path d="M4 17h16a1 1 0 0 0 .7-1.7C19.8 14.4 19 13 19 9a7 7 0 0 0-14 0c0 4-.8 5.4-1.7 6.3A1 1 0 0 0 4 17"/></svg></div>
+        </div>
+        <div class="mbody">
+          <div><div class="h">Good morning, An 👋</div><div class="p">Here&rsquo;s what&rsquo;s happening.</div></div>
+          <div class="stats">
+            <div class="stat"><b>3</b><span>PROJECTS</span></div>
+            <div class="stat"><b>12</b><span>MEETINGS</span></div>
+            <div class="stat"><b>48</b><span>REQUIREMENTS</span></div>
+            <div class="stat"><b>7</b><span>QUESTIONS</span></div>
+          </div>
+          <div class="ph"></div>
+        </div>
+        <div class="mviewport">
+          <div class="toast is-error">
+            <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m8.6 8.6 6.8 6.8M15.4 8.6l-6.8 6.8"/></svg></div>
+            <div><div class="t">Couldn&rsquo;t upload document</div><div class="d">The file is larger than 25&nbsp;MB.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="phone-cap">Three stacked <em>&mdash; the worst case</em></div>
+      <div class="phone theme-light">
+        <div class="mtop">
+          <div class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
+          <div class="mbrand"><div class="mark"></div>Clarivo</div>
+          <div class="spacer"></div>
+          <div class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/><path d="M4 17h16a1 1 0 0 0 .7-1.7C19.8 14.4 19 13 19 9a7 7 0 0 0-14 0c0 4-.8 5.4-1.7 6.3A1 1 0 0 0 4 17"/></svg></div>
+        </div>
+        <div class="mbody">
+          <div><div class="h">Good morning, An 👋</div><div class="p">Here&rsquo;s what&rsquo;s happening.</div></div>
+          <div class="stats">
+            <div class="stat"><b>3</b><span>PROJECTS</span></div>
+            <div class="stat"><b>12</b><span>MEETINGS</span></div>
+          </div>
+          <div class="ph"></div>
+        </div>
+        <div class="mviewport">
+          <div class="toast is-success">
+            <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m7.5 12.2 3.1 3.1 6-6.6"/></svg></div>
+            <div><div class="t">Project created</div><div class="d">&ldquo;Clarivo API v2&rdquo; is ready.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+          <div class="toast is-warning">
+            <div class="ico"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10.17 3.3a2.1 2.1 0 0 1 3.66 0l8.1 14.3A2.1 2.1 0 0 1 20.1 20.8H3.9a2.1 2.1 0 0 1-1.83-3.2z"/><path class="knock" d="M12 9v4.4"/><circle cx="12" cy="17" r="1.3" fill="var(--popover)"/></svg></div>
+            <div><div class="t">2 requirements conflict</div><div class="d">REQ-14 and REQ-27 disagree on retention.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+          <div class="toast is-error">
+            <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m8.6 8.6 6.8 6.8M15.4 8.6l-6.8 6.8"/></svg></div>
+            <div><div class="t">Couldn&rsquo;t upload document</div><div class="d">The file is larger than 25&nbsp;MB.</div></div>
+            <div class="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="note">
+    Three stacked eats roughly 265px &mdash; about half a 390&times;560 viewport &mdash; and covers the greeting and the
+    stat grid. It clears in 4s and the content underneath is never interactive-critical, so the cap stays at 3
+    rather than dropping to 2 on mobile. One fewer rule to remember, and the stack only fills up when three
+    things fail at once.
+  </p>
+
+  <div class="label">B &middot; confirm dialog at 390px</div>
+  <div class="row">
+    <div>
+      <div class="phone-cap">Light <em>&mdash; full width inside 16px gutters</em></div>
+      <div class="phone theme-light">
+        <div class="mtop">
+          <div class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
+          <div class="mbrand"><div class="mark"></div>Clarivo</div>
+          <div class="spacer"></div>
+          <div class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/><path d="M4 17h16a1 1 0 0 0 .7-1.7C19.8 14.4 19 13 19 9a7 7 0 0 0-14 0c0 4-.8 5.4-1.7 6.3A1 1 0 0 0 4 17"/></svg></div>
+        </div>
+        <div class="mbody">
+          <div><div class="h">Good morning, An 👋</div><div class="p">Here&rsquo;s what&rsquo;s happening.</div></div>
+          <div class="stats"><div class="stat"><b>3</b><span>PROJECTS</span></div><div class="stat"><b>12</b><span>MEETINGS</span></div></div>
+          <div class="ph"></div>
+        </div>
+        <div class="moverlay">
+          <div class="dialog t-error">
+            <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path class="knock" d="m8.6 8.6 6.8 6.8M15.4 8.6l-6.8 6.8"/></svg></div><div>
+              <div class="d-title">Delete project?</div>
+              <div class="d-desc">&ldquo;Clarivo API v2&rdquo; will be permanently deleted, along with all meetings and requirements in it. This can&rsquo;t be undone.</div>
+            </div></div>
+            <div class="d-actions">
+              <button class="btn btn-outline">Cancel</button>
+              <button class="btn btn-destructive">Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="phone-cap">Dark <em>&mdash; warning tone, no description</em></div>
+      <div class="phone theme-dark">
+        <div class="mtop">
+          <div class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
+          <div class="mbrand"><div class="mark"></div>Clarivo</div>
+          <div class="spacer"></div>
+          <div class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/><path d="M4 17h16a1 1 0 0 0 .7-1.7C19.8 14.4 19 13 19 9a7 7 0 0 0-14 0c0 4-.8 5.4-1.7 6.3A1 1 0 0 0 4 17"/></svg></div>
+        </div>
+        <div class="mbody">
+          <div><div class="h">Good morning, An 👋</div><div class="p">Here&rsquo;s what&rsquo;s happening.</div></div>
+          <div class="stats"><div class="stat"><b>3</b><span>PROJECTS</span></div><div class="stat"><b>12</b><span>MEETINGS</span></div></div>
+          <div class="ph"></div>
+        </div>
+        <div class="moverlay">
+          <div class="dialog t-warning">
+            <div class="d-head"><div class="ico"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M10.17 3.3a2.1 2.1 0 0 1 3.66 0l8.1 14.3A2.1 2.1 0 0 1 20.1 20.8H3.9a2.1 2.1 0 0 1-1.83-3.2z"/><path class="knock" d="M12 9v4.4"/><circle cx="12" cy="17" r="1.3" fill="var(--popover)"/></svg></div><div>
+              <div class="d-title">Discard this draft?</div>
+            </div></div>
+            <div class="d-actions">
+              <button class="btn btn-outline">Cancel</button>
+              <button class="btn btn-default">Discard</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="note">
+    The dialog needs no mobile-specific rule: <code>max-width: 440px</code> already exceeds 390&nbsp;&minus;&nbsp;32, so it
+    fills the gutters on its own. Buttons stay side by side and right-aligned &mdash; two short labels fit 358px
+    comfortably, and stacking them would put the destructive action under the thumb&rsquo;s resting spot.
+  </p>
+
+  <div class="label">C &middot; measurements, as drawn</div>
+  <table>
+    <tr><th>&nbsp;</th><th>Mobile (&lt;768px)</th><th>Desktop</th></tr>
+    <tr><td>toast viewport</td><td>top 66px, left/right 16px &mdash; full width</td><td>top 16px, right 16px</td></tr>
+    <tr><td>toast width</td><td>358px at 390px wide (fluid)</td><td>364px fixed</td></tr>
+    <tr><td>why 66</td><td>58px top bar + 8px &mdash; never over the hamburger or the bell</td><td>no topbar to clear</td></tr>
+    <tr><td>stack cap</td><td>3 &mdash; same as desktop, ~265px of 560</td><td>3</td></tr>
+    <tr><td>duration</td><td>4s</td><td>4s</td></tr>
+    <tr><td>dialog</td><td>fills 16px gutters (max-width 440 &gt; 358)</td><td>440px centred</td></tr>
+    <tr><td>dialog padding</td><td>20px / 16px bottom</td><td>22px / 18px bottom</td></tr>
+    <tr><td>dialog actions</td><td>side by side, right-aligned &mdash; not stacked</td><td>same</td></tr>
+  </table>
+
+</div>
+</body>
+</html>

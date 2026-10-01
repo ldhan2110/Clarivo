@@ -20,7 +20,14 @@ export function authErrorMessage(error: unknown) {
 export function useLogin() {
   const setUser = useAuthStore((s) => s.setUser);
 
-  return useMutation({ mutationFn: login, onSuccess: setUser });
+  return useMutation({
+    mutationFn: login,
+    onSuccess: setUser,
+    // Not dead code: the login form renders the 401 inline via errors.root, and
+    // defining onError at all stands the global MutationCache toast down
+    // (components/provider/query-provider.tsx). Deleting this double-reports.
+    onError: () => {},
+  });
 }
 
 export function useLogout() {
@@ -29,6 +36,9 @@ export function useLogout() {
 
   return useMutation({
     mutationFn: logout,
+    // Not dead code: same stand-down as useLogin. The cookie is gone either way
+    // and the user is already being redirected, so an error toast is noise.
+    onError: () => {},
     // cookie is gone either way — never leave a stale user on screen
     onSettled: () => {
       clear();

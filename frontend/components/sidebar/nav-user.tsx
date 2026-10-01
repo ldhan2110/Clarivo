@@ -13,8 +13,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLogout } from "@/hooks/use-auth";
+import { useConfirm } from "@/hooks/use-confirm";
 import { useUser } from "@/stores/auth";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export function initialsOf(name: string) {
   const words = name.trim().split(/\s+/).filter(Boolean);
@@ -26,6 +28,7 @@ export function initialsOf(name: string) {
 export function NavUser({ collapsed = false }: { collapsed?: boolean }) {
   const user = useUser();
   const logout = useLogout();
+  const confirm = useConfirm();
 
   if (!user) return <NavUserSkeleton collapsed={collapsed} />;
 
@@ -80,7 +83,22 @@ export function NavUser({ collapsed = false }: { collapsed?: boolean }) {
           variant="destructive"
           disabled={logout.isPending}
           data-testid="sign-out"
-          onSelect={() => logout.mutate()}
+          onSelect={async () => {
+            // The toast belongs to the action, not the hook — useLogout.onSettled
+            // already clears the store and redirects.
+            if (
+              await confirm({
+                title: "Sign out?",
+                description:
+                  "You'll need to sign in again to get back to your projects.",
+                confirmLabel: "Sign out",
+                tone: "error",
+                onConfirm: () => logout.mutateAsync(),
+              })
+            ) {
+              toast.success("Signed out");
+            }
+          }}
         >
           <LogOut />
           Sign out

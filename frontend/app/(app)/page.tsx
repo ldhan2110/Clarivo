@@ -4,6 +4,9 @@ import { Bell, Building2, CalendarDays, ChevronRight, FolderKanban, TriangleAler
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
+import { useConfirm } from "@/hooks/use-confirm";
+import { confirmDelete } from "@/constants/confirm";
 import { useUser } from "@/stores/auth";
 import { cn } from "@/lib/utils";
 import { DATA_STATE, NEXT_MEETING, RECENT_PROJECTS, STATS } from "@/constants/dashboard";
@@ -141,9 +144,105 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           </div>
+
+          <FeedbackDemoCard />
         </>
       )}
     </div>
+  );
+}
+
+// ponytail: demo — delete when real screens land. It exists so the four tones and
+// the confirm pending/failure paths are reviewable before any real action ships.
+function FeedbackDemoCard() {
+  const confirm = useConfirm();
+
+  return (
+    <Card className="mt-4">
+      <CardHeader>
+        <CardTitle>Feedback layer (demo)</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-wrap gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() =>
+            toast.success("Project created", {
+              description: "“Clarivo API v2” is ready for its first meeting.",
+            })
+          }
+        >
+          Success toast
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() =>
+            toast.info("Analysis still running", {
+              description: "The transcript is being processed in the background.",
+            })
+          }
+        >
+          Info toast
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() =>
+            toast.warning("2 requirements conflict", {
+              description: "REQ-14 and REQ-27 disagree on retention. Review before publishing.",
+            })
+          }
+        >
+          Warning toast
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() =>
+            toast.error("Couldn't upload document", {
+              description: "The file is larger than 25 MB.",
+            })
+          }
+        >
+          Error toast
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={async () => {
+            if (
+              await confirm({
+                ...confirmDelete("project", "Clarivo API v2"),
+                // slow on purpose, so the pending state is exercisable by hand
+                onConfirm: () => new Promise((r) => setTimeout(r, 1200)),
+              })
+            ) {
+              toast.success("Project deleted");
+            }
+          }}
+        >
+          Confirm — slow (pending)
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() =>
+            confirm({
+              title: "Archive project?",
+              description: "This one fails on purpose, to exercise the failure path.",
+              confirmLabel: "Archive",
+              onConfirm: () =>
+                new Promise((_, reject) =>
+                  setTimeout(() => reject(new Error("demo failure")), 600),
+                ),
+            })
+          }
+        >
+          Confirm — rejects
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
 
