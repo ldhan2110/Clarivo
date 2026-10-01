@@ -4,10 +4,11 @@
 changes:
   add-login:
     title: login page, JWT cookie session, users table + seeded admin
-    tasks_md: changes/add-login/tasks.md
+    tasks_md: archive/add-login/tasks.md
     depends_on: []
     skills: [frontend-design, typeorm]
     status: done
+    archived: archive/add-login
     owner: "worker-local"
     notes: >-
       CLOSED as done by LE AN on 2026-10-01 — the only open item was the
