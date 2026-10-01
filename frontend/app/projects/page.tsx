@@ -90,7 +90,7 @@ export default function ProjectsPage() {
   }
 
   return (
-    <div className="px-5 pt-4 pb-10 md:px-6.5 md:pt-0">
+    <div className="flex h-full min-h-0 flex-col px-5 pt-4 pb-5 md:px-6.5 md:pt-0">
       <div className="hidden h-[58px] items-center md:flex">
         <span className="text-sm font-semibold">Projects</span>
         <Button
@@ -111,13 +111,17 @@ export default function ProjectsPage() {
       <div className="mb-4 flex flex-wrap items-center gap-2.5">
         <div className="relative min-w-[200px] flex-1 sm:max-w-[320px]">
           <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+          {/* bg-card here rather than in input.tsx: Input ships bg-transparent,
+              which is correct everywhere it sits inside a card or dialog. This
+              is the one input on the bare bg-muted shell, so it paints its own
+              surface — the mockup's `background: var(--card)`. */}
           <Input
             value={term}
             onChange={(e) => setTerm(e.target.value)}
             placeholder="Search projects…"
             aria-label="Search projects"
             data-testid="projects-search"
-            className="pl-8.5"
+            className="pl-8.5 bg-card"
           />
         </div>
 
@@ -166,7 +170,12 @@ export default function ProjectsPage() {
           </Button>
         </Card>
       ) : (
-        <Card className="overflow-hidden p-0">
+        <Card
+          className={cn(
+            "flex flex-col overflow-hidden p-0",
+            !isPending && data.items.length > 0 && "min-h-0 flex-1",
+          )}
+        >
           {isPending ? (
             <ProjectRowsSkeleton />
           ) : data.items.length === 0 ? (
@@ -177,8 +186,10 @@ export default function ProjectsPage() {
             )
           ) : (
             <>
-              <ProjectTable rows={data.items} />
-              <div className="flex items-center gap-2 border-t border-border px-3.5 py-2.5">
+              <div className="min-h-0 flex-1 overflow-auto">
+                <ProjectTable rows={data.items} />
+              </div>
+              <div className="flex shrink-0 items-center gap-2 border-t border-border px-3.5 py-2.5">
                 <span className="text-xs text-muted-foreground" data-testid="projects-range">
                   {firstRow}–{lastRow} of {total}
                 </span>
@@ -218,7 +229,7 @@ function ProjectTable({ rows }: { rows: ProjectSummaryDto[] }) {
   return (
     <Table data-testid="projects-table">
       <TableHeader>
-        <TableRow className="hover:bg-transparent">
+        <TableRow className="hover:bg-transparent [&>th]:sticky [&>th]:top-0 [&>th]:z-10 [&>th]:bg-card">
           <TableHead className="uppercase tracking-[0.06em]">Project</TableHead>
           <TableHead className="uppercase tracking-[0.06em]">Customer / BU</TableHead>
           <TableHead className="uppercase tracking-[0.06em]">Domain</TableHead>
@@ -346,7 +357,7 @@ function ProjectRowsSkeleton() {
   return (
     <Table>
       <TableHeader>
-        <TableRow className="hover:bg-transparent">
+        <TableRow className="hover:bg-transparent [&>th]:sticky [&>th]:top-0 [&>th]:z-10 [&>th]:bg-card">
           <TableHead className="uppercase tracking-[0.06em]">Project</TableHead>
           <TableHead className="uppercase tracking-[0.06em]">Customer / BU</TableHead>
           <TableHead className="uppercase tracking-[0.06em]">Domain</TableHead>
