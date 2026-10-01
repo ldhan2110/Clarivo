@@ -135,6 +135,7 @@ All data is **static sample data**; no endpoint exists for any of it yet.
 
 Existing, reuse as-is:
 
+- `public/images/clarivo-mark.png` — the brand mark in the sidebar header and the mobile drawer, beside a text wordmark. `clarivo-logo.png` is a *stacked* lockup on a white plate and does not fit a 60px header row; the login page uses the mark asset the same way.
 - `frontend/components/ui/button.tsx:Button` — `View details` (default), `Retry` (`variant="outline"`), every icon button (`variant="ghost" size="icon"`).
 - `frontend/lib/utils.ts:cn` — every conditional class.
 - `frontend/stores/auth.ts:useUser` / `useAuthStore` — name, role and email for the footer; `status` for the loading/redirect gate.
