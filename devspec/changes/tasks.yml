@@ -50,10 +50,11 @@ changes:
       @/* resolves to the frontend root. Refreshing the context pack is a separate job.
   add-feedback-layer:
     title: toast notifications and confirm dialogs as reusable frontend scaffold
-    tasks_md: changes/add-feedback-layer/tasks.md
+    tasks_md: archive/add-feedback-layer/tasks.md
     depends_on: []
     skills: [frontend-design]
     status: done
+    archived: archive/add-feedback-layer
     owner: "worker-local"
     notes: >-
       Frontend only. No backend file, entity, migration, endpoint, DTO or env var
