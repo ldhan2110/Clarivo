@@ -1,15 +1,18 @@
 "use client";
 
-import { Bell, Building2, CalendarDays, ChevronRight, FolderKanban, TriangleAlert } from "lucide-react";
+import Link from "next/link";
+import { Bell, Building2, ChevronRight, FolderKanban, TriangleAlert } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { toast } from "sonner";
-import { useConfirm } from "@/hooks/use-confirm";
-import { confirmDelete } from "@/constants/confirm";
+import { Skeleton } from "@/components/ui/skeleton";
+import { CreateProjectDialog } from "@/components/projects/create-project-dialog";
+import { NoProjectsYet } from "@/components/projects/project-empty";
+import { SOON_STATS } from "@/constants/dashboard";
+import { useProjects } from "@/hooks/use-projects";
+import { relativeTime } from "@/lib/format";
 import { useUser } from "@/stores/auth";
 import { cn } from "@/lib/utils";
-import { DATA_STATE, NEXT_MEETING, RECENT_PROJECTS, STATS } from "@/constants/dashboard";
 
 function greeting(hour: number) {
   if (hour < 12) return "Good morning";
@@ -19,8 +22,15 @@ function greeting(hour: number) {
 
 export default function DashboardPage() {
   const user = useUser();
-  const empty = DATA_STATE === "empty";
-  const errored = DATA_STATE === "error";
+  // The existing list endpoint, not a second one: total comes off the envelope
+  // and the five rows are the items. Archived projects never appear.
+  const { data, isPending, isError, refetch } = useProjects({
+    status: "active",
+    pagination: { page: 1, limit: 5 },
+    sort: { sortBy: "updatedAt", sortOrder: "DESC" },
+  });
+
+  const empty = !isPending && !isError && data.items.length === 0;
 
   return (
     <div className="px-5 pt-4 pb-10 md:px-6.5 md:pt-0">
@@ -47,27 +57,44 @@ export default function DashboardPage() {
           : "Here's what's happening with your projects."}
       </p>
 
-      {errored ? (
+      {isError ? (
         <Card className="grid place-items-center gap-2.5 px-5 py-14 text-center" data-testid="dashboard-error">
           <TriangleAlert className="size-9 text-destructive" strokeWidth={1.6} />
           <h2 className="text-sm font-semibold">Couldn&apos;t load your dashboard</h2>
           <p className="max-w-[36ch] text-xs text-muted-foreground">
             Something went wrong on our side. Try again in a moment.
           </p>
-          <Button variant="outline" size="sm" className="mt-1">
+          <Button variant="outline" size="sm" className="mt-1" onClick={() => void refetch()}>
             Retry
           </Button>
         </Card>
       ) : (
         <>
           <div className="mb-5 grid grid-cols-2 gap-3 md:mb-6 md:grid-cols-4 md:gap-3.5">
-            {STATS.map((stat) => (
+            <Card className="flex items-start gap-2.5 p-3.5 md:p-4">
+              <div>
+                <div className="text-[22px] leading-tight font-bold tracking-tight md:text-[26px]">
+                  {isPending ? <Skeleton className="h-6 w-8" /> : data.total}
+                </div>
+                <div className="mt-0.5 text-xs text-muted-foreground">Total Projects</div>
+              </div>
+              <div className="ml-auto grid size-8.5 shrink-0 place-items-center rounded-[10px] bg-chart-1/14 text-chart-1">
+                <FolderKanban className="size-4" />
+              </div>
+            </Card>
+
+            {SOON_STATS.map((stat) => (
               <Card key={stat.label} className="flex items-start gap-2.5 p-3.5 md:p-4">
                 <div>
                   <div className="text-[22px] leading-tight font-bold tracking-tight md:text-[26px]">
-                    {empty ? 0 : stat.value}
+                    {stat.value}
                   </div>
-                  <div className="mt-0.5 text-xs text-muted-foreground">{stat.label}</div>
+                  <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                    {stat.label}
+                    <Badge variant="outline" className="text-[10px] tracking-wide uppercase">
+                      Soon
+                    </Badge>
+                  </div>
                 </div>
                 <div className={cn("ml-auto grid size-8.5 shrink-0 place-items-center rounded-[10px]", stat.tint)}>
                   <stat.icon className="size-4" />
@@ -76,182 +103,53 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          <div className="grid items-start gap-4 md:grid-cols-[1.6fr_1fr]">
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Projects</CardTitle>
-                {!empty && (
-                  <span className="ml-auto text-xs font-semibold text-primary">View all</span>
-                )}
-              </CardHeader>
-              <CardContent className="px-2 pb-2">
-                {empty ? (
-                  <EmptyBlock
-                    icon={<FolderKanban className="size-9 text-muted-foreground" strokeWidth={1.6} />}
-                    title="No projects yet"
-                    line="Projects land here once the Projects section ships."
-                  />
-                ) : (
-                  RECENT_PROJECTS.map((p, i) => (
-                    <div
-                      key={p.name}
-                      className={cn(
-                        "flex items-center gap-3 rounded-[11px] p-2.5 transition-colors hover:bg-accent",
-                        i > 0 && "border-t border-border",
-                      )}
-                    >
-                      <span className="grid size-9 shrink-0 place-items-center rounded-[11px] bg-linear-140 from-chart-2 to-chart-1 text-primary-foreground">
-                        <Building2 className="size-4" />
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Projects</CardTitle>
+              {!empty && (
+                <Link href="/projects" className="ml-auto text-xs font-semibold text-primary">
+                  View all →
+                </Link>
+              )}
+            </CardHeader>
+            <CardContent className="px-2 pb-2">
+              {isPending ? (
+                <div className="grid gap-1.5 p-1">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <Skeleton key={i} className="h-14 w-full rounded-[11px]" />
+                  ))}
+                </div>
+              ) : empty ? (
+                <NoProjectsYet action={<CreateProjectDialog />} />
+              ) : (
+                data.items.map((project, i) => (
+                  <Link
+                    key={project.id}
+                    href={`/projects/${project.id}`}
+                    className={cn(
+                      "flex items-center gap-3 rounded-[11px] p-2.5 transition-colors hover:bg-accent",
+                      i > 0 && "border-t border-border",
+                    )}
+                  >
+                    <span className="grid size-9 shrink-0 place-items-center rounded-[11px] bg-linear-140 from-chart-2 to-chart-1 text-primary-foreground">
+                      <Building2 className="size-4" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-semibold">{project.name}</span>
+                      <span className="block truncate text-xs text-muted-foreground">
+                        {project.customerBu} · {project.domain} · {project.memberCount}{" "}
+                        {project.memberCount === 1 ? "member" : "members"} ·{" "}
+                        {relativeTime(project.updatedAt)}
                       </span>
-                      <span className="min-w-0">
-                        <span className="block truncate text-sm font-semibold">{p.name}</span>
-                        <span className="block truncate text-xs text-muted-foreground">
-                          Last meeting: {p.lastMeeting} · {p.requirements} requirements
-                        </span>
-                      </span>
-                      <ChevronRight className="ml-auto size-4 shrink-0 text-muted-foreground" />
-                    </div>
-                  ))
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Next Meeting</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {empty ? (
-                  <EmptyBlock
-                    icon={<CalendarDays className="size-9 text-muted-foreground" strokeWidth={1.6} />}
-                    title="Nothing scheduled"
-                    line="Your next meeting will show up here."
-                  />
-                ) : (
-                  <>
-                    <div className="text-sm font-semibold tracking-tight">{NEXT_MEETING.title}</div>
-                    <div className="mt-1.5 mb-2.5 text-xs text-muted-foreground">{NEXT_MEETING.when}</div>
-                    <div className="mb-3.5 flex flex-wrap gap-1.5">
-                      {NEXT_MEETING.pills.map((pill) => (
-                        <Badge key={pill} variant="outline">
-                          {pill}
-                        </Badge>
-                      ))}
-                    </div>
-                    <Button className="w-full">View details</Button>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          <FeedbackDemoCard />
+                    </span>
+                    <ChevronRight className="ml-auto size-4 shrink-0 text-muted-foreground" />
+                  </Link>
+                ))
+              )}
+            </CardContent>
+          </Card>
         </>
       )}
-    </div>
-  );
-}
-
-// ponytail: demo — delete when real screens land. It exists so the four tones and
-// the confirm pending/failure paths are reviewable before any real action ships.
-function FeedbackDemoCard() {
-  const confirm = useConfirm();
-
-  return (
-    <Card className="mt-4">
-      <CardHeader>
-        <CardTitle>Feedback layer (demo)</CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-wrap gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() =>
-            toast.success("Project created", {
-              description: "“Clarivo API v2” is ready for its first meeting.",
-            })
-          }
-        >
-          Success toast
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() =>
-            toast.info("Analysis still running", {
-              description: "The transcript is being processed in the background.",
-            })
-          }
-        >
-          Info toast
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() =>
-            toast.warning("2 requirements conflict", {
-              description: "REQ-14 and REQ-27 disagree on retention. Review before publishing.",
-            })
-          }
-        >
-          Warning toast
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() =>
-            toast.error("Couldn't upload document", {
-              description: "The file is larger than 25 MB.",
-            })
-          }
-        >
-          Error toast
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={async () => {
-            if (
-              await confirm({
-                ...confirmDelete("project", "Clarivo API v2"),
-                // slow on purpose, so the pending state is exercisable by hand
-                onConfirm: () => new Promise((r) => setTimeout(r, 1200)),
-              })
-            ) {
-              toast.success("Project deleted");
-            }
-          }}
-        >
-          Confirm — slow (pending)
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() =>
-            confirm({
-              title: "Archive project?",
-              description: "This one fails on purpose, to exercise the failure path.",
-              confirmLabel: "Archive",
-              onConfirm: () =>
-                new Promise((_, reject) =>
-                  setTimeout(() => reject(new Error("demo failure")), 600),
-                ),
-            })
-          }
-        >
-          Confirm — rejects
-        </Button>
-      </CardContent>
-    </Card>
-  );
-}
-
-function EmptyBlock({ icon, title, line }: { icon: React.ReactNode; title: string; line: string }) {
-  return (
-    <div className="grid place-items-center gap-2 px-5 py-11 text-center">
-      {icon}
-      <h3 className="text-sm font-semibold">{title}</h3>
-      <p className="max-w-[36ch] text-xs text-muted-foreground">{line}</p>
     </div>
   );
 }

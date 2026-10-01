@@ -98,36 +98,36 @@ Verify: `cd frontend && npx tsc --noEmit && pnpm lint && pnpm build`
 Verify: `/devspec-verify add-projects`
 
 ## 10. Project overview screen [req-10]
-- [ ] 10.1 [frontend] New `frontend/app/(app)/projects/[id]/page.tsx` — mirrors `mockups/project-detail.html`: header (code, name, status badge, `Owner`/`Member` badge, `⚙ Settings` for the owner only), four stat tiles, the Project plan card, the Project summary card
-- [ ] 10.2 [frontend] New `frontend/constants/project-stages.ts` — the four stages (Context → Discovery plan → Meetings → Requirements) with label, href, `Soon` flag and the literal `0`. One constant per stage so a later change swaps one line for one query. **No health ring, no percentage, no Known / Unknown / Conflicts counters** — `ui.md` cuts them
-- [ ] 10.3 [frontend] Reuse `components/ui/card.tsx`, `badge.tsx`, `separator.tsx` and the stat-tile shape already in `app/(app)/page.tsx`
-- [ ] 10.4 [frontend] Archived state: warning ribbon with `Restore` (through `useConfirm`), the plan card frozen reading "Stopped at stage N", the project mark muted
-- [ ] 10.5 [frontend] Loading = skeletons in the real tile and card shape. Not-found = the shared screen below, for a 404 **and** a 400 from a malformed uuid alike
-- [ ] 10.6 [frontend] New `frontend/components/projects/project-not-found.tsx` — the one "Project not found" screen with `← Back to projects`, reused by the detail page and the settings route. The sidebar stays in global scope on it
-- [ ] 10.7 [frontend] Breadcrumb `Projects / <code>` in the top bar
+- [x] 10.1 [frontend] New `frontend/app/(app)/projects/[id]/page.tsx` — mirrors `mockups/project-detail.html`: header (code, name, status badge, `Owner`/`Member` badge, `⚙ Settings` for the owner only), four stat tiles, the Project plan card, the Project summary card
+- [x] 10.2 [frontend] New `frontend/constants/project-stages.ts` — the four stages (Context → Discovery plan → Meetings → Requirements) with label, href, `Soon` flag and the literal `0`. One constant per stage so a later change swaps one line for one query. **No health ring, no percentage, no Known / Unknown / Conflicts counters** — `ui.md` cuts them
+- [x] 10.3 [frontend] Reuse `components/ui/card.tsx`, `badge.tsx`, `separator.tsx` and the stat-tile shape already in `app/(app)/page.tsx`
+- [x] 10.4 [frontend] Archived state: warning ribbon with `Restore` (through `useConfirm`), the plan card frozen reading "Stopped at stage N", the project mark muted
+- [x] 10.5 [frontend] Loading = skeletons in the real tile and card shape. Not-found = the shared screen below, for a 404 **and** a 400 from a malformed uuid alike
+- [x] 10.6 [frontend] New `frontend/components/projects/project-not-found.tsx` — the one "Project not found" screen with `← Back to projects`, reused by the detail page and the settings route. The sidebar stays in global scope on it
+- [x] 10.7 [frontend] Breadcrumb `Projects / <code>` in the top bar
 Verify: `/devspec-verify add-projects`
 
 ## 11. Project settings screen [req-12]
-- [ ] 11.1 [frontend] New `frontend/app/(app)/projects/[id]/settings/page.tsx` — three stacked cards in a `max-w-[760px]` column per `mockups/project-settings.html`. A non-owner gets `project-not-found.tsx`
-- [ ] 11.2 [frontend] Project details card — the same six fields and the same zod schema as the create dialog, rendered inline. `Save changes` disabled until dirty, an `Unsaved changes` badge in the card header once dirty, `Discard` restoring saved values, duplicate code as a field error
-- [ ] 11.3 [frontend] Members card — `components/ui/avatar.tsx` rows with name, email and a `Badge` role pill; the add-by-email input with its two field errors ("No Clarivo account uses this email address.", "<Name> is already a member of this project."), **never toasts**
-- [ ] 11.4 [frontend] **No `✕` on the owner row**; the viewer's own row is marked `You`. No ownership-transfer control. Solo state shows the "You're the only member…" hint
-- [ ] 11.5 [frontend] Danger zone — warning-bordered card with `Archive project`; archived flips it to primary-bordered `Restore project`, disables the details card and member list, and shows the page ribbon
+- [x] 11.1 [frontend] New `frontend/app/(app)/projects/[id]/settings/page.tsx` — three stacked cards in a `max-w-[760px]` column per `mockups/project-settings.html`. A non-owner gets `project-not-found.tsx`
+- [x] 11.2 [frontend] Project details card — the same six fields and the same zod schema as the create dialog, rendered inline. `Save changes` disabled until dirty, an `Unsaved changes` badge in the card header once dirty, `Discard` restoring saved values, duplicate code as a field error
+- [x] 11.3 [frontend] Members card — `components/ui/avatar.tsx` rows with name, email and a `Badge` role pill; the add-by-email input with its two field errors ("No Clarivo account uses this email address.", "<Name> is already a member of this project."), **never toasts**
+- [x] 11.4 [frontend] **No `✕` on the owner row**; the viewer's own row is marked `You`. No ownership-transfer control. Solo state shows the "You're the only member…" hint
+- [x] 11.5 [frontend] Danger zone — warning-bordered card with `Archive project`; archived flips it to primary-bordered `Restore project`, disables the details card and member list, and shows the page ribbon
 - [x] 11.6 [frontend] Add `confirmArchive`, `confirmRestore`, `confirmRemoveMember` to `frontend/constants/confirm.ts` with the exact copy in `ui.md`, **beside** `confirmDelete` and without touching it. All three route through `useConfirm`; none claims anything is permanently deleted
 Verify: `/devspec-verify add-projects`
 
 ## 12. Dashboard reflects real projects [req-13]
-- [ ] 12.1 [frontend] `frontend/app/(app)/page.tsx` — delete `FeedbackDemoCard` (its own `ponytail:` comment asks for exactly this) and delete the Next Meeting card; `Recent projects` takes the full width
-- [ ] 12.2 [frontend] Wire `Total projects` and `Recent projects` to `useProjects({ status: 'active', pagination: { limit: 5 }, sort: { sortBy: 'updatedAt' } })` — total from the envelope, rows from `items`. **No new endpoint**
-- [ ] 12.3 [frontend] `Recent projects` rows show customer · domain · member count · updated, link to `/projects/:id`, and `View all →` goes to `/projects`. Archived projects never appear
-- [ ] 12.4 [frontend] The other three stat tiles read a literal `0` with a `Soon` marker — the same honest-zero rule Overview uses
-- [ ] 12.5 [frontend] Empty state reuses the list screen's "No projects yet" block with its create CTA
-- [ ] 12.6 [frontend] Remove `RECENT_PROJECTS`, `NEXT_MEETING` and the projects `Stat` from `frontend/constants/dashboard.ts`, and the now-orphaned `RecentProject` / `NextMeeting` types from `frontend/types/dashboard.ts` — in this same commit. These are orphans **this change creates**, so they go; nothing else in those files is touched
+- [x] 12.1 [frontend] `frontend/app/(app)/page.tsx` — delete `FeedbackDemoCard` (its own `ponytail:` comment asks for exactly this) and delete the Next Meeting card; `Recent projects` takes the full width
+- [x] 12.2 [frontend] Wire `Total projects` and `Recent projects` to `useProjects({ status: 'active', pagination: { limit: 5 }, sort: { sortBy: 'updatedAt' } })` — total from the envelope, rows from `items`. **No new endpoint**
+- [x] 12.3 [frontend] `Recent projects` rows show customer · domain · member count · updated, link to `/projects/:id`, and `View all →` goes to `/projects`. Archived projects never appear
+- [x] 12.4 [frontend] The other three stat tiles read a literal `0` with a `Soon` marker — the same honest-zero rule Overview uses
+- [x] 12.5 [frontend] Empty state reuses the list screen's "No projects yet" block with its create CTA
+- [x] 12.6 [frontend] Remove `RECENT_PROJECTS`, `NEXT_MEETING` and the projects `Stat` from `frontend/constants/dashboard.ts`, and the now-orphaned `RecentProject` / `NextMeeting` types from `frontend/types/dashboard.ts` — in this same commit. These are orphans **this change creates**, so they go; nothing else in those files is touched
 Verify: `/devspec-verify add-projects`
 
 ## 13. Conventions, docs and the repo's gates [req-14]
-- [ ] 13.1 [backend] Re-run `cd frontend && pnpm api:types` if the controller changed after task 6.1, so the generated types match what shipped
-- [ ] 13.2 [db] Refresh `devspec/context/schema.md` — add `projects` and `project_members` with their columns, and move four items out of "Still not established": enums as `varchar` + CHECK, the first composite unique, the first `date` columns (serialised as `'YYYY-MM-DD'` strings), and the `ON DELETE CASCADE` exception **with the reasoning that keeps RESTRICT the default**
-- [ ] 13.3 [test] `cd backend && pnpm lint && pnpm test && pnpm build` — all green. **Do not run `pnpm test:e2e`** and do not touch `backend/test/app.e2e-spec.ts`: it is the pre-existing failure logged in `devspec/report/blockers.md` and is out of scope
-- [ ] 13.4 [frontend] `cd frontend && npx tsc --noEmit && pnpm lint && pnpm build` — all green, warnings included
+- [x] 13.1 [backend] Re-run `cd frontend && pnpm api:types` if the controller changed after task 6.1, so the generated types match what shipped
+- [x] 13.2 [db] Refresh `devspec/context/schema.md` — add `projects` and `project_members` with their columns, and move four items out of "Still not established": enums as `varchar` + CHECK, the first composite unique, the first `date` columns (serialised as `'YYYY-MM-DD'` strings), and the `ON DELETE CASCADE` exception **with the reasoning that keeps RESTRICT the default**
+- [x] 13.3 [test] `cd backend && pnpm lint && pnpm test && pnpm build` — all green. **Do not run `pnpm test:e2e`** and do not touch `backend/test/app.e2e-spec.ts`: it is the pre-existing failure logged in `devspec/report/blockers.md` and is out of scope
+- [x] 13.4 [frontend] `cd frontend && npx tsc --noEmit && pnpm lint && pnpm build` — all green, warnings included
 Verify: `cd backend && pnpm lint && pnpm test && pnpm build && cd ../frontend && npx tsc --noEmit && pnpm lint && pnpm build`
