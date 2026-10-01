@@ -28,18 +28,32 @@ export function AppSidebar() {
       )}
     >
       <div className={cn("flex h-[60px] shrink-0 items-center px-3.5", collapsed && "justify-center px-0")}>
-        <Brand wordmark={!collapsed} />
-        {!collapsed && (
-          <Button
-            variant="ghost"
-            size="icon-sm"
+        {/* Collapsed, the mark itself is the expand control: a rail with no
+            way back left ⌘B as the only one. */}
+        {collapsed ? (
+          <button
+            type="button"
             onClick={toggle}
-            aria-label="Collapse sidebar"
-            title="Collapse sidebar (⌘B)"
-            className="ml-auto text-muted-foreground"
+            aria-label="Expand sidebar"
+            title="Expand sidebar (⌘B)"
+            className="flex size-9 items-center justify-center rounded-[10px] transition-colors hover:bg-sidebar-accent"
           >
-            <PanelLeft />
-          </Button>
+            <Brand wordmark={false} />
+          </button>
+        ) : (
+          <>
+            <Brand />
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={toggle}
+              aria-label="Collapse sidebar"
+              title="Collapse sidebar (⌘B)"
+              className="ml-auto text-muted-foreground"
+            >
+              <PanelLeft />
+            </Button>
+          </>
         )}
       </div>
 
