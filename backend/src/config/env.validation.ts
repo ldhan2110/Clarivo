@@ -107,6 +107,15 @@ export class EnvironmentVariables {
   @IsNotEmpty()
   AI_MODEL_STRONG: string;
 
+  /**
+   * Tavily web-search key for customer research. Required with no code default:
+   * a missing key must kill the boot rather than surface as a failed search on
+   * the first "Research customer" click.
+   */
+  @IsString()
+  @IsNotEmpty()
+  TAVILY_API_KEY: string;
+
   /** Seed account, created by `pnpm seed`. Never read at runtime. */
   @IsString()
   @IsNotEmpty()

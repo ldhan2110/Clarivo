@@ -278,146 +278,82 @@ changes:
       reasoning that keeps RESTRICT the default, so the next change does not read
       one CASCADE as blanket permission.
   add-project-context:
-    title: context documents, AI knowledge page with citations, proposal review
+    title: context documents + web research, one editable summary.md with diagrams
     tasks_md: changes/add-project-context/tasks.md
     depends_on: []
     skills: [frontend-design, typeorm]
     status: doing
     owner: "worker-local"
     notes: >-
-      Approved by LE AN on 2026-10-01. Artifacts complete: proposal.md, design.md,
-      spec.md, tasks.md, ui.md, db.md (live-schema grounded, read from psql not
-      from migration files), 2 approved mockups covering 14 states, spec.html.
-      Req coverage is clean — req-1..req-17 each have a tasks.md section, all 18
-      sections carry a runnable Verify: line, and there is NO MANUAL gate
-      anywhere, so the worker never stalls on a human tick.
-      `depends_on: []` on purpose. Every other change on this board is done and
-      archived, and their code is in the working tree. This change consumes
-      add-projects (the `projects` / `project_members` tables and
-      ProjectsService.requireMembership), add-file-storage (FilesService, the
-      `files` table, the multer config) and add-feedback-layer (the confirm
-      provider and the global MutationCache toast). Nothing is waiting on
+      Approved by LE AN on 2026-10-02. RE-SPEC — supersedes the reverted
+      block/proposal/review build (DropProjectContext migration ran; src/context
+      was removed; verify/ screenshots are of the OLD UI). Artifacts rewritten:
+      proposal.md, design.md, spec.md, tasks.md, ui.md, db.md (live psql), the
+      approved mockup mockups/context.html (5 states), spec.html. Coverage CLEAN:
+      req-1..req-12 each map to a tasks.md section (0..10), every section carries
+      a runnable Verify:, NO MANUAL gate — the worker never stalls on a human tick.
+      `depends_on: []` on purpose. This change consumes add-projects (projects /
+      project_members + membership lookup), add-file-storage (FilesService, the
+      files table, multer) and add-feedback-layer (confirm provider + global
+      toast) — all done and archived, code in the working tree. Nothing waits on
       anything.
-      THE ARCHITECTURAL COMMITMENT IS "NO RAG", AND EVERY DESIGN DECISION FALLS
-      OUT OF IT. Documents are summarised once into a knowledge page and the raw
-      bytes never enter a prompt again — no embeddings, no vector store, no
-      retrieval. That makes the knowledge page a CONTRACT, not a convenience: it
-      is the only thing the discovery plan, meetings and requirements changes
-      will ever read. Three consequences are structural, not polish — a human
-      owns the page (every block editable/deletable/hand-authorable), every
-      statement cites its source, and AI NEVER writes the page, it only proposes.
-      Do not "optimise" any of those three away. Note that no-RAG does not mean
-      no chunking: a 300-page PDF still needs a map-reduce, which is compression,
-      not retrieval.
-      SECTION 12 IS A SECURITY BOUNDARY AND THE HIGHEST-RISK EDIT IN THE CHANGE.
-      `backend/src/files/files.controller.ts:88` currently guards download with
-      JwtAuthGuard and nothing else — any authenticated user can download any
-      file by id. add-file-storage logged that as known-and-accepted PRECISELY
-      BECAUSE no file had an owner yet; this change gives files owners, so the
-      hole must close in the same change that opens it. The tasks are ordered
-      tests-first (12.1 before 12.2) deliberately: a bug here either leaks files
-      or silently breaks every citation download, and both are invisible without
-      a test. The rule is narrow — a file WITH a `project_documents` row requires
-      membership, a file without one keeps today's behaviour, which is why the 6
-      pre-existing orphan `files` rows need no data fix. Keep ONE download route;
-      a project-scoped duplicate serving the same bytes is a second place to get
-      authorisation wrong.
-      SECTION 1 IS A SPIKE, NOT A FORMALITY. The backend is CommonJS and an
-      ESM-only parser breaks the build outright. `pdf-parse` and `mammoth` are
-      both CJS on paper; task 1.1 proves it with a throwaway require before
-      anything depends on them, and names `pdfjs-dist`'s legacy build as the
-      fallback. Discovering this in section 3 costs far more.
-      FOUR REQUIRED ENV VARS INVALIDATE EVERY EXISTING `.env`: AI_BASE_URL,
-      AI_API_KEY, AI_MODEL_FAST, AI_MODEL_STRONG, with no code default per
-      rules.md. This is the same cost FILE_STORAGE_PATH imposed once. The
-      `.env.example` rows (task 1.3) and the commit-message line (task 18.5) are
-      what make it survivable. Never commit a real key. The cost was flagged to
-      and accepted by LE AN: a frontend-only developer cannot boot the backend
-      without a provider key.
-      THE QUOTEGUARD IS THE HALLUCINATION DEFENCE AND IT IS MECHANICAL, NOT A
-      PROMPT INSTRUCTION. Every extracted proposal must carry a quote that
-      appears VERBATIM in the document's extracted text after whitespace
-      normalisation; failures are dropped silently and counted. A fabricated
-      citation is the one failure mode that makes the page worse than empty.
-      TWO BLOCK KINDS ARE EXEMPT AND THE EXEMPTION IS EXPLICIT IN CODE, NOT
-      IMPLICIT: the project brief and diagram blocks are DERIVED (synthesised
-      from digests and accepted blocks) rather than extracted from a span, so
-      there is no verbatim span to check. They carry document-level citations
-      with a null locator. Do not quietly widen that exemption.
-      THE PROJECT BRIEF READS THE WHOLE CORPUS AT ONCE — every
-      project_documents.digest plus the project's own domain/objective/
-      customerBu plus the accepted blocks. That is a deliberate correction made
-      during exploration: a brief assembled only from the bullets could never say
-      something the bullets do not, which is exactly the cross-document synthesis
-      a BA wants. The accepted cost is that the brief MAY state a fact no block
-      states, which is why it cites documents rather than blocks. It regenerates
-      only on request and shows a stale COUNT instead of silently refreshing —
-      auto-regeneration would burn tokens on every edit and churn prose the BA
-      just fixed.
-      A BLOCK WITH `edited_at` SET CAN ONLY EVER RECEIVE A CONFLICT, NEVER AN
-      UPDATE. This is enforced twice on purpose — excluded from the update path
-      in the prompt, AND rejected server-side if the model proposes one anyway.
-      It is the single property that makes the second, fifth and tenth upload
-      safe for a BA who has corrected the page by hand.
-      Fourth migration this repo has run, and purely additive: three new tables,
-      seven FKs, one unique, one composite index, two single-column indexes, six
-      CHECKs. No column on an existing table is added, altered or dropped, there
-      is no backfill, and NO DESTRUCTIVE DATABASE OPERATION APPEARS ANYWHERE. It
-      reverts clean by dropping the three tables in FK order (knowledge_refs →
-      knowledge_blocks → project_documents). `pnpm migration:*` builds first and
-      runs against `dist/`, so compile clean before generating or a TypeScript
-      error surfaces as a confusing migration failure.
-      Entity registration is the same trap add-file-storage and add-projects both
-      documented: `app.module.ts` passes `entities: []` + `autoLoadEntities:
-      true` (the raw-.ts glob breaks vitest), so
-      `TypeOrmModule.forFeature([ProjectDocument, KnowledgeBlock, KnowledgeRef])`
-      inside ContextModule is the ONLY thing that registers them. Anywhere else
-      is a silent no-op.
-      TWO NEW `ON DELETE CASCADE` EDGES APPEAR, AND db.md RECORDS THE TEST THAT
-      JUSTIFIES THEM rather than treating the existing project_members exception
-      as permission. The test is "does the child own bytes or meaning outside its
-      parent?" — project_documents.project_id and knowledge_refs.block_id own
-      neither. Everything pointing at `files`, `users` or `project_documents`
-      stays RESTRICT, and files.uploaded_by stays RESTRICT for its original
-      reason: cascading there would orphan bytes on disk no FK can reach. Net
-      effect: deleting a project would remove its documents, blocks and refs but
-      NEVER a file row or a byte on disk. Task 18.4 must carry that reasoning
-      into schema.md so the next change does not read two CASCADEs as a trend.
-      A DIAGRAM IS NOT A TYPE. It is a block whose `statement` contains a
-      ```mermaid fence — same edit, supersede and citation flow, zero schema
-      cost. Resist adding an `isDiagram` column or a parallel code path. mermaid
-      is lazy-loaded (next/dynamic, ssr:false) so a page with no diagram pays
-      nothing, and a render failure shows the source with the error, never a
-      blank box.
-      There is NO `select.tsx` in this repo and the shadcn CLI hangs in this
-      environment (devspec/context/rules.md). The nine-option section picker is a
-      native `<select>` styled with input.tsx's classes, marked with a
-      `ponytail:` comment. There is also no progress primitive — the upload bar
-      is two divs. Do not hand-copy Radix for either.
-      `react-markdown` is deliberately NOT added (design.md Default 34).
-      Statements render as plain text with the mermaid fence detected by regex.
-      Bold and links in a statement render literally; that is accepted, and
-      adding a renderer later is a one-component change.
-      design.md carries 40 Decision Defaults under ## Impact Area. That is what
-      lets the worker decide instead of blocking — read them before treating any
-      gray area as underspecified. Three OPEN QUESTIONS are recorded there and in
-      db.md and are deliberately NOT specced: DOCX locators depend on the source
-      using heading styles; rejected/superseded blocks accumulate forever (a
-      prune path would be a destructive DB op, flagged for a human instead); and
-      nothing caps AI spend on a 500-page upload beyond the 100MB file limit.
-      Do NOT run `pnpm test:e2e` and do not touch `backend/test/app.e2e-spec.ts`.
-      It asserts GET / -> "Hello World!" against an AppController this repo does
-      not have, it was failing before any DevSpec change started, and it is
-      logged in devspec/report/blockers.md. `pnpm test` is this change's backend
-      gate.
-      devspec/context/conventions.md is STALE for the frontend — it still
-      describes `@/*` -> ./app/* with everything under app/. `frontend/CLAUDE.md`
-      is authoritative: `@/*` resolves from the frontend root, and it carries the
-      layer law (component -> hooks/ -> services/ -> lib/api), the
-      react-hook-form + zod rule and the never-`watch()` constraint. Refreshing
-      the context pack is a separate job. summary.md is also stale — it claims
-      zero domain entities and zero migrations; four tables and three migrations
-      exist, and this change makes it seven and four.
+      THE MODEL IS ONE EDITABLE summary.md PER PROJECT, NOT BLOCKS. The old
+      block/knowledge_refs/review-queue shape was reverted and is gone. Knowledge
+      is a single project_knowledge.summary_md (fixed ## sections). Citations are
+      an inline `Sources:` line per section; conflicts an inline `⚠ Sources
+      differ` note; diagrams are ```mermaid fences INSIDE the md (not a type, not
+      a table). No proposals, no accept/reject queue. Do NOT recreate
+      knowledge_blocks / knowledge_refs — DropProjectContext already removed them.
+      TWO FEEDERS, ONE OUTPUT: documents (upload via FilesService) AND web
+      research (Tavily, company name or URL -> draft -> human confirms -> folds
+      in, URL-cited). Processing is ONE "Process all" over every unprocessed
+      source in one background run + a boot-time stuck-row sweep — NOT a
+      per-document pipeline, NOT a job queue (ponytail comment names the ceiling).
+      AI STACK IS LANGCHAIN / LANGGRAPH (BA decision — see improve/decisions.md).
+      AiClient wraps `@langchain/openai` ChatOpenAI at AI_BASE_URL (FAST/STRONG
+      split); web research wraps `@langchain/tavily` TavilySearch — the SAME tool
+      the later discovery-agent change reuses, then adds `@langchain/langgraph`.
+      SECTION 0 IS A LOAD-SPIKE, NOT A FORMALITY: the backend is CommonJS and
+      conventions.md forbids ESM-only deps. These packages are dual-published
+      (exports.require -> .cjs, verified on npm 2026-10-02), but task 0.2 proves
+      they resolve and run under THIS tsconfig before anything depends on them;
+      fallback is the native-`fetch` client (design.md rejected row). langgraph is
+      deferred to the discovery change.
+      SECTION 8 IS THE SECURITY BOUNDARY. FilesController.download
+      (backend/src/files/files.controller.ts) currently guards with JwtAuthGuard
+      only — any authenticated user can download any file by id. This change gives
+      doc sources owners, so the hole closes in the same change: a file WITH a
+      project_documents(source_type='doc') row requires project membership; a file
+      WITHOUT one keeps today's behaviour; web sources have no file_id and never
+      hit this path. Tests-first (8.2). Keep ONE download route.
+      FIVE REQUIRED ENV VARS INVALIDATE EVERY EXISTING `.env`: AI_BASE_URL,
+      AI_API_KEY, AI_MODEL_FAST, AI_MODEL_STRONG, TAVILY_API_KEY — no code default
+      per rules.md (the process dies at boot on a missing one). The .env.example
+      rows (task 1.2) are what make it survivable. NEVER commit a real key.
+      DB IS PURELY ADDITIVE: two new tables (project_documents reshaped,
+      project_knowledge new, UNIQUE project_id), one migration, reverts clean. No
+      existing column altered/dropped, no backfill, NO DESTRUCTIVE OP. extracted_text
+      is STORED (parse cache, not RAG/embeddings) so Regenerate needn't re-parse or
+      re-hit Tavily. `pnpm migration:*` builds first and runs against dist/ — compile
+      clean first or a TS error surfaces as a confusing migration failure. Register
+      entities via TypeOrmModule.forFeature in ContextModule (autoLoadEntities trap).
+      REGENERATE NEVER CLOBBERS A HUMAN EDIT: project_knowledge.edited gates it —
+      regenerate on an edited summary throws CONTEXT_SUMMARY_EDITED unless the body
+      carries force:true (the UI confirm resends with force).
+      FRONTEND: new route app/(app)/projects/[id]/context/page.tsx built to
+      mockups/context.html; enable the Context sidebar row (was disabled); Overview
+      stage 1 reads the real source count. No shared components/ui exists (reverted)
+      — add shadcn primitives by hand (CLI hangs, rules.md). mermaid is a new dep,
+      lazy-loaded; a render failure shows the fenced source, never a blank box.
+      design.md ## Impact Area carries 10 Decision Defaults — read them before
+      treating any gray area as underspecified. Open questions (pruning failed/old
+      sources; re-upload coexistence) are recorded there and in db.md, deliberately
+      NOT specced (a prune path is a destructive DB op for a human).
+      Do NOT run `pnpm test:e2e` or touch backend/test/app.e2e-spec.ts — it asserts
+      GET / -> "Hello World!" against an AppController this repo lacks, was failing
+      before any DevSpec change, and is logged in devspec/report/blockers.md.
+      `pnpm test` is this change's backend gate. frontend/CLAUDE.md is authoritative
+      over the stale frontend block in context/conventions.md.
   add-profile:
     title: profile modal — avatar upload, display name, change password
     tasks_md: changes/add-profile/tasks.md

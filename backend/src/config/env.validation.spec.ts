@@ -13,6 +13,7 @@ const base = {
   AI_API_KEY: 'k',
   AI_MODEL_FAST: 'fast',
   AI_MODEL_STRONG: 'strong',
+  TAVILY_API_KEY: 'tvly-k',
   SEED_ADMIN_EMAIL: 'a@b.c',
   SEED_ADMIN_PASSWORD: 'p',
   SEED_ADMIN_NAME: 'N',
@@ -55,6 +56,11 @@ describe('validate', () => {
       const { [key]: _omitted, ...without } = base;
       expect(() => validate(without)).toThrow(new RegExp(key));
     }
+  });
+
+  it('refuses to boot without TAVILY_API_KEY', () => {
+    const { TAVILY_API_KEY: _omitted, ...without } = base;
+    expect(() => validate(without)).toThrow(/TAVILY_API_KEY/);
   });
 });
 

@@ -2,1033 +2,351 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Clarivo — Project context: documents + knowledge page (mockup)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Context page — mockup</title>
 <style>
-/* Tokens copied verbatim from frontend/app/globals.css :root. */
-:root{
-  --radius:0.625rem;
-  --background:oklch(1 0 0);
-  --foreground:oklch(0.2536 0.0553 266.35);
-  --card:oklch(1 0 0);
-  --primary:oklch(0.6016 0.2123 263.59);
-  --primary-foreground:oklch(0.984 0.003 247.858);
-  --secondary:oklch(0.968 0.007 247.896);
-  --muted:oklch(0.968 0.007 247.896);
-  --muted-foreground:oklch(0.554 0.046 257.417);
-  --accent:oklch(0.968 0.007 247.896);
-  --destructive:oklch(0.577 0.245 27.325);
-  --success:oklch(0.58 0.14 157);
-  --warning:oklch(0.70 0.15 75);
-  --border:oklch(0.929 0.013 255.508);
-  --input:oklch(0.929 0.013 255.508);
-  --ring:oklch(0.6016 0.2123 263.59);
-  --chart-1:oklch(0.6016 0.2123 263.59);
-  --chart-2:oklch(0.6788 0.1756 250.9);
-  --chart-3:oklch(0.6392 0.1927 297.3);
-  --sidebar:oklch(0.984 0.003 247.858);
-  --sidebar-foreground:oklch(0.2536 0.0553 266.35);
-  --sidebar-primary:oklch(0.6016 0.2123 263.59);
-  --sidebar-accent:oklch(0.968 0.007 247.896);
-  --sidebar-border:oklch(0.929 0.013 255.508);
-}
-*{box-sizing:border-box;border-color:var(--border)}
-body{margin:0;background:var(--muted);color:var(--foreground);
-  font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
-.statebar{position:sticky;top:0;z-index:50;background:var(--foreground);color:#fff;
-  padding:9px 18px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
-.statebar small{float:right;font-weight:500;text-transform:none;letter-spacing:0;opacity:.72}
-.note{max-width:1000px;margin:0 auto;padding:14px 18px 0;font-size:12.5px;color:var(--muted-foreground)}
+  /* Clarivo tokens — copied from frontend/app/globals.css (OKLCH). */
+  :root{
+    --radius:.625rem;
+    --background:oklch(1 0 0);
+    --foreground:oklch(.2536 .0553 266.35);
+    --card:oklch(1 0 0);
+    --primary:oklch(.6016 .2123 263.59);          /* #3A75FD */
+    --primary-foreground:oklch(.984 .003 247.858);
+    --secondary:oklch(.968 .007 247.896);
+    --muted-foreground:oklch(.554 .046 257.417);
+    --destructive:oklch(.577 .245 27.325);
+    --success:oklch(.58 .14 157);
+    --warning:oklch(.70 .15 75);
+    --border:oklch(.929 .013 255.508);
+    --sidebar:oklch(.984 .003 247.858);
+    --sidebar-border:oklch(.929 .013 255.508);
+    --chart-3:oklch(.6392 .1927 297.3);
+    --chart-2:oklch(.6788 .1756 250.9);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--secondary);color:var(--foreground);
+    font:14px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .state-label{max-width:1280px;margin:40px auto 10px;padding:0 16px;
+    font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-foreground)}
+  .frame{max-width:1280px;margin:0 auto 8px;padding:0 16px}
+  .app{display:grid;grid-template-columns:240px 1fr;
+    background:var(--background);border:1px solid var(--border);
+    border-radius:calc(var(--radius) + 2px);overflow:hidden;min-height:640px}
+  .side{background:var(--sidebar);border-right:1px solid var(--sidebar-border);
+    padding:14px 10px;display:flex;flex-direction:column;gap:2px}
+  .brand{display:flex;align-items:center;gap:8px;padding:6px 8px 14px;font-weight:700}
+  .logo{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--primary),var(--chart-3))}
+  .proj{display:flex;gap:8px;align-items:center;padding:8px;margin:0 0 10px;
+    border:1px solid var(--sidebar-border);border-radius:var(--radius);background:var(--background)}
+  .proj .av{width:30px;height:30px;border-radius:7px;background:var(--secondary);
+    display:grid;place-items:center;font-weight:700;font-size:12px;color:var(--muted-foreground)}
+  .proj small{display:block;color:var(--muted-foreground);font-size:12px}
+  .grp{padding:12px 8px 4px;font-size:11px;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--muted-foreground)}
+  .nav{display:flex;align-items:center;gap:10px;padding:8px;border-radius:var(--radius);color:var(--foreground)}
+  .nav.active{background:var(--secondary);font-weight:600;box-shadow:inset 2px 0 0 var(--primary)}
+  .nav .soon{margin-left:auto;font-size:10px;font-weight:700;color:var(--muted-foreground);
+    background:var(--secondary);border:1px solid var(--border);padding:1px 6px;border-radius:999px}
+  .me{margin-top:auto;display:flex;gap:8px;align-items:center;padding:8px;border-top:1px solid var(--sidebar-border)}
+  .me .av{width:30px;height:30px;border-radius:999px;background:linear-gradient(135deg,var(--chart-3),var(--primary))}
 
-/* ---- shell ---- */
-.shell{display:flex;height:800px;overflow:hidden;background:var(--muted)}
-.sidebar{width:264px;flex:0 0 264px;margin:12px 0 12px 12px;display:flex;flex-direction:column;
-  background:var(--sidebar);color:var(--sidebar-foreground);border:1px solid var(--sidebar-border);
-  border-radius:18px;box-shadow:0 10px 15px -3px oklch(0.2536 .0553 266.35/.09),0 4px 6px -4px oklch(0.2536 .0553 266.35/.09)}
-.brand{height:60px;display:flex;align-items:center;gap:9px;padding:0 14px;flex:0 0 auto}
-.brand .mark{width:28px;height:28px;border-radius:9px;flex:0 0 auto;background:linear-gradient(140deg,var(--chart-2),var(--chart-1))}
-.brand .word{font-size:17px;font-weight:800;letter-spacing:-.02em}
-.brand .panel{margin-left:auto;color:var(--muted-foreground);font-size:15px}
-nav{flex:1;display:flex;flex-direction:column;gap:2px;padding:4px 10px 10px;overflow-y:auto}
-.navgroup{padding:14px 8px 6px;font-size:10.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted-foreground)}
-.navitem{position:relative;display:flex;align-items:center;gap:12px;height:38px;padding:0 10px;border-radius:10px;
-  font-size:14px;font-weight:500;color:var(--sidebar-foreground);text-decoration:none}
-.navitem .ic{width:18px;text-align:center;color:var(--muted-foreground);font-size:15px;flex:0 0 18px}
-.navitem:hover{background:var(--sidebar-accent)}
-.navitem.active{background:color-mix(in oklch,var(--sidebar-primary) 12%,transparent);color:var(--sidebar-primary);font-weight:600}
-.navitem.active .ic{color:var(--sidebar-primary)}
-.navitem.active::before{content:"";position:absolute;left:-10px;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:var(--sidebar-primary)}
-.navitem.disabled{opacity:.55;cursor:default}
-.navitem.disabled:hover{background:transparent}
-.soon{margin-left:auto;border:1px solid var(--border);border-radius:7px;padding:1px 6px;font-size:10px;
-  font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-foreground)}
-.sidefoot{flex:0 0 auto;padding:10px}
-.sep{height:1px;background:var(--sidebar-border);margin-bottom:10px}
-.user{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:10px}
-.avatar{width:32px;height:32px;border-radius:999px;flex:0 0 auto;display:grid;place-items:center;
-  background:linear-gradient(140deg,var(--chart-2),var(--chart-1));color:#fff;font-size:12px;font-weight:700}
-.user b{display:block;font-size:13px;font-weight:600;line-height:1.25}
-.user span{display:block;font-size:11.5px;color:var(--muted-foreground)}
+  .main{padding:22px 26px;overflow:auto}
+  .crumb{color:var(--muted-foreground);font-size:13px;margin-bottom:10px}
+  .crumb b{color:var(--foreground)}
+  .head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+  h1{margin:0;font-size:24px;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+  .pill{font-size:12px;font-weight:600;color:var(--muted-foreground);
+    background:var(--secondary);border:1px solid var(--border);padding:2px 10px;border-radius:999px}
+  .sub{color:var(--muted-foreground);margin:6px 0 0}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+  .btn{font:inherit;font-weight:600;font-size:13px;padding:8px 14px;border-radius:var(--radius);
+    border:1px solid var(--border);background:var(--background);color:var(--foreground);
+    cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+  .btn.primary{background:var(--primary);color:var(--primary-foreground);border-color:transparent}
+  .btn.sm{padding:5px 10px;font-size:12px}
+  .btn:disabled{opacity:.5}
 
-/* --- project-scope sidebar head --- */
-.backrow{display:flex;align-items:center;gap:9px;height:34px;padding:0 10px;margin:2px 0 4px;border-radius:9px;
-  font-size:12.5px;font-weight:600;color:var(--muted-foreground);text-decoration:none}
-.backrow:hover{background:var(--sidebar-accent)}
-.switcher{display:flex;align-items:center;gap:10px;margin:0 10px 4px;padding:8px 10px;border:1px solid var(--sidebar-border);
-  border-radius:11px;background:var(--card);cursor:pointer}
-.switcher .pmark{width:30px;height:30px;flex:0 0 auto;border-radius:9px;display:grid;place-items:center;color:#fff;
-  font-size:11px;font-weight:700;background:linear-gradient(140deg,var(--chart-2),var(--chart-1))}
-.switcher b{display:block;font-size:13px;font-weight:700;line-height:1.25;letter-spacing:-.01em}
-.switcher span{display:block;font-size:11px;color:var(--muted-foreground);font-family:ui-monospace,Menlo,monospace}
-.switcher .chev{margin-left:auto;color:var(--muted-foreground);font-size:11px}
+  .tiles{display:grid;grid-template-columns:repeat(3,1fr) 220px;gap:12px;margin:20px 0}
+  .tile{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+  .tile .k{font-size:12px;color:var(--muted-foreground)}
+  .tile .v{font-size:28px;font-weight:700;letter-spacing:-.02em;margin-top:4px}
+  .tile .d{font-size:11px;color:var(--muted-foreground);margin-top:2px}
+  .tile.ring{display:flex;align-items:center;gap:14px}
+  .ring-g{width:66px;height:66px;border-radius:999px;flex:none;
+    background:conic-gradient(var(--primary) 67%,var(--secondary) 0);display:grid;place-items:center}
+  .ring-g i{width:48px;height:48px;border-radius:999px;background:var(--card);
+    display:grid;place-items:center;font-weight:700;font-style:normal;font-size:14px}
 
-.main{flex:1;min-width:0;display:flex;flex-direction:column;overflow-y:auto}
-.content{padding:0 26px 40px}
-.topbar{height:58px;display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted-foreground)}
-.topbar a{color:var(--muted-foreground);text-decoration:none}
-.topbar b{color:var(--foreground);font-weight:600}
-.bell{margin-left:auto;position:relative;width:30px;height:30px;border-radius:8px;display:grid;place-items:center}
-.bell i{position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:999px;background:var(--destructive)}
+  .body{display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius)}
+  .card .ch{display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:14px 16px;border-bottom:1px solid var(--border)}
+  .card .ch h3{margin:0;font-size:15px}
+  .card .cb{padding:16px}
 
-/* ---- page head ---- */
-.phead{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px}
-.phead .pmark{width:46px;height:46px;flex:0 0 auto;border-radius:14px;display:grid;place-items:center;color:#fff;
-  font-size:15px;font-weight:700;background:linear-gradient(140deg,var(--chart-2),var(--chart-1))}
-.phead h1{margin:0;font-size:22px;font-weight:700;letter-spacing:-.02em;display:flex;align-items:center;gap:9px}
-.phead .meta{margin-top:3px;font-size:12.5px;color:var(--muted-foreground);display:flex;gap:7px;flex-wrap:wrap;align-items:center}
-.phead .meta code{font-family:ui-monospace,Menlo,monospace;font-size:12px}
-.phead .acts{margin-left:auto;display:flex;gap:8px}
-.badge{display:inline-flex;align-items:center;gap:5px;border-radius:8px;padding:2px 8px;font-size:11.5px;font-weight:600;
-  border:1px solid var(--border);background:var(--card);color:var(--muted-foreground)}
-.badge.active{color:var(--success);border-color:color-mix(in oklch,var(--success) 35%,transparent);
-  background:color-mix(in oklch,var(--success) 10%,transparent)}
-.badge.archived{color:var(--muted-foreground);background:var(--secondary)}
-.badge.owner{color:var(--primary);border-color:color-mix(in oklch,var(--primary) 32%,transparent);
-  background:color-mix(in oklch,var(--primary) 9%,transparent)}
-.badge .dot{width:6px;height:6px;border-radius:999px;background:currentColor}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:34px;padding:0 13px;border-radius:10px;
-  border:1px solid transparent;font:inherit;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none}
-.btn-primary{background:var(--primary);color:var(--primary-foreground)}
-.btn-outline{background:var(--card);border-color:var(--border);color:var(--foreground)}
-.btn-ghost{background:transparent;color:var(--muted-foreground)}
-.btn-sm{height:30px;padding:0 10px;font-size:12.5px}
+  .md h2{font-size:15px;margin:22px 0 6px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+  .md h2:first-child{margin-top:0}
+  .md p{margin:0 0 8px}
+  .md ul{margin:0 0 8px;padding-left:20px}
+  .src{font-size:12px;color:var(--muted-foreground);margin:2px 0 4px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .src b{font-weight:600;color:var(--foreground)}
+  .src .web{color:var(--primary)}
+  .warn{font-size:12px;color:var(--warning);font-weight:600;margin:4px 0 8px}
+  .thin{color:var(--muted-foreground);font-style:italic}
 
-/* ---- cards ---- */
-.cols{display:grid;grid-template-columns:1.55fr 1fr;gap:16px;align-items:start}
-.card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 1px 2px oklch(0.2536 .0553 266.35/.05)}
-.card h2{margin:0;font-size:14px;font-weight:700;letter-spacing:-.01em}
-.chead{display:flex;align-items:center;gap:8px;padding:15px 17px 0}
-.chead .right{margin-left:auto}
-.cbody{padding:13px 17px 17px}
-.prose{font-size:13.5px;line-height:1.62;color:var(--foreground);margin:0}
-.prose.none{color:var(--muted-foreground);font-style:italic}
-.kv{display:grid;grid-template-columns:auto 1fr;gap:9px 18px;margin-top:16px;padding-top:15px;border-top:1px solid var(--border)}
-.kv dt{font-size:12.5px;color:var(--muted-foreground)}
-.kv dd{margin:0;font-size:13px;font-weight:500}
-.member{display:flex;align-items:center;gap:10px;padding:8px 0}
-.member+.member{border-top:1px solid var(--border)}
-.member b{display:block;font-size:13px;font-weight:600;line-height:1.3}
-.member span{display:block;font-size:11.5px;color:var(--muted-foreground)}
-.member .right{margin-left:auto;display:flex;align-items:center;gap:7px}
-.x{width:26px;height:26px;border-radius:8px;border:0;background:transparent;color:var(--muted-foreground);cursor:pointer;font-size:14px}
-.x:hover{background:var(--secondary);color:var(--destructive)}
-.timeline{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--muted-foreground)}
-.bar{flex:1;height:6px;border-radius:999px;background:var(--secondary);overflow:hidden}
-.bar i{display:block;height:100%;width:62%;border-radius:999px;background:linear-gradient(90deg,var(--chart-2),var(--chart-1))}
+  /* rendered mermaid diagram block (real app: mermaid.js; here: hand-drawn) */
+  .diagram{border:1px solid var(--border);border-radius:var(--radius);background:var(--secondary);
+    padding:16px;margin:6px 0 4px;position:relative}
+  .diagram .mtag{position:absolute;top:8px;right:10px;font-size:10px;font-weight:700;letter-spacing:.05em;
+    color:var(--muted-foreground);background:var(--background);border:1px solid var(--border);padding:1px 7px;border-radius:999px}
+  .flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .node{background:var(--background);border:1px solid var(--primary);color:var(--foreground);
+    border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600}
+  .node.alt{border-color:var(--chart-2)}
+  .node.dec{border-style:dashed;border-color:var(--warning)}
+  .arrow{color:var(--muted-foreground);font-weight:700}
 
-/* ---- states ---- */
-.sk{background:var(--secondary);border-radius:7px;height:11px;display:block;animation:p 1.4s ease-in-out infinite}
-@keyframes p{0%,100%{opacity:1}50%{opacity:.45}}
-.center{display:grid;place-items:center;gap:10px;text-align:center;padding:76px 20px}
-.center .ico{font-size:36px;opacity:.5}
-.center h2{margin:0;font-size:15px;font-weight:600}
-.center p{margin:0;max-width:42ch;font-size:12.5px;color:var(--muted-foreground)}
-.ribbon{display:flex;align-items:center;gap:9px;border-radius:11px;padding:10px 13px;margin-bottom:17px;font-size:12.5px;
-  border:1px solid color-mix(in oklch,var(--warning) 38%,transparent);
-  background:color-mix(in oklch,var(--warning) 11%,transparent)}
-.ribbon .right{margin-left:auto}
+  .doc{display:flex;gap:10px;padding:10px;border:1px solid var(--border);border-radius:var(--radius);
+    margin:0 0 8px;align-items:center}
+  .doc .fi{width:32px;height:32px;border-radius:8px;background:var(--secondary);display:grid;place-items:center;flex:none}
+  .doc .nm{font-weight:600}
+  .doc small{color:var(--muted-foreground);font-size:12px}
+  .grp2{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--muted-foreground);margin:6px 0 8px}
+  .tag{margin-left:auto;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px}
+  .tag.new{color:var(--primary);background:oklch(.6016 .2123 263.59/.12)}
+  .tag.done{color:var(--success);background:oklch(.58 .14 157/.12)}
+  .tag.fail{color:var(--destructive);background:oklch(.577 .245 27.325/.12)}
+  .processall{border:1px dashed var(--border);border-radius:var(--radius);padding:12px;text-align:center;margin:10px 0}
+  .drop{border:2px dashed var(--border);border-radius:var(--radius);padding:28px;text-align:center;
+    color:var(--muted-foreground);background:var(--secondary)}
+  .drop b{color:var(--primary)}
+  .bar{height:6px;border-radius:999px;background:var(--secondary);overflow:hidden;margin:10px 0 2px}
+  .bar i{display:block;height:100%;width:60%;background:var(--primary)}
 
-/* ---- stat tiles (mirrors the existing dashboard STATS card) ---- */
-.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
-.tile{display:flex;align-items:flex-start;gap:10px;background:var(--card);border:1px solid var(--border);
-  border-radius:14px;padding:15px;box-shadow:0 1px 2px oklch(0.2536 .0553 266.35/.05)}
-.tile .n{font-size:26px;line-height:1.15;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.tile .l{margin-top:2px;font-size:12px;color:var(--muted-foreground)}
-.tile .ic{margin-left:auto;width:34px;height:34px;flex:0 0 34px;border-radius:10px;display:grid;place-items:center;font-size:15px}
-.tile.zero .n{color:var(--muted-foreground)}
-.t-blue{background:color-mix(in oklch,var(--chart-1) 12%,transparent);color:var(--chart-1)}
-.t-sky{background:color-mix(in oklch,var(--chart-2) 14%,transparent);color:var(--chart-2)}
-.t-purple{background:color-mix(in oklch,var(--chart-3) 13%,transparent);color:var(--chart-3)}
-.t-warn{background:color-mix(in oklch,var(--warning) 15%,transparent);color:var(--warning)}
+  /* research form */
+  .field{display:block;margin:12px 0}
+  .field label{font-size:12px;font-weight:600;display:block;margin-bottom:5px}
+  .field input{width:100%;font:inherit;padding:9px 12px;border:1px solid var(--border);
+    border-radius:var(--radius);background:var(--background);color:var(--foreground)}
+  .or{display:flex;align-items:center;gap:10px;color:var(--muted-foreground);font-size:12px;margin:10px 0}
+  .or:before,.or:after{content:"";flex:1;height:1px;background:var(--border)}
+  .hit{border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin:8px 0}
+  .hit .u{font-size:12px;color:var(--primary);word-break:break-all}
+  @media(max-width:1000px){.tiles{grid-template-columns:repeat(2,1fr)}.body{grid-template-columns:1fr}.app{grid-template-columns:1fr}.side{display:none}}
+</style>
+</head>
+<body>
 
-/* ---- pipeline stages ---- */
-.stage{display:flex;align-items:center;gap:13px;padding:13px 0}
-.stage+.stage{border-top:1px solid var(--border)}
-.stage .num{width:26px;height:26px;flex:0 0 26px;border-radius:999px;display:grid;place-items:center;
-  font-size:11.5px;font-weight:700;background:var(--secondary);color:var(--muted-foreground)}
-.stage.done .num{background:color-mix(in oklch,var(--success) 15%,transparent);color:var(--success)}
-.stage.now .num{background:var(--primary);color:var(--primary-foreground)}
-.stage .txt{min-width:0}
-.stage .txt b{display:block;font-size:13.5px;font-weight:600;line-height:1.3}
-.stage .txt span{display:block;font-size:11.5px;color:var(--muted-foreground);margin-top:1px}
-.stage .right{margin-left:auto;display:flex;align-items:center;gap:9px;flex:0 0 auto}
-.stage .cnt{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--muted-foreground)}
-.track{height:5px;border-radius:999px;background:var(--secondary);overflow:hidden;margin:4px 0 2px}
-.track i{display:block;height:100%;width:25%;border-radius:999px;background:linear-gradient(90deg,var(--chart-2),var(--chart-1))}
-
-/* ===== context page additions ===== */
-.dropzone{border:1.5px dashed var(--border);border-radius:14px;background:var(--card);padding:30px 20px;text-align:center}
-.dropzone.tight{padding:18px 16px;text-align:left;display:flex;align-items:center;gap:12px}
-.dropzone .ico{font-size:28px;opacity:.5}
-.dropzone b{display:block;font-size:13.5px;font-weight:600}
-.dropzone span{display:block;font-size:12px;color:var(--muted-foreground);margin-top:2px}
-.dropzone .right{margin-left:auto}
-
-/* document rows */
-.doc{display:flex;align-items:flex-start;gap:11px;padding:11px 0}
-.doc+.doc{border-top:1px solid var(--border)}
-.doc .fic{width:32px;height:32px;flex:0 0 32px;border-radius:9px;display:grid;place-items:center;font-size:12px;font-weight:700}
-.f-pdf{background:color-mix(in oklch,var(--destructive) 11%,transparent);color:var(--destructive)}
-.f-doc{background:color-mix(in oklch,var(--chart-1) 12%,transparent);color:var(--chart-1)}
-.f-md{background:color-mix(in oklch,var(--chart-3) 12%,transparent);color:var(--chart-3)}
-.doc .nm{min-width:0;flex:1}
-.doc .nm b{display:block;font-size:13px;font-weight:600;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.doc .nm span{display:block;font-size:11.5px;color:var(--muted-foreground);margin-top:1px}
-.doc .ctl{display:flex;align-items:center;gap:5px;flex:0 0 auto}
-.chip{display:inline-flex;align-items:center;gap:5px;border-radius:7px;padding:2px 7px;font-size:11px;font-weight:600;
-  border:1px solid var(--border);background:var(--secondary);color:var(--muted-foreground);white-space:nowrap}
-.chip.run{color:var(--chart-1);border-color:color-mix(in oklch,var(--chart-1) 32%,transparent);
-  background:color-mix(in oklch,var(--chart-1) 9%,transparent)}
-.chip.ok{color:var(--success);border-color:color-mix(in oklch,var(--success) 32%,transparent);
-  background:color-mix(in oklch,var(--success) 9%,transparent)}
-.chip.bad{color:var(--destructive);border-color:color-mix(in oklch,var(--destructive) 32%,transparent);
-  background:color-mix(in oklch,var(--destructive) 9%,transparent)}
-.chip .sp{display:inline-block;width:9px;height:9px;border-radius:999px;border:1.6px solid currentColor;
-  border-top-color:transparent;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.errline{margin:7px 0 0;font-size:11.5px;line-height:1.5;color:var(--destructive);
-  background:color-mix(in oklch,var(--destructive) 7%,transparent);border-radius:8px;padding:6px 9px}
-.steps{display:flex;align-items:center;gap:5px;margin-top:6px}
-.steps i{height:3px;flex:1;border-radius:999px;background:var(--secondary)}
-.steps i.on{background:var(--chart-1)}
-
-/* knowledge page */
-.sect{padding:3px 0 2px}
-.sect+.sect{margin-top:4px;border-top:1px solid var(--border)}
-.secthead{display:flex;align-items:center;gap:8px;padding:14px 0 4px}
-.secthead h3{margin:0;font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted-foreground)}
-.secthead .n{font-size:10.5px;font-weight:600;color:var(--muted-foreground);opacity:.7}
-.secthead .right{margin-left:auto}
-.blk{display:flex;gap:10px;padding:9px 0 10px;position:relative}
-.blk+.blk{border-top:1px dashed color-mix(in oklch,var(--border) 70%,transparent)}
-.blk .mk{flex:0 0 16px;width:16px;text-align:center;font-size:13px;line-height:1.55;font-weight:700}
-.mk.stated{color:var(--success)}
-.mk.implied{color:var(--warning)}
-.mk.uncertain{color:var(--muted-foreground)}
-.blk .bd{min-width:0;flex:1}
-.blk .bd p{margin:0;font-size:13.5px;line-height:1.6}
-.blk .foot{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:6px}
-.ref{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border);border-radius:7px;padding:1px 7px;
-  font-size:11px;color:var(--muted-foreground);background:var(--card);text-decoration:none;cursor:pointer}
-.ref:hover{border-color:var(--ring);color:var(--primary)}
-.ref code{font-family:ui-monospace,Menlo,monospace;font-size:10.5px}
-.tag{font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted-foreground)}
-.tag.hu{color:var(--chart-3)}
-.blk .ctl{flex:0 0 auto;display:flex;gap:3px;opacity:.45}
-.blk:hover .ctl{opacity:1}
-.sectempty{display:flex;align-items:center;gap:9px;padding:9px 0 11px;font-size:12.5px;color:var(--muted-foreground)}
-.sectempty .ask{border:1px solid color-mix(in oklch,var(--warning) 36%,transparent);
-  background:color-mix(in oklch,var(--warning) 10%,transparent);color:var(--warning);
-  border-radius:7px;padding:1px 7px;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
-
-/* proposals */
-.propbar{display:flex;align-items:center;gap:11px;border-radius:12px;padding:11px 14px;margin-bottom:16px;font-size:13px;
-  border:1px solid color-mix(in oklch,var(--primary) 34%,transparent);
-  background:color-mix(in oklch,var(--primary) 8%,transparent)}
-.propbar .pin{width:26px;height:26px;flex:0 0 26px;border-radius:999px;display:grid;place-items:center;
-  background:var(--primary);color:var(--primary-foreground);font-size:12px;font-weight:700}
-.propbar .right{margin-left:auto;display:flex;gap:7px}
-.prop{border:1px solid var(--border);border-radius:12px;background:var(--card);padding:12px 14px;position:relative;overflow:hidden}
-.prop+.prop{margin-top:10px}
-.prop::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px}
-.prop.add::before{background:var(--success)}
-.prop.upd::before{background:var(--chart-2)}
-.prop.cfl::before{background:var(--warning)}
-.prop .ph{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.prop .ph .k{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
-.prop.add .ph .k{color:var(--success)}
-.prop.upd .ph .k{color:var(--chart-2)}
-.prop.cfl .ph .k{color:var(--warning)}
-.prop .ph .right{margin-left:auto;display:flex;gap:6px}
-.prop p{margin:0;font-size:13.5px;line-height:1.6}
-.diff{display:grid;gap:7px}
-.diff .was,.diff .now{border-radius:9px;padding:8px 10px;font-size:13px;line-height:1.55}
-.diff .was{background:var(--secondary);color:var(--muted-foreground);text-decoration:line-through;text-decoration-color:color-mix(in oklch,var(--muted-foreground) 55%,transparent)}
-.diff .now{background:color-mix(in oklch,var(--chart-2) 9%,transparent);border:1px solid color-mix(in oklch,var(--chart-2) 26%,transparent)}
-.diff .arrow{font-size:11px;color:var(--muted-foreground);text-align:center;margin:-3px 0}
-.vs{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:stretch}
-.vs .side{border:1px solid var(--border);border-radius:10px;padding:9px 11px;background:var(--card)}
-.vs .side p{font-size:13px}
-.vs .mid{display:grid;place-items:center;font-size:11px;font-weight:700;color:var(--warning);letter-spacing:.06em}
-.quote{margin:7px 0 0;font-size:12px;line-height:1.55;color:var(--muted-foreground);border-left:2px solid var(--border);padding-left:9px;font-style:italic}
-
-/* misc */
-.hist{font-size:11px;color:var(--muted-foreground);text-decoration:underline;cursor:pointer}
-.ro{display:flex;align-items:center;gap:9px;border-radius:11px;padding:9px 13px;margin-bottom:15px;font-size:12.5px;
-  border:1px solid var(--border);background:var(--secondary);color:var(--muted-foreground)}
-
-/* ===== overview + diagrams ===== */
-.ovw{border:1px solid color-mix(in oklch,var(--chart-1) 24%,transparent);border-radius:12px;padding:13px 15px;
-  background:color-mix(in oklch,var(--chart-1) 5%,transparent);position:relative}
-.ovw p{margin:0;font-size:13.5px;line-height:1.68}
-.ovw p+p{margin-top:9px}
-.ovw .foot{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:9px;border-top:1px solid var(--border)}
-.dgm{border:1px solid var(--border);border-radius:11px;background:var(--card);margin:3px 0 2px;overflow:hidden}
-.dgm .dh{display:flex;align-items:center;gap:7px;padding:7px 11px;border-bottom:1px solid var(--border);
-  background:var(--secondary);font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-foreground)}
-.dgm .dh .right{margin-left:auto;display:flex;gap:4px;text-transform:none;letter-spacing:0}
-.dgm .canvas{padding:18px 14px;display:flex;justify-content:center}
-.erd{display:grid;grid-template-columns:repeat(3,auto);gap:12px 26px;align-items:center;justify-items:center}
-.ent{border:1px solid var(--border);border-radius:9px;background:var(--card);min-width:104px;
-  box-shadow:0 1px 2px oklch(0.2536 .0553 266.35/.06)}
-.ent b{display:block;padding:5px 10px;font-size:11.5px;font-weight:700;border-bottom:1px solid var(--border);
-  background:color-mix(in oklch,var(--chart-1) 9%,transparent);color:var(--chart-1);border-radius:8px 8px 0 0}
-.ent span{display:block;padding:3px 10px;font-size:10.5px;color:var(--muted-foreground);font-family:ui-monospace,Menlo,monospace}
-.ent span:last-child{padding-bottom:6px}
-.rel{font-size:10px;color:var(--muted-foreground);white-space:nowrap;letter-spacing:.03em}
-.flowdgm{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:center}
-.node{border:1px solid var(--border);border-radius:999px;padding:5px 12px;font-size:11.5px;font-weight:600;background:var(--card)}
-.node.start{background:color-mix(in oklch,var(--chart-2) 13%,transparent);border-color:color-mix(in oklch,var(--chart-2) 30%,transparent);color:var(--chart-2)}
-.node.end{background:color-mix(in oklch,var(--success) 12%,transparent);border-color:color-mix(in oklch,var(--success) 30%,transparent);color:var(--success)}
-.arr{color:var(--muted-foreground);font-size:12px}
-.dgmfail{display:flex;align-items:flex-start;gap:9px;padding:11px 13px;font-size:12px;color:var(--muted-foreground)}
-.dgmfail pre{margin:0;flex:1;font-family:ui-monospace,Menlo,monospace;font-size:11px;line-height:1.5;
-  background:var(--secondary);border-radius:8px;padding:8px 10px;overflow-x:auto;white-space:pre}
-</style><body>
-
-<div class="statebar">Clarivo · Project context — documents + knowledge page <small>6 states stacked · scroll</small></div>
-<p class="note"><b>One route: <code>/projects/:id/context</code>.</b> Three regions — the <b>knowledge page</b> (left, wide), the
-<b>documents list</b> (right), and the <b>proposal queue</b> (a bar that expands in place above the knowledge page).
-Tokens copied verbatim from <code>frontend/app/globals.css</code>; shell, card, badge and button styles lifted from the approved
-<code>add-projects/mockups/project-detail.html</code> so this page reads as its sibling.</p>
-
-<!-- ===================== 1. EMPTY ===================== -->
-<div class="statebar">State 1 · Empty — a blank project, nothing uploaded <small>the page is thin, not useless</small></div>
-<div class="shell" style="height:720px">
-  <aside class="sidebar">
-    <div class="brand"><span class="mark"></span><span class="word">Clarivo</span><span class="panel">▤</span></div>
-    <a class="backrow" href="#">← All projects</a>
-    <div class="switcher"><span class="pmark">CD</span><span><b>CLT-DevSpec</b><span>CLT-DevSpec</span></span><span class="chev">⌄</span></div>
-    <nav style="padding-top:0">
-      <div class="navgroup">Plan</div>
-      <a class="navitem" href="#"><span class="ic">◎</span>Overview</a>
-      <a class="navitem active" href="#"><span class="ic">🗎</span>Context</a>
-      <span class="navitem disabled"><span class="ic">✦</span>Discovery Plan<span class="soon">Soon</span></span>
-      <div class="navgroup">Run</div>
-      <span class="navitem disabled"><span class="ic">▤</span>Meetings<span class="soon">Soon</span></span>
-      <div class="navgroup">Output</div>
-      <span class="navitem disabled"><span class="ic">☑</span>Requirements<span class="soon">Soon</span></span>
-      <span class="navitem disabled"><span class="ic">?</span>Questions<span class="soon">Soon</span></span>
-      <span class="navitem disabled"><span class="ic">⚖</span>Decisions<span class="soon">Soon</span></span>
-      <div class="navgroup">Project</div>
-      <a class="navitem" href="#"><span class="ic">⚙</span>Settings</a>
-    </nav>
-    <div class="sidefoot"><div class="sep"></div>
-      <div class="user"><span class="avatar">AL</span><span><b>An Le</b><span>BA</span></span></div></div>
+<!-- ============ STATE 1: FILLED — summary.md with a diagram + web source ============ -->
+<div class="state-label">State 1 — Filled (summary.md: sections + a rendered diagram + web + doc sources)</div>
+<div class="frame"><div class="app">
+  <aside class="side">
+    <div class="brand"><span class="logo"></span> Clarivo</div>
+    <div class="proj"><span class="av">SV</span><div><div style="font-weight:600">SAMBU-VINA</div><small>Dispatch &amp; Invoicing</small></div></div>
+    <div class="grp">Plan</div>
+    <div class="nav">▦ Overview</div><div class="nav active">▣ Context</div>
+    <div class="nav">◳ Discovery Plan <span class="soon">SOON</span></div>
+    <div class="grp">Run</div><div class="nav">▤ Meetings <span class="soon">SOON</span></div>
+    <div class="grp">Output</div><div class="nav">☑ Requirements <span class="soon">SOON</span></div>
+    <div class="me"><span class="av"></span><div><div style="font-weight:600">An Le</div><small>BA</small></div></div>
   </aside>
-
-  <div class="main"><div class="content">
-    <div class="topbar"><a href="#">Projects</a> <span>/</span> <a href="#">CLT-DevSpec</a> <span>/</span> <b>Context</b><span class="bell">🔔<i></i></span></div>
-
-    <div class="phead">
-      <div>
-        <h1>Context</h1>
-        <div class="meta">What the AI reads before it suggests anything. Nothing here is retrieved later — this page <i>is</i> the memory.</div>
-      </div>
-      <div class="acts">
-        <a class="btn btn-outline" href="#">✎ Add a note</a>
-        <a class="btn btn-primary" href="#">⬆ Upload documents</a>
-      </div>
+  <main class="main">
+    <div class="crumb">Projects › Overview › <b>Context</b></div>
+    <div class="head">
+      <div><h1>Context <span class="pill">3 documents · web</span></h1>
+        <p class="sub">One summary of everything Clarivo found — from your documents and the web.</p></div>
+      <div class="actions">
+        <button class="btn">🔍 Research customer</button>
+        <button class="btn">✎ Edit</button>
+        <button class="btn primary">↻ Regenerate</button></div>
     </div>
 
-    <div class="cols">
-      <div class="card">
-        <div class="chead"><h2>Project knowledge</h2><span class="badge right">0 blocks</span></div>
-        <div class="cbody">
-          <div class="center" style="padding:40px 20px 30px">
-            <span class="ico">🗎</span>
-            <h2>Nothing known yet</h2>
-            <p>Upload the material you already have — an SRS, meeting minutes, a process doc — and Clarivo reads it into
-               this page. Or write what you know by hand with <b>Add a note</b>.</p>
-          </div>
-          <div class="ribbon" style="margin:0">
-            <span>ℹ</span>
-            <span>Until something lands here, the discovery plan can only ask generic questions.
-              What Clarivo knows today is the project's own <b>domain</b>, <b>objective</b> and <b>customer BU</b>.</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="chead"><h2>Documents</h2><span class="badge right">0</span></div>
-        <div class="cbody">
-          <div class="dropzone">
-            <div class="ico">⬆</div>
-            <b>Drop files here</b>
-            <span>PDF, DOCX, TXT or MD · up to 100 MB each</span>
-            <div style="margin-top:12px"><a class="btn btn-outline btn-sm" href="#">Choose files</a></div>
-          </div>
-        </div>
-      </div>
+    <div class="tiles">
+      <div class="tile"><div class="k">Sources</div><div class="v">4</div><div class="d">3 docs · 1 web</div></div>
+      <div class="tile"><div class="k">Sections covered</div><div class="v">7<span style="font-size:16px;color:var(--muted-foreground)"> / 9</span></div><div class="d">2 still thin</div></div>
+      <div class="tile"><div class="k">Diagrams</div><div class="v">2</div><div class="d">process · context</div></div>
+      <div class="tile ring"><div class="ring-g" style="background:conic-gradient(var(--primary) 78%,var(--secondary) 0)"><i>78%</i></div><div><div class="k">Coverage</div><div class="d">across 9 sections</div></div></div>
     </div>
-  </div></div>
-</div>
 
-<!-- ===================== 2. PROCESSING ===================== -->
-<div class="statebar">State 2 · Processing — upload returned immediately, pipeline runs in the background <small>frontend polls while any document is non-terminal</small></div>
-<p class="note">Four stages, each a status on the document row: <code>pending → parsing → summarizing → proposing → ready</code>.
-A second upload queues behind the first. The knowledge page is <b>not</b> blocked — it shows whatever is already accepted.</p>
-<div class="shell" style="height:620px">
-  <aside class="sidebar">
-    <div class="brand"><span class="mark"></span><span class="word">Clarivo</span><span class="panel">▤</span></div>
-    <a class="backrow" href="#">← All projects</a>
-    <div class="switcher"><span class="pmark">CD</span><span><b>CLT-DevSpec</b><span>CLT-DevSpec</span></span><span class="chev">⌄</span></div>
-    <nav style="padding-top:0">
-      <div class="navgroup">Plan</div>
-      <a class="navitem" href="#"><span class="ic">◎</span>Overview</a>
-      <a class="navitem active" href="#"><span class="ic">🗎</span>Context</a>
-      <span class="navitem disabled"><span class="ic">✦</span>Discovery Plan<span class="soon">Soon</span></span>
-      <div class="navgroup">Run</div>
-      <span class="navitem disabled"><span class="ic">▤</span>Meetings<span class="soon">Soon</span></span>
-      <div class="navgroup">Output</div>
-      <span class="navitem disabled"><span class="ic">☑</span>Requirements<span class="soon">Soon</span></span>
-      <div class="navgroup">Project</div>
-      <a class="navitem" href="#"><span class="ic">⚙</span>Settings</a>
-    </nav>
-    <div class="sidefoot"><div class="sep"></div>
-      <div class="user"><span class="avatar">AL</span><span><b>An Le</b><span>BA</span></span></div></div>
+    <div class="body">
+      <section class="card">
+        <div class="ch"><h3>📄 Project knowledge · summary.md</h3><span class="pill">auto-generated · editable</span></div>
+        <div class="cb"><div class="md">
+          <h2>Overview</h2>
+          <p>Sambu Vina is a Korean-invested manufacturer in Binh Duong, Vietnam, producing automotive seat components. This project replaces a manual Excel dispatch-and-invoicing workflow with a system synced nightly to their ERP.</p>
+          <div class="src"><span class="web">🌐 sambuvina.com</span> <span class="web">🌐 linkedin.com/company/sambu-vina</span></div>
+
+          <h2>Scope</h2>
+          <p>Invoices import from the ERP nightly at 02:00 and reconcile the next morning. Dispatch orders are raised against stock, with exceptions escalated.</p>
+          <div class="src">Sources: <b>SRS-v2.md §Scope</b></div>
+
+          <h2>Process Flow</h2>
+          <div class="diagram"><span class="mtag">mermaid</span>
+            <div class="flow">
+              <span class="node">ERP</span><span class="arrow">→</span>
+              <span class="node">Import 02:00</span><span class="arrow">→</span>
+              <span class="node">Reconcile AM</span><span class="arrow">→</span>
+              <span class="node dec">Exception?</span><span class="arrow">→</span>
+              <span class="node alt">Supervisor approves</span>
+            </div>
+          </div>
+          <div class="src">Sources: <b>Process_v1.pdf</b>, <b>SRS-v2.md</b> · rendered from a mermaid block in the md</div>
+
+          <h2>Stakeholders</h2>
+          <ul><li>Binh Duong warehouse supervisor — approves dispatch exceptions</li><li>Finance team — reviews orders above 100M VND</li></ul>
+          <div class="src">Sources: <b>SRS-v2.md §Stakeholders</b>, <b>Current_System.docx</b></div>
+
+          <h2>Constraints</h2>
+          <p>Orders above 50M VND require manager approval; above 100M, finance review.</p>
+          <div class="warn">⚠ Sources differ: Current_System.docx says manager approval starts at 30M VND.</div>
+          <div class="src">Sources: <b>SRS-v2.md §3.2</b>, <b>Current_System.docx</b></div>
+
+          <h2>Integrations</h2>
+          <p class="thin">Thin — only the ERP is named. Likely a discovery question.</p>
+        </div></div>
+      </section>
+
+      <aside class="card">
+        <div class="ch"><h3>Sources</h3><span class="pill">4</span></div>
+        <div class="cb">
+          <div class="grp2">Documents · 3</div>
+          <div class="doc"><span class="fi">📄</span><div><div class="nm">SRS-v2.md</div><small>382 B</small></div><span class="tag done">processed</span></div>
+          <div class="doc"><span class="fi">📄</span><div><div class="nm">Current_System.docx</div><small>18 KB</small></div><span class="tag done">processed</span></div>
+          <div class="doc"><span class="fi">📄</span><div><div class="nm">Process_v1.pdf</div><small>1.2 MB</small></div><span class="tag done">processed</span></div>
+          <div class="grp2" style="margin-top:12px">Web · 1</div>
+          <div class="doc"><span class="fi">🌐</span><div><div class="nm">Sambu Vina</div><small>sambuvina.com + 2 pages</small></div><span class="tag done">processed</span></div>
+          <button class="btn sm" style="width:100%;justify-content:center;margin-top:8px">＋ Add documents</button>
+          <button class="btn sm" style="width:100%;justify-content:center;margin-top:6px">🔍 Research customer</button>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div></div>
+
+<!-- ============ STATE 2: RESEARCH CUSTOMER — name or URL → Tavily ============ -->
+<div class="state-label">State 2 — Research customer (company name or URL → web search)</div>
+<div class="frame"><div class="app">
+  <aside class="side">
+    <div class="brand"><span class="logo"></span> Clarivo</div>
+    <div class="proj"><span class="av">SV</span><div><div style="font-weight:600">SAMBU-VINA</div><small>Dispatch &amp; Invoicing</small></div></div>
+    <div class="grp">Plan</div><div class="nav">▦ Overview</div><div class="nav active">▣ Context</div>
+    <div class="me"><span class="av"></span><div><div style="font-weight:600">An Le</div><small>BA</small></div></div>
   </aside>
-
-  <div class="main"><div class="content">
-    <div class="topbar"><a href="#">Projects</a> <span>/</span> <a href="#">CLT-DevSpec</a> <span>/</span> <b>Context</b><span class="bell">🔔<i></i></span></div>
-    <div class="phead">
-      <div><h1>Context</h1><div class="meta">2 documents · reading in progress</div></div>
-      <div class="acts"><a class="btn btn-outline" href="#">✎ Add a note</a><a class="btn btn-primary" href="#">⬆ Upload documents</a></div>
+  <main class="main">
+    <div class="crumb">Projects › Overview › <b>Context</b> › Research</div>
+    <div class="head"><div><h1>Research customer</h1>
+      <p class="sub">Clarivo searches the web for the company, then folds what it finds into the summary.</p></div>
+      <div class="actions"><button class="btn">✕ Cancel</button></div></div>
+    <div class="body">
+      <section class="card"><div class="ch"><h3>Who are we meeting?</h3></div><div class="cb">
+        <div class="field"><label>Company name</label><input value="SAMBU VINA" placeholder="e.g. Sambu Vina"></div>
+        <div class="or">or</div>
+        <div class="field"><label>Company website</label><input placeholder="https://sambuvina.com"></div>
+        <div class="field"><label>What are they building? <span style="color:var(--muted-foreground);font-weight:400">(optional — sharpens the search)</span></label><input value="warehouse dispatch & invoicing system"></div>
+        <button class="btn primary" style="width:100%;justify-content:center;margin-top:6px">🔍 Search the web</button>
+        <p class="src" style="margin-top:12px">Powered by Tavily. Findings are added as a new source and cited by URL — you can edit or remove them after.</p>
+      </div></section>
+      <aside class="card"><div class="ch"><h3>What it looks for</h3></div><div class="cb">
+        <ul style="margin:0;padding-left:18px;color:var(--muted-foreground);font-size:13px">
+          <li>Company domain / industry</li><li>What they make or do</li><li>Size, locations, plants</li><li>Public tech / systems mentioned</li></ul>
+        <p class="src" style="margin-top:10px">Fills the <b>Overview</b> and <b>Scope</b> sections so fewer discovery meetings are spent on basics.</p>
+      </div></aside>
     </div>
+  </main>
+</div></div>
 
-    <div class="cols">
-      <div class="card">
-        <div class="chead"><h2>Project knowledge</h2><span class="badge right">0 blocks</span></div>
-        <div class="cbody">
-          <div class="secthead"><h3>Scope</h3></div>
-          <div style="padding:4px 0 14px">
-            <span class="sk" style="width:84%"></span><span class="sk" style="width:62%;margin-top:7px"></span>
-          </div>
-          <div class="secthead"><h3>Constraints</h3></div>
-          <div style="padding:4px 0 10px">
-            <span class="sk" style="width:73%"></span><span class="sk" style="width:48%;margin-top:7px"></span>
-          </div>
-          <p style="margin:10px 0 0;font-size:12px;color:var(--muted-foreground)">
-            Blocks appear as proposals once <b>SRS-v2.pdf</b> finishes. Nothing is written to the page without your approval.</p>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="chead"><h2>Documents</h2><span class="badge right">2</span></div>
-        <div class="cbody">
-          <div class="doc">
-            <span class="fic f-pdf">PDF</span>
-            <span class="nm"><b>SRS-v2.pdf</b><span>4.2 MB · 118 pages · uploaded 2 min ago</span>
-              <span class="steps"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></span>
-            <span class="ctl"><span class="chip run"><span class="sp"></span>Summarizing</span></span>
-          </div>
-          <div class="doc">
-            <span class="fic f-doc">DOC</span>
-            <span class="nm"><b>Kickoff-minutes.docx</b><span>88 KB · uploaded just now</span>
-              <span class="steps"><i class="on"></i><i></i><i></i><i></i></span></span>
-            <span class="ctl"><span class="chip">Pending</span></span>
-          </div>
-          <div class="dropzone tight" style="margin-top:14px">
-            <span class="ico" style="font-size:20px">⬆</span>
-            <span><b>Add more</b><span>PDF, DOCX, TXT, MD</span></span>
-            <span class="right"><a class="btn btn-outline btn-sm" href="#">Choose files</a></span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div></div>
-</div>
-
-<!-- ===================== 3. READY + PROPOSALS WAITING ===================== -->
-<div class="statebar">State 3 · Ready — knowledge page filled, new proposals waiting <small>the page is never auto-mutated</small></div>
-<p class="note">Confidence marks: <b style="color:var(--success)">●</b> stated &nbsp;
-<b style="color:var(--warning)">◐</b> implied &nbsp; <b style="color:var(--muted-foreground)">?</b> uncertain.
-Every AI block carries at least one citation; clicking one downloads the source document. An empty section is itself a
-signal — it becomes a question for the discovery plan.</p>
-<div class="shell" style="height:1740px">
-  <aside class="sidebar">
-    <div class="brand"><span class="mark"></span><span class="word">Clarivo</span><span class="panel">▤</span></div>
-    <a class="backrow" href="#">← All projects</a>
-    <div class="switcher"><span class="pmark">CD</span><span><b>CLT-DevSpec</b><span>CLT-DevSpec</span></span><span class="chev">⌄</span></div>
-    <nav style="padding-top:0">
-      <div class="navgroup">Plan</div>
-      <a class="navitem" href="#"><span class="ic">◎</span>Overview</a>
-      <a class="navitem active" href="#"><span class="ic">🗎</span>Context</a>
-      <span class="navitem disabled"><span class="ic">✦</span>Discovery Plan<span class="soon">Soon</span></span>
-      <div class="navgroup">Run</div>
-      <span class="navitem disabled"><span class="ic">▤</span>Meetings<span class="soon">Soon</span></span>
-      <div class="navgroup">Output</div>
-      <span class="navitem disabled"><span class="ic">☑</span>Requirements<span class="soon">Soon</span></span>
-      <span class="navitem disabled"><span class="ic">?</span>Questions<span class="soon">Soon</span></span>
-      <span class="navitem disabled"><span class="ic">⚖</span>Decisions<span class="soon">Soon</span></span>
-      <div class="navgroup">Project</div>
-      <a class="navitem" href="#"><span class="ic">⚙</span>Settings</a>
-    </nav>
-    <div class="sidefoot"><div class="sep"></div>
-      <div class="user"><span class="avatar">AL</span><span><b>An Le</b><span>BA</span></span></div></div>
+<!-- ============ STATE 3: RESEARCH RUNNING / RESULTS to confirm ============ -->
+<div class="state-label">State 3 — Research results (confirm before folding into summary)</div>
+<div class="frame"><div class="app">
+  <aside class="side">
+    <div class="brand"><span class="logo"></span> Clarivo</div>
+    <div class="proj"><span class="av">SV</span><div><div style="font-weight:600">SAMBU-VINA</div><small>Dispatch &amp; Invoicing</small></div></div>
+    <div class="grp">Plan</div><div class="nav">▦ Overview</div><div class="nav active">▣ Context</div>
+    <div class="me"><span class="av"></span><div><div style="font-weight:600">An Le</div><small>BA</small></div></div>
   </aside>
-
-  <div class="main"><div class="content">
-    <div class="topbar"><a href="#">Projects</a> <span>/</span> <a href="#">CLT-DevSpec</a> <span>/</span> <b>Context</b><span class="bell">🔔<i></i></span></div>
-    <div class="phead">
-      <div><h1>Context</h1><div class="meta">3 documents · 14 knowledge blocks · last read 6 min ago</div></div>
-      <div class="acts"><a class="btn btn-outline" href="#">✎ Add a note</a><a class="btn btn-primary" href="#">⬆ Upload documents</a></div>
+  <main class="main">
+    <div class="crumb">Projects › Overview › <b>Context</b> › Research</div>
+    <div class="head"><div><h1>Found Sambu Vina</h1>
+      <p class="sub">3 pages. Review, then add to the summary.</p></div>
+      <div class="actions"><button class="btn">✕ Discard</button><button class="btn primary">＋ Add to summary</button></div></div>
+    <div class="body">
+      <section class="card"><div class="ch"><h3>Draft findings</h3></div><div class="cb"><div class="md">
+        <h2>Overview</h2>
+        <p>Sambu Vina — Korean-invested automotive seat-component manufacturer in Binh Duong, Vietnam. ~800 staff, two plants.</p>
+        <div class="src"><span class="web">🌐 sambuvina.com/about</span></div>
+        <h2>Scope hints</h2>
+        <p>Public materials mention ERP-driven production and JIT delivery to assembly partners.</p>
+        <div class="src"><span class="web">🌐 vietnamcredit.com.vn/.../sambu-vina</span></div>
+      </div></div></section>
+      <aside class="card"><div class="ch"><h3>Pages read</h3><span class="pill">3</span></div><div class="cb">
+        <div class="hit"><div class="nm">About — Sambu Vina</div><div class="u">sambuvina.com/about</div></div>
+        <div class="hit"><div class="nm">Company profile</div><div class="u">vietnamcredit.com.vn/companies/sambu-vina</div></div>
+        <div class="hit"><div class="nm">Sambu Vina — LinkedIn</div><div class="u">linkedin.com/company/sambu-vina</div></div>
+      </div></aside>
     </div>
+  </main>
+</div></div>
 
-    <div class="propbar">
-      <span class="pin">7</span>
-      <span><b>7 proposals from Kickoff-minutes.docx</b> — 4 new, 2 updates, 1 conflict.
-        <span style="color:var(--muted-foreground)">Nothing changes on the page until you accept them.</span></span>
-      <span class="right"><a class="btn btn-primary btn-sm" href="#">Review</a></span>
-    </div>
-
-    <div class="cols">
-      <div class="card">
-        <div class="chead"><h2>Project knowledge</h2>
-          <span class="right" style="display:flex;gap:7px">
-            <span class="badge">14 blocks</span><a class="btn btn-ghost btn-sm" href="#">+ Add block</a></span></div>
-        <div class="cbody" style="padding-top:4px">
-
-          <div class="sect">
-                      <div class="sect" style="padding-top:0">
-            <div class="secthead" style="padding-top:8px"><h3>Project brief</h3>
-              <span class="right"><a class="btn btn-ghost btn-sm" href="#">⟳ Regenerate</a></span></div>
-            <div class="ovw">
-              <p><b>What this is.</b> CLT-DevSpec replaces the manual dispatch operation that CLT runs out of its Vietnam
-                depots today. One ops planner builds every route by hand in Excel at 06:00 and emails the sheet to the
-                depot; the programme's purpose is to make that planning system-driven and to put a proof of delivery in
-                the driver's hand instead of on paper.</p>
-              <p><b>Who it is for.</b> The daily users are depot dispatchers and ~400 drivers. Operations (Ms. Hanh) owns
-                the dispatch rules and signs them off; IT security reviews anything that leaves the building; a finance
-                approver is referenced throughout the SRS but never named.</p>
-              <p><b>What is being built.</b> Phase 1 is order capture → dispatch planning → proof of delivery, Vietnam
-                region only, with a mobile driver app. Billing stays on the legacy SAP instance — replacing it is
-                explicitly excluded — and there is no web driver portal. Invoicing is referred to as a phase-2 follow-on
-                but was never committed to.</p>
-              <p><b>What constrains it.</b> Go-live is contractual rather than a target, and the two documents disagree
-                on the date. All customer data must stay inside the region, with no cross-border replication. Volume is
-                quoted at ~12,000 orders a day with no response-time or concurrency target anywhere in the material.</p>
-              <p><b>What is still unknown.</b> No external system is described anywhere, so every integration is an open
-                question — including the telematics feed the kickoff assumes. Returns and failed deliveries are mentioned
-                once with no process. Ownership of customer master data is never settled.</p>
-              <span class="foot">
-                <a class="ref">🗎 SRS-v2.pdf ⬇</a><a class="ref">🗎 Kickoff-minutes.docx ⬇</a>
-                <a class="ref">🗎 Process-flow.pdf ⬇</a>
-                <span class="hist">regenerated 6 min ago · history</span>
-                <span style="margin-left:auto"><button class="x">✎</button></span></span>
-            </div>
-            <p style="margin:8px 0 0;font-size:11.5px;line-height:1.5;color:var(--muted-foreground)">
-              Synthesised across <b>all 3 documents at once</b> — from each document's full summary, the project's own
-              domain and objective, and the blocks below. It is the one place that reads the material as a whole, so it
-              can say something no single block does. Regenerating proposes a replacement; it never overwrites silently,
-              and you can rewrite it by hand like any other block.</p>
-          </div>
-
-          <div class="secthead"><h3>Scope</h3><span class="n">4</span></div>
-            <div class="blk">
-              <span class="mk stated">●</span>
-              <span class="bd"><p>Billing stays on the legacy SAP instance. Replacing it is explicitly out of scope for this programme.</p>
-                <span class="foot"><a class="ref">🗎 SRS-v2.pdf <code>p.12</code> ⬇</a>
-                  <a class="ref">🗎 Scope-memo.md <code>§2.1</code> ⬇</a><span class="tag">stated</span></span></span>
-              <span class="ctl"><button class="x">✎</button><button class="x">🗑</button></span>
-            </div>
-            <div class="blk">
-              <span class="mk stated">●</span>
-              <span class="bd"><p>Phase 1 covers order capture, dispatch planning and proof-of-delivery for the Vietnam region only.</p>
-                <span class="foot"><a class="ref">🗎 SRS-v2.pdf <code>p.4</code> ⬇</a><span class="tag">stated</span></span></span>
-              <span class="ctl"><button class="x">✎</button><button class="x">🗑</button></span>
-            </div>
-            <div class="blk">
-              <span class="mk implied">◐</span>
-              <span class="bd"><p>Invoicing may be added in phase 2 — referenced as a follow-on, never committed to.</p>
-                <span class="foot"><a class="ref">🗎 Kickoff-minutes.docx <code>§3</code> ⬇</a><span class="tag">implied</span></span></span>
-              <span class="ctl"><button class="x">✎</button><button class="x">🗑</button></span>
-            </div>
-            <div class="blk">
-              <span class="mk stated">●</span>
-              <span class="bd"><p>Mobile driver app is in scope; a web driver portal is not.</p>
-                <span class="foot"><span class="tag hu">✎ written by An Le</span>
-                  <span class="hist">superseded 1 AI block · history</span></span></span>
-              <span class="ctl"><button class="x">✎</button><button class="x">🗑</button></span>
-            </div>
-          </div>
-
-          <div class="sect">
-            <div class="secthead"><h3>Stakeholders</h3><span class="n">2</span></div>
-            <div class="blk">
-              <span class="mk stated">●</span>
-              <span class="bd"><p>Operations lead (Ms. Hanh) signs off dispatch rules. IT security reviews every external integration.</p>
-                <span class="foot"><a class="ref">🗎 Kickoff-minutes.docx <code>§1</code> ⬇</a><span class="tag">stated</span></span></span>
-              <span class="ctl"><button class="x">✎</button><button class="x">🗑</button></span>
-            </div>
-            <div class="blk">
-              <span class="mk uncertain">?</span>
-              <span class="bd"><p>A finance approver is mentioned but never named.</p>
-                <span class="foot"><a class="ref">🗎 SRS-v2.pdf <code>p.31</code> ⬇</a><span class="tag">uncertain</span></span></span>
-              <span class="ctl"><button class="x">✎</button><button class="x">🗑</button></span>
-            </div>
-          </div>
-
-          <div class="sect">
-            <div class="secthead"><h3>Constraints</h3><span class="n">3</span></div>
-            <div class="blk">
-              <span class="mk stated">●</span>
-              <span class="bd"><p>Go-live is fixed to the Q1 fiscal close. The date is contractual, not a target.</p>
-                <span class="foot"><a class="ref">🗎 SRS-v2.pdf <code>p.3</code> ⬇</a><span class="tag">stated</span></span></span>
-              <span class="ctl"><button class="x">✎</button><button class="x">🗑</button></span>
-            </div>
-            <div class="blk">
-              <span class="mk stated">●</span>
-              <span class="bd"><p>All customer data must stay inside the Vietnam region — no cross-border replication.</p>
-                <span class="foot"><a class="ref">🗎 SRS-v2.pdf <code>p.57</code> ⬇</a><span class="tag">stated</span></span></span>
-              <span class="ctl"><button class="x">✎</button><button class="x">🗑</button></span>
-            </div>
-            <div class="blk">
-              <span class="mk implied">◐</span>
-              <span class="bd"><p>Peak load is quoted as 12,000 orders per day; no concurrency or response-time target is given.</p>
-                <span class="foot"><a class="ref">🗎 SRS-v2.pdf <code>p.60</code> ⬇</a><span class="tag">implied</span></span></span>
-              <span class="ctl"><button class="x">✎</button><button class="x">🗑</button></span>
-            </div>
-          </div>
-
-          <div class="sect">
-            <div class="secthead"><h3>Process</h3><span class="n">3</span></div>
-            <div class="blk">
-              <span class="mk stated">●</span>
-              <span class="bd">
-                <div class="dgm">
-                  <div class="dh"><span>⇢ Order lifecycle</span>
-                    <span class="right"><button class="x">⤢</button><button class="x">◰</button></span></div>
-                  <div class="canvas">
-                    <div class="flowdgm">
-                      <span class="node start">Draft</span><span class="arr">→</span>
-                      <span class="node">Confirmed</span><span class="arr">→</span>
-                      <span class="node">Planned</span><span class="arr">→</span>
-                      <span class="node">Dispatched</span><span class="arr">→</span>
-                      <span class="node end">Delivered</span>
-                      <span class="arr" style="width:100%;text-align:center;font-size:11px">
-                        ⤷ cancellable up to <b>Planned</b></span>
-                    </div>
-                  </div>
-                </div>
-                <span class="foot"><a class="ref">🗎 Process-flow.pdf <code>p.2</code> ⬇</a>
-                  <span class="tag">stated</span><span class="tag">```mermaid flowchart</span></span></span>
-              <span class="ctl"><button class="x">✎</button><button class="x">🗑</button></span>
-            </div>
-            <div class="blk">
-              <span class="mk stated">●</span>
-              <span class="bd"><p>An order moves Draft → Confirmed → Planned → Dispatched → Delivered. Cancellation is allowed up to Planned.</p>
-                <span class="foot"><a class="ref">🗎 Process-flow.pdf <code>p.2</code> ⬇</a><span class="tag">stated</span></span></span>
-              <span class="ctl"><button class="x">✎</button><button class="x">🗑</button></span>
-            </div>
-            <div class="blk">
-              <span class="mk implied">◐</span>
-              <span class="bd"><p>Dispatch planning appears to be manual today, done in a spreadsheet by the ops team each morning.</p>
-                <span class="foot"><a class="ref">🗎 Kickoff-minutes.docx <code>§2</code> ⬇</a><span class="tag">implied</span></span></span>
-              <span class="ctl"><button class="x">✎</button><button class="x">🗑</button></span>
-            </div>
-            <div class="blk">
-              <span class="mk uncertain">?</span>
-              <span class="bd"><p>Returns and failed deliveries are mentioned once with no process described.</p>
-                <span class="foot"><a class="ref">🗎 Process-flow.pdf <code>p.6</code> ⬇</a><span class="tag">uncertain</span></span></span>
-              <span class="ctl"><button class="x">✎</button><button class="x">🗑</button></span>
-            </div>
-          </div>
-
-          <div class="sect">
-            <div class="secthead"><h3>Data model</h3><span class="n">3</span></div>
-            <div class="blk">
-              <span class="mk stated">●</span>
-              <span class="bd">
-                <div class="dgm">
-                  <div class="dh"><span>▦ ER diagram</span>
-                    <span class="right"><button class="x">⤢</button><button class="x">◰</button></span></div>
-                  <div class="canvas">
-                    <div class="erd">
-                      <div class="ent"><b>Customer</b><span>id</span><span>name</span></div>
-                      <div class="rel">1 ──&lt; places &gt;── n</div>
-                      <div class="ent"><b>Order</b><span>id</span><span>status</span><span>placed_at</span></div>
-                      <div></div><div></div><div class="rel" style="transform:rotate(90deg)">1 ─ has ─ n</div>
-                      <div class="ent"><b>Vehicle</b><span>id</span><span>plate</span></div>
-                      <div class="rel">1 ──&lt; carries &gt;── n</div>
-                      <div class="ent"><b>Shipment</b><span>id</span><span>route</span></div>
-                      <div></div><div></div><div class="rel" style="transform:rotate(90deg)">1 ─ has ─ 1</div>
-                      <div></div><div></div>
-                      <div class="ent"><b>POD</b><span>id</span><span>signed_at</span><span>photo_file</span></div>
-                    </div>
-                  </div>
-                </div>
-                <span class="foot"><a class="ref">🗎 SRS-v2.pdf <code>p.22</code> ⬇</a>
-                  <a class="ref">🗎 Process-flow.pdf <code>p.2</code> ⬇</a>
-                  <span class="tag">stated</span><span class="tag">```mermaid erDiagram</span></span></span>
-              <span class="ctl"><button class="x">✎</button><button class="x">🗑</button></span>
-            </div>
-            <div class="blk">
-              <span class="mk stated">●</span>
-              <span class="bd"><p><b>Order</b> is the aggregate root. A shipment never exists without an order, and a POD
-                never without a shipment.</p>
-                <span class="foot"><a class="ref">🗎 SRS-v2.pdf <code>p.22</code> ⬇</a><span class="tag">stated</span></span></span>
-              <span class="ctl"><button class="x">✎</button><button class="x">🗑</button></span>
-            </div>
-            <div class="blk">
-              <span class="mk uncertain">?</span>
-              <span class="bd"><p>Customer master data is referenced but its owning system is never stated — SAP or the new system.</p>
-                <span class="foot"><a class="ref">🗎 SRS-v2.pdf <code>p.24</code> ⬇</a><span class="tag">uncertain</span></span></span>
-              <span class="ctl"><button class="x">✎</button><button class="x">🗑</button></span>
-            </div>
-          </div>
-
-          <div class="sect">
-            <div class="secthead"><h3>Integrations</h3><span class="n">0</span></div>
-            <div class="sectempty"><span class="ask">Ask about this</span>
-              Nothing in the uploaded material describes an external system. That gap becomes a discovery question.</div>
-          </div>
-
-          <div class="sect">
-            <div class="secthead"><h3>Glossary</h3><span class="n">1</span></div>
-            <div class="blk">
-              <span class="mk stated">●</span>
-              <span class="bd"><p><b>POD</b> — proof of delivery. The signed or photographed confirmation a driver captures at the drop point.</p>
-                <span class="foot"><a class="ref">🗎 SRS-v2.pdf <code>p.9</code> ⬇</a><span class="tag">stated</span></span></span>
-              <span class="ctl"><button class="x">✎</button><button class="x">🗑</button></span>
-            </div>
-          </div>
-
-          <div class="sect">
-            <div class="secthead"><h3>Open questions</h3><span class="n">1</span></div>
-            <div class="blk">
-              <span class="mk uncertain">?</span>
-              <span class="bd"><p>Who owns master customer data — the new system, or SAP?</p>
-                <span class="foot"><span class="tag hu">✎ written by An Le</span></span></span>
-              <span class="ctl"><button class="x">✎</button><button class="x">🗑</button></span>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="chead"><h2>Documents</h2><span class="badge right">3</span></div>
-        <div class="cbody">
-          <div class="doc">
-            <span class="fic f-pdf">PDF</span>
-            <span class="nm"><b>SRS-v2.pdf</b><span>4.2 MB · 118 pages · 9 blocks</span></span>
-            <span class="ctl"><span class="chip ok">✓ Read</span><button class="x">⬇</button><button class="x">⋯</button></span>
-          </div>
-          <div class="doc">
-            <span class="fic f-doc">DOC</span>
-            <span class="nm"><b>Kickoff-minutes.docx</b><span>88 KB · 7 proposals waiting</span></span>
-            <span class="ctl"><span class="chip ok">✓ Read</span><button class="x">⬇</button><button class="x">⋯</button></span>
-          </div>
-          <div class="doc">
-            <span class="fic f-pdf">PDF</span>
-            <span class="nm"><b>Process-flow.pdf</b><span>1.1 MB · 11 pages · 5 blocks</span></span>
-            <span class="ctl"><span class="chip ok">✓ Read</span><button class="x">⬇</button><button class="x">⋯</button></span>
-          </div>
-          <div class="dropzone tight" style="margin-top:14px">
-            <span class="ico" style="font-size:20px">⬆</span>
-            <span><b>Add more</b><span>PDF, DOCX, TXT, MD</span></span>
-            <span class="right"><a class="btn btn-outline btn-sm" href="#">Choose files</a></span>
-          </div>
-          <p style="margin:13px 0 0;font-size:11.5px;line-height:1.55;color:var(--muted-foreground)">
-            Uploading the same filename again creates a <b>new</b> document. Existing citations keep pointing at the old one.</p>
-        </div>
-      </div>
-    </div>
-  </div></div>
-</div>
-
-<!-- ===================== 4. PROPOSAL REVIEW ===================== -->
-<div class="statebar">State 4 · Proposal review — the queue, expanded in place <small>add · update · conflict</small></div>
-<p class="note">The review region replaces the knowledge page while open; the documents column stays. Three proposal kinds.
-An <b>update</b> shows what it replaces. A <b>conflict</b> shows both sources side by side and never picks for you.
-A block the BA has edited by hand can only ever receive a conflict, never a silent update.</p>
-<div class="shell" style="height:900px">
-  <aside class="sidebar">
-    <div class="brand"><span class="mark"></span><span class="word">Clarivo</span><span class="panel">▤</span></div>
-    <a class="backrow" href="#">← All projects</a>
-    <div class="switcher"><span class="pmark">CD</span><span><b>CLT-DevSpec</b><span>CLT-DevSpec</span></span><span class="chev">⌄</span></div>
-    <nav style="padding-top:0">
-      <div class="navgroup">Plan</div>
-      <a class="navitem" href="#"><span class="ic">◎</span>Overview</a>
-      <a class="navitem active" href="#"><span class="ic">🗎</span>Context</a>
-      <span class="navitem disabled"><span class="ic">✦</span>Discovery Plan<span class="soon">Soon</span></span>
-      <div class="navgroup">Run</div>
-      <span class="navitem disabled"><span class="ic">▤</span>Meetings<span class="soon">Soon</span></span>
-      <div class="navgroup">Output</div>
-      <span class="navitem disabled"><span class="ic">☑</span>Requirements<span class="soon">Soon</span></span>
-      <div class="navgroup">Project</div>
-      <a class="navitem" href="#"><span class="ic">⚙</span>Settings</a>
-    </nav>
-    <div class="sidefoot"><div class="sep"></div>
-      <div class="user"><span class="avatar">AL</span><span><b>An Le</b><span>BA</span></span></div></div>
+<!-- ============ STATE 4: UPLOADED, NOT PROCESSED — one Process-all ============ -->
+<div class="state-label">State 4 — Documents uploaded, not processed (one "Process all")</div>
+<div class="frame"><div class="app">
+  <aside class="side">
+    <div class="brand"><span class="logo"></span> Clarivo</div>
+    <div class="proj"><span class="av">SV</span><div><div style="font-weight:600">SAMBU-VINA</div><small>Dispatch &amp; Invoicing</small></div></div>
+    <div class="grp">Plan</div><div class="nav">▦ Overview</div><div class="nav active">▣ Context</div>
+    <div class="me"><span class="av"></span><div><div style="font-weight:600">An Le</div><small>BA</small></div></div>
   </aside>
-
-  <div class="main"><div class="content">
-    <div class="topbar"><a href="#">Projects</a> <span>/</span> <a href="#">CLT-DevSpec</a> <span>/</span> <b>Context</b><span class="bell">🔔<i></i></span></div>
-    <div class="phead">
-      <div><h1>Review proposals</h1>
-        <div class="meta">From <b>Kickoff-minutes.docx</b> · 7 waiting · nothing is applied until you accept it</div></div>
-      <div class="acts"><a class="btn btn-ghost" href="#">← Back to knowledge</a>
-        <a class="btn btn-outline" href="#">Accept all 4 new</a></div>
+  <main class="main">
+    <div class="crumb">Projects › Overview › <b>Context</b></div>
+    <div class="head"><div><h1>Context <span class="pill">3 new sources</span></h1>
+      <p class="sub">One summary of everything Clarivo found — from your documents and the web.</p></div>
+      <div class="actions"><button class="btn">🔍 Research customer</button><button class="btn" disabled>✎ Edit</button><button class="btn primary">⚡ Process all (3)</button></div></div>
+    <div class="body">
+      <section class="card"><div class="ch"><h3>📄 Project knowledge · summary.md</h3></div><div class="cb">
+        <div class="drop"><div style="font-size:24px">⚡</div><p><b>3 sources ready.</b><br><small>Hit “Process all” — Clarivo reads every source and writes one summary with sections and diagrams.</small></p>
+        <button class="btn primary" style="margin-top:10px">⚡ Process all (3)</button></div>
+      </div></section>
+      <aside class="card"><div class="ch"><h3>Sources</h3><span class="pill">3</span></div><div class="cb">
+        <div class="grp2">Documents · 2</div>
+        <div class="doc"><span class="fi">📄</span><div><div class="nm">SRS-v2.md</div><small>382 B</small></div><span class="tag new">new</span></div>
+        <div class="doc"><span class="fi">📄</span><div><div class="nm">Process_v1.pdf</div><small>1.2 MB</small></div><span class="tag new">new</span></div>
+        <div class="grp2" style="margin-top:12px">Web · 1</div>
+        <div class="doc"><span class="fi">🌐</span><div><div class="nm">Sambu Vina</div><small>3 pages</small></div><span class="tag new">new</span></div>
+        <div class="processall"><div style="font-weight:600;margin-bottom:6px">3 unprocessed</div><button class="btn primary sm" style="width:100%;justify-content:center">⚡ Process all</button></div>
+      </div></aside>
     </div>
+  </main>
+</div></div>
 
-    <div class="cols">
-      <div class="card">
-        <div class="chead"><h2>Queue</h2><span class="badge right">1 of 7</span></div>
-        <div class="cbody">
-
-          <div class="prop add">
-            <div class="ph"><span class="k">New block</span><span class="badge">Stakeholders</span>
-              <span class="badge">stated</span>
-              <span class="right"><a class="btn btn-ghost btn-sm" href="#">Reject</a>
-                <a class="btn btn-primary btn-sm" href="#">Accept</a></span></div>
-            <p>The warehouse supervisor in Binh Duong is the approver for any change to picking rules.</p>
-            <p class="quote">"…any change to picking must be signed off by the Binh Duong warehouse supervisor before it
-              reaches the floor." — Kickoff-minutes.docx §1</p>
-            <span class="foot" style="display:flex;gap:7px;margin-top:9px"><a class="ref">🗎 Kickoff-minutes.docx <code>§1</code> ⬇</a></span>
-          </div>
-
-          <div class="prop add">
-            <div class="ph"><span class="k">New block</span><span class="badge">Integrations</span>
-              <span class="badge">implied</span>
-              <span class="right"><a class="btn btn-ghost btn-sm" href="#">Reject</a>
-                <a class="btn btn-primary btn-sm" href="#">Accept</a></span></div>
-            <p>A telematics feed from the truck fleet is expected to supply live vehicle positions. The provider is not named.</p>
-            <p class="quote">"…we'll pull positions off the telematics box, the vendor contract runs to next year."
-              — Kickoff-minutes.docx §4</p>
-            <span class="foot" style="display:flex;gap:7px;margin-top:9px"><a class="ref">🗎 Kickoff-minutes.docx <code>§4</code> ⬇</a></span>
-          </div>
-
-          <div class="prop upd">
-            <div class="ph"><span class="k">Update</span><span class="badge">Process</span>
-              <span class="right"><a class="btn btn-ghost btn-sm" href="#">Reject</a>
-                <a class="btn btn-primary btn-sm" href="#">Accept</a></span></div>
-            <div class="diff">
-              <div class="was">Dispatch planning appears to be manual today, done in a spreadsheet by the ops team each morning.</div>
-              <div class="arrow">↓ replaced by</div>
-              <div class="now">Dispatch planning is manual today — one ops planner builds the day's routes in Excel at 06:00
-                and emails the sheet to the depot.</div>
-            </div>
-            <p class="quote">"Hanh does the routes at six in Excel and mails it to the depot." — Kickoff-minutes.docx §2</p>
-            <span class="foot" style="display:flex;gap:7px;margin-top:9px">
-              <a class="ref">🗎 Kickoff-minutes.docx <code>§2</code> ⬇</a>
-              <span class="tag">confidence implied → stated</span></span>
-          </div>
-
-          <div class="prop cfl">
-            <div class="ph"><span class="k">⚠ Conflict</span><span class="badge">Constraints</span>
-              <span class="right"><a class="btn btn-ghost btn-sm" href="#">Keep existing</a>
-                <a class="btn btn-outline btn-sm" href="#">Write my own</a>
-                <a class="btn btn-primary btn-sm" href="#">Use new</a></span></div>
-            <div class="vs">
-              <div class="side">
-                <p>Go-live is fixed to the Q1 fiscal close. The date is contractual, not a target.</p>
-                <p class="quote">"go-live: Q1 close, per contract annex B" — SRS-v2.pdf p.3</p>
-                <span class="foot" style="display:flex;gap:7px;margin-top:8px">
-                  <a class="ref">🗎 SRS-v2.pdf <code>p.3</code> ⬇</a><span class="tag">on the page now</span></span>
-              </div>
-              <div class="mid">VS</div>
-              <div class="side">
-                <p>Go-live has moved to June following the ERP freeze.</p>
-                <p class="quote">"…so go-live slips to June, the ERP freeze runs through April." — Kickoff-minutes.docx §5</p>
-                <span class="foot" style="display:flex;gap:7px;margin-top:8px">
-                  <a class="ref">🗎 Kickoff-minutes.docx <code>§5</code> ⬇</a><span class="tag">proposed</span></span>
-              </div>
-            </div>
-            <p style="margin-top:10px;font-size:12px;color:var(--muted-foreground)">
-              Clarivo will not pick. Whichever you keep, the other is recorded as rejected with its source — so the
-              disagreement itself survives as something to raise in a meeting.</p>
-          </div>
-
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="chead"><h2>Source</h2></div>
-        <div class="cbody">
-          <div class="doc" style="padding-top:0">
-            <span class="fic f-doc">DOC</span>
-            <span class="nm"><b>Kickoff-minutes.docx</b><span>88 KB · read 4 min ago</span></span>
-            <span class="ctl"><button class="x">⬇</button></span>
-          </div>
-          <p style="margin:12px 0 0;font-size:12.5px;line-height:1.6;color:var(--muted-foreground)">
-            Every quote above is verbatim from this document. A proposal whose quote cannot be found in the extracted
-            text is discarded by the server before it ever reaches this queue.</p>
-          <div class="kv" style="margin-top:14px">
-            <dt>New</dt><dd>4</dd>
-            <dt>Updates</dt><dd>2</dd>
-            <dt>Conflicts</dt><dd>1</dd>
-            <dt>Rejected so far</dt><dd>0</dd>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div></div>
-</div>
-
-<!-- ===================== 5. FAILED ===================== -->
-<div class="statebar">State 5 · A document failed <small>readable reason, retry, and the rest of the page keeps working</small></div>
-<div class="shell" style="height:700px">
-  <aside class="sidebar">
-    <div class="brand"><span class="mark"></span><span class="word">Clarivo</span><span class="panel">▤</span></div>
-    <a class="backrow" href="#">← All projects</a>
-    <div class="switcher"><span class="pmark">CD</span><span><b>CLT-DevSpec</b><span>CLT-DevSpec</span></span><span class="chev">⌄</span></div>
-    <nav style="padding-top:0">
-      <div class="navgroup">Plan</div>
-      <a class="navitem" href="#"><span class="ic">◎</span>Overview</a>
-      <a class="navitem active" href="#"><span class="ic">🗎</span>Context</a>
-      <div class="navgroup">Project</div>
-      <a class="navitem" href="#"><span class="ic">⚙</span>Settings</a>
-    </nav>
-    <div class="sidefoot"><div class="sep"></div>
-      <div class="user"><span class="avatar">AL</span><span><b>An Le</b><span>BA</span></span></div></div>
+<!-- ============ STATE 5: PROCESSING — one global run ============ -->
+<div class="state-label">State 5 — Processing (one global run)</div>
+<div class="frame"><div class="app">
+  <aside class="side">
+    <div class="brand"><span class="logo"></span> Clarivo</div>
+    <div class="proj"><span class="av">SV</span><div><div style="font-weight:600">SAMBU-VINA</div><small>Dispatch &amp; Invoicing</small></div></div>
+    <div class="grp">Plan</div><div class="nav">▦ Overview</div><div class="nav active">▣ Context</div>
+    <div class="me"><span class="av"></span><div><div style="font-weight:600">An Le</div><small>BA</small></div></div>
   </aside>
-
-  <div class="main"><div class="content">
-    <div class="topbar"><a href="#">Projects</a> <span>/</span> <a href="#">CLT-DevSpec</a> <span>/</span> <b>Context</b><span class="bell">🔔<i></i></span></div>
-    <div class="phead"><div><h1>Context</h1><div class="meta">3 documents · 1 could not be read</div></div>
-      <div class="acts"><a class="btn btn-outline" href="#">✎ Add a note</a><a class="btn btn-primary" href="#">⬆ Upload documents</a></div></div>
-
-    <div class="cols">
-      <div class="card">
-        <div class="chead"><h2>Project knowledge</h2><span class="badge right">14 blocks</span></div>
-        <div class="cbody">
-          <p style="margin:0 0 14px;font-size:13px;color:var(--muted-foreground)">
-            Unaffected — the 14 blocks from the other two documents are still here. Only the failed document
-            contributed nothing.</p>
-
-          <div class="secthead" style="padding-top:0"><h3>Project brief</h3>
-            <span class="right"><a class="btn btn-outline btn-sm" href="#">⟳ Regenerate</a></span></div>
-          <div class="ribbon" style="margin:2px 0 16px">
-            <span>⟳</span>
-            <span><b>2 documents have been read since this brief was written.</b> It is still accurate as far as it goes,
-              but it does not know about them yet. Regenerating proposes a new brief — it never rewrites this one on its own.</span>
-          </div>
-
-          <div class="secthead" style="padding-top:0"><h3>Data model</h3></div>
-          <div class="dgm">
-            <div class="dh"><span>▦ ER diagram — could not render</span></div>
-            <div class="dgmfail"><span style="font-size:15px">⚠</span>
-              <div><p style="margin:0 0 7px">The generated diagram is not valid mermaid, so the source is shown instead.
-                Edit it, or regenerate.</p>
-                <pre>erDiagram
-  CUSTOMER ||--o{ ORDER : places
-  ORDER ||--|| POD  places  &lt;-- syntax error, line 3</pre></div></div>
-          </div>
-          <p style="margin:9px 0 0;font-size:11.5px;color:var(--muted-foreground)">
-            A diagram block never renders as a blank box. Broken mermaid falls back to its source, which is editable
-            like any other block statement.</p>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="chead"><h2>Documents</h2><span class="badge right">3</span></div>
-        <div class="cbody">
-          <div class="doc">
-            <span class="fic f-pdf">PDF</span>
-            <span class="nm"><b>Scan-of-contract.pdf</b><span>18 MB · 42 pages</span>
-              <p class="errline">No text could be extracted — this looks like a scanned image. Clarivo does not read
-                images, so nothing was learned from it. The file is still stored and downloadable.</p></span>
-            <span class="ctl"><span class="chip bad">Failed</span><button class="x">⬇</button><button class="x">⟳</button></span>
-          </div>
-          <div class="doc">
-            <span class="fic f-pdf">PDF</span>
-            <span class="nm"><b>SRS-v2.pdf</b><span>4.2 MB · 9 blocks</span></span>
-            <span class="ctl"><span class="chip ok">✓ Read</span><button class="x">⬇</button><button class="x">⋯</button></span>
-          </div>
-          <div class="doc">
-            <span class="fic f-md">MD</span>
-            <span class="nm"><b>Scope-memo.md</b><span>12 KB · 5 blocks</span></span>
-            <span class="ctl"><span class="chip ok">✓ Read</span><button class="x">⬇</button><button class="x">⋯</button></span>
-          </div>
-        </div>
-      </div>
+  <main class="main">
+    <div class="crumb">Projects › Overview › <b>Context</b></div>
+    <div class="head"><div><h1>Context <span class="pill">processing…</span></h1>
+      <p class="sub">One summary of everything Clarivo found — from your documents and the web.</p></div>
+      <div class="actions"><button class="btn" disabled>✎ Edit</button><button class="btn" disabled>⚡ Processing…</button></div></div>
+    <div class="body">
+      <section class="card"><div class="ch"><h3>📄 Project knowledge · summary.md</h3></div><div class="cb">
+        <div class="drop"><div style="font-size:24px">⟳</div><p><b>Summarizing 3 sources…</b><br><small>Drawing process-flow diagram from Process_v1.pdf</small></p>
+        <div class="bar"><i></i></div><small>Runs in the background — you can leave the page.</small></div>
+      </div></section>
+      <aside class="card"><div class="ch"><h3>Sources</h3><span class="pill">3</span></div><div class="cb">
+        <div class="doc"><span class="fi">📄</span><div><div class="nm">SRS-v2.md</div><small>382 B</small></div><span class="tag done">read</span></div>
+        <div class="doc"><span class="fi">🌐</span><div><div class="nm">Sambu Vina</div><small>3 pages</small></div><span class="tag done">read</span></div>
+        <div class="doc"><span class="fi">📄</span><div><div class="nm">Process_v1.pdf</div><small>reading…</small></div><span class="tag new">…</span></div>
+      </div></aside>
     </div>
-  </div></div>
-</div>
+  </main>
+</div></div>
 
-<!-- ===================== 6. ARCHIVED / READ-ONLY ===================== -->
-<div class="statebar">State 6 · Archived project — read-only <small>same shape, every write control gone</small></div>
-<div class="shell" style="height:520px">
-  <aside class="sidebar">
-    <div class="brand"><span class="mark"></span><span class="word">Clarivo</span><span class="panel">▤</span></div>
-    <a class="backrow" href="#">← All projects</a>
-    <div class="switcher"><span class="pmark">CD</span><span><b>CLT-Legacy</b><span>CLT-Legacy</span></span><span class="chev">⌄</span></div>
-    <nav style="padding-top:0">
-      <div class="navgroup">Plan</div>
-      <a class="navitem" href="#"><span class="ic">◎</span>Overview</a>
-      <a class="navitem active" href="#"><span class="ic">🗎</span>Context</a>
-      <div class="navgroup">Project</div>
-      <a class="navitem" href="#"><span class="ic">⚙</span>Settings</a>
-    </nav>
-    <div class="sidefoot"><div class="sep"></div>
-      <div class="user"><span class="avatar">AL</span><span><b>An Le</b><span>BA</span></span></div></div>
-  </aside>
-
-  <div class="main"><div class="content">
-    <div class="topbar"><a href="#">Projects</a> <span>/</span> <a href="#">CLT-Legacy</a> <span>/</span> <b>Context</b><span class="bell">🔔<i></i></span></div>
-    <div class="phead"><div><h1>Context <span class="badge archived">Archived</span></h1>
-      <div class="meta">2 documents · 8 knowledge blocks</div></div></div>
-
-    <div class="ro"><span>🔒</span><span>This project is archived. Documents and knowledge are readable and downloadable;
-      uploading, editing and reviewing proposals are disabled. Restore the project from Settings to make changes.</span></div>
-
-    <div class="cols">
-      <div class="card">
-        <div class="chead"><h2>Project knowledge</h2><span class="badge right">8 blocks</span></div>
-        <div class="cbody" style="padding-top:4px">
-          <div class="secthead"><h3>Scope</h3><span class="n">2</span></div>
-          <div class="blk">
-            <span class="mk stated">●</span>
-            <span class="bd"><p>The pilot covered the Hai Phong depot only.</p>
-              <span class="foot"><a class="ref">🗎 Pilot-report.pdf <code>p.2</code> ⬇</a><span class="tag">stated</span></span></span>
-          </div>
-          <div class="blk">
-            <span class="mk implied">◐</span>
-            <span class="bd"><p>A nationwide rollout was discussed but never scheduled.</p>
-              <span class="foot"><a class="ref">🗎 Pilot-report.pdf <code>p.14</code> ⬇</a><span class="tag">implied</span></span></span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="chead"><h2>Documents</h2><span class="badge right">2</span></div>
-        <div class="cbody">
-          <div class="doc">
-            <span class="fic f-pdf">PDF</span>
-            <span class="nm"><b>Pilot-report.pdf</b><span>2.4 MB · 6 blocks</span></span>
-            <span class="ctl"><span class="chip ok">✓ Read</span><button class="x">⬇</button></span>
-          </div>
-          <div class="doc">
-            <span class="fic f-md">MD</span>
-            <span class="nm"><b>Retro-notes.md</b><span>7 KB · 2 blocks</span></span>
-            <span class="ctl"><span class="chip ok">✓ Read</span><button class="x">⬇</button></span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div></div>
-</div>
-
-</body></html>
+</body>
+</html>
