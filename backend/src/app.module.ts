@@ -1,9 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AiModule } from './ai/ai.module';
 import { AuthModule } from './auth/auth.module';
-import { ContextModule } from './context/context.module';
 import { databaseOptions } from './config/database.config';
 import { FilesModule } from './files/files.module';
 import { ProfileModule } from './profile/profile.module';
@@ -28,10 +26,8 @@ import { UsersModule } from './users/users.module';
     }),
     UsersModule,
     AuthModule,
-    AiModule,
     FilesModule,
     ProjectsModule,
-    ContextModule,
     ProfileModule,
   ],
 })

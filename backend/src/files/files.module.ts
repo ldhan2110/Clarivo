@@ -5,8 +5,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { diskStorage } from 'multer';
 import { join } from 'node:path';
 import type { EnvironmentVariables } from '../config/env.validation';
-import { ProjectDocument } from '../context/project-document.entity';
-import { ProjectsModule } from '../projects/projects.module';
 import { FileEntity } from './file.entity';
 import { FilesController } from './files.controller';
 import { MAX_FILE_SIZE_BYTES, MIME_EXTENSIONS, TMP_DIR } from './files.constants';
@@ -19,10 +17,6 @@ import { FilesService } from './files.service';
     // entities: [] + autoLoadEntities: true on purpose, so registering the
     // entity anywhere else is a silent no-op.
     TypeOrmModule.forFeature([FileEntity]),
-    // Read-only: the download route asks whether this file is a context
-    // document. ContextModule still owns registering the entity.
-    TypeOrmModule.forFeature([ProjectDocument]),
-    ProjectsModule,
     MulterModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

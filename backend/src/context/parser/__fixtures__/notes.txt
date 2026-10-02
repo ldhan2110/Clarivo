@@ -1,4 +1,0 @@
-First paragraph about the schedule.
-It continues on a second line.
-
-Second paragraph names a constraint.

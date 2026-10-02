@@ -13,7 +13,6 @@ import { ProjectNotFound } from "@/components/projects/project-not-found";
 import { confirmRestore } from "@/constants/confirm";
 import { CURRENT_STAGE, PROJECT_STAGES, projectStages } from "@/constants/project-stages";
 import { useConfirm } from "@/hooks/use-confirm";
-import { useContextDocuments } from "@/hooks/use-context-documents";
 import { useProject, useRestoreProject } from "@/hooks/use-project";
 import { formatDay, relativeTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -34,9 +33,8 @@ export default function ProjectOverviewPage({ params }: { params: Promise<{ id: 
 function Overview({ project }: { project: ProjectDto }) {
   const confirm = useConfirm();
   const restore = useRestoreProject(project.id);
-  // Stage 1 reads the real document count; the other three stay honest zeros.
-  const documents = useContextDocuments(project.id);
-  const stages = projectStages(documents.data?.length ?? 0);
+  // All four stages stay honest zeros until their feature ships.
+  const stages = projectStages(0);
   const archived = project.status === "archived";
   const isOwner = project.viewerRole === "owner";
 

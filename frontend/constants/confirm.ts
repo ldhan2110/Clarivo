@@ -48,27 +48,3 @@ export function confirmRemoveMember(memberName: string, projectName: string): Co
     tone: "warning",
   };
 }
-
-/**
- * Neither reuses `confirmDelete`. Its "permanently deleted. This can't be
- * undone." is false for both: an archived document is still downloadable, and
- * a deleted block can be proposed again by the next document that asserts it.
- */
-export function confirmArchiveDocument(title: string): ConfirmOptions {
-  return {
-    title: "Archive this document?",
-    description: `“${title}” leaves the documents list. Every block that cites it keeps its citations, and the document stays downloadable — so every citation still resolves.`,
-    confirmLabel: "Archive document",
-    tone: "warning",
-  };
-}
-
-export function confirmDeleteBlock(): ConfirmOptions {
-  return {
-    title: "Delete this block?",
-    description:
-      "It disappears from the knowledge page. This is not a permanent no — a later document asserting the same thing will propose it again.",
-    confirmLabel: "Delete block",
-    tone: "error",
-  };
-}

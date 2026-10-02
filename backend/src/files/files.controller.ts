@@ -13,14 +13,10 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { ApiBody, ApiConsumes, ApiCookieAuth } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import type { Request, Response } from 'express';
 import { SESSION_COOKIE } from '../auth/auth.constants';
-import { ProjectDocument } from '../context/project-document.entity';
-import { ProjectsService } from '../projects/projects.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { User } from '../users/user.entity';
 import { FileDto } from './dto/file.dto';
@@ -51,12 +47,7 @@ export function contentDisposition(file: FileEntity): string {
 
 @Controller('files')
 export class FilesController {
-  constructor(
-    private readonly files: FilesService,
-    @InjectRepository(ProjectDocument)
-    private readonly documents: Repository<ProjectDocument>,
-    private readonly projects: ProjectsService,
-  ) {}
+  constructor(private readonly files: FilesService) {}
 
   /**
    * Upload a file. Multipart, field name `file`.
@@ -95,14 +86,7 @@ export class FilesController {
    * Download a file by id.
    *
    * This is the SINGLE download path — a project-scoped duplicate serving the
-   * same bytes would be a second place to get authorisation wrong, and the
-   * citation chips already carry a file id.
-   *
-   * The authorisation rule is narrow on purpose: a file WITH a
-   * project_documents row requires membership of that project, and a file
-   * WITHOUT one keeps the behaviour it had before context documents existed.
-   * That is what makes the tightening non-retroactive — the orphan file rows
-   * from add-file-storage need no data fix.
+   * same bytes would be a second place to get authorisation wrong.
    */
   @Get(':id')
   @ApiCookieAuth(SESSION_COOKIE)
@@ -110,16 +94,8 @@ export class FilesController {
   async download(
     @Param('id', ParseUUIDPipe) id: string,
     @Res({ passthrough: true }) res: Response,
-    @Req() req: Request,
   ): Promise<StreamableFile> {
     const file = await this.files.findById(id);
-
-    const document = await this.documents.findOne({ where: { fileId: file.id } });
-    if (document) {
-      // Throws 404 for a non-member — never 403, which would confirm the
-      // project exists. Before the stream opens, so no byte leaks.
-      await this.projects.requireMembership(document.projectId, (req.user as User).id);
-    }
 
     const stream = this.files.createStream(file);
 
