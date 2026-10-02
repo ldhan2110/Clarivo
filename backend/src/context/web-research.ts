@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TavilySearch } from '@langchain/tavily';
+import type { EnvironmentVariables } from '../config/env.validation';
 
 export interface ResearchPage {
   title: string;
@@ -31,9 +32,9 @@ interface TavilyHit {
 export class WebResearch {
   private readonly tool: TavilySearch;
 
-  constructor(config: ConfigService) {
+  constructor(config: ConfigService<EnvironmentVariables, true>) {
     this.tool = new TavilySearch({
-      tavilyApiKey: config.get('TAVILY_API_KEY', { infer: true }) as string,
+      tavilyApiKey: config.get('TAVILY_API_KEY', { infer: true }),
       maxResults: 5,
       includeRawContent: true,
     });

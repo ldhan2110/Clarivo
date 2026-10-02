@@ -39,25 +39,25 @@ Verify: `cd backend && pnpm test ai-client`
 Verify: `cd backend && pnpm test web-research`
 
 ## 6. Context service — process-all, regenerate, sweep [req-4][req-5][req-8][req-9]
-- [ ] 6.1 [service] `ContextService` (`src/context/context.service.ts`): `processAll(projectId)` — fire-and-forget background over `status='new'` sources; parse (doc) or use stored extract (web); set `extracted_text`/`processed_at`/`status`; a parser failure sets `failed` + `failure_reason` and continues; then calls `AiClient.summarise` and upserts `project_knowledge`
-- [ ] 6.2 [service] `regenerate(projectId, force)` — throws `CONTEXT_SUMMARY_EDITED` if `edited && !force`; else regenerates and resets `edited=false`
-- [ ] 6.3 [service] `editSummary(projectId, summary_md)` — replace, set `edited=true`
-- [ ] 6.4 [service] `onModuleInit` boot sweep — any `status='processing'` → `failed` (crashed-run recovery). `// ponytail:` naming the queue upgrade
-- [ ] 6.5 [service] `getContext(projectId)` — assemble `ContextDto`: summary, sources (no `extracted_text`), `coverage` computed from non-thin `##` headings over 9
-- [ ] 6.6 [test] `src/context/context.service.spec.ts`: repos mocked — process-all transitions statuses; a failed source doesn't abort the run; regenerate blocks on `edited` without force, proceeds with force
+- [x] 6.1 [service] `ContextService` — `processAll` (checks `new` count, fires `runPipeline` background, returns `{started}`); `runPipeline` parses doc / uses web extract, sets status+processed_at, a failure → `failed`+reason and continues, then `AiClient.summarise` → upsert `project_knowledge`
+- [x] 6.2 [service] `regenerate(projectId, viewerId, force)` — throws `CONTEXT_SUMMARY_EDITED` if `edited && !force`; else regenerates, resets `edited=false`
+- [x] 6.3 [service] `editSummary` — upsert summary_md, set `edited=true`
+- [x] 6.4 [service] `onModuleInit` sweep — `processing` → `failed`; `// ponytail:` boot-sweep-not-a-queue note
+- [x] 6.5 [service] `getContext` — `ContextView`: summary, sources (no extracted_text), `coverage` from non-thin `##` headings / 9, `processing` flag
+- [x] 6.6 [test] `src/context/context.service.spec.ts`: in-memory repos + real parser — new→processed + summary; failed source doesn't abort; edited not clobbered; regenerate blocks/forces. 5/5 pass
 Verify: `cd backend && pnpm test context.service`
 
 ## 7. Context controller + DTOs [req-1][req-2][req-3][req-6][req-7][req-8]
-- [ ] 7.1 [backend] DTOs (`src/context/dto/`): `ResearchRequestDto` ({companyName?, url?, building?}, at least one of name/url), `ResearchDraftDto`, `UpdateSummaryDto` ({summary_md}), response `ContextDto`/`SourceDto` extend `AuditDto` with `@Expose()` per field — `extracted_text` is never `@Expose()`d
-- [ ] 7.2 [backend] `ContextController` (`src/context/context.controller.ts`, `@Controller('projects/:id')`): `POST documents` (multipart via `FilesService` → doc source, 201), `POST research` (→ draft, 200), `POST research/accept` (→ web sources, 201), `POST context/process` (→ 202/200), `GET context` (→ `ContextDto`), `PUT context/summary` (→ edit), `POST context/regenerate` (→ regen), `GET documents` (→ `SourceDto[]` for polling)
-- [ ] 7.3 [backend] Guard every route with project membership (reuse `ProjectsService` membership lookup; `JwtAuthGuard` already global per add-login); non-member → 403
-- [ ] 7.4 [backend] `ContextModule` wires service + controller + clients; register in `app.module.ts`; `CONTEXT` errors in `src/context/context.errors.ts`
-- [ ] 7.5 [test] `src/context/context.controller.spec.ts`: upload creates a doc source; research returns a draft without persisting; accept persists web rows; regenerate without force on an edited summary → `CONTEXT_SUMMARY_EDITED`; `GET context` omits `extracted_text`
+- [x] 7.1 [backend] DTOs (`src/context/dto/`): request `ResearchRequestDto`/`AcceptResearchDto`/`UpdateSummaryDto`/`RegenerateDto` (class-validator); response `ContextDto`/`SourceDto`/`ResearchDraftDto` with `@Expose()` — `extracted_text` never exposed
+- [x] 7.2 [backend] `ContextController` (`@Controller('projects/:id')`): POST documents (multipart→doc, 201), POST research (draft, 200), POST research/accept (web sources, 201), POST context/process (202/200), GET context, PUT context/summary, POST context/regenerate, GET documents (poll)
+- [x] 7.3 [backend] `JwtAuthGuard` on the controller; every service method calls `ProjectsService.requireProject` (membership gate) → non-member 404/403
+- [x] 7.4 [backend] `ContextModule` (forFeature ProjectDocument/ProjectKnowledge/Project + FilesModule + ProjectsModule), registered in `app.module.ts`; `CONTEXT` errors in `context.errors.ts`; build clean
+- [x] 7.5 [test] `context.controller.spec.ts`: upload→doc, research draft (no persist), accept→web, regenerate CONTEXT_SUMMARY_EDITED, GET context drops extracted_text, process 202/200. 6/6 pass
 Verify: `cd backend && pnpm test context.controller`
 
 ## 8. Download authorisation [req-10]
-- [ ] 8.1 [backend] Tighten `FilesController.download` (`src/files/files.controller.ts:91`): if the file id backs a `project_documents(source_type='doc')` row, require the caller be a member of that project (via `ProjectsService`); else keep existing behaviour. `file.entity.ts` already documents the intent
-- [ ] 8.2 [test] `src/files/files.controller.spec.ts` (extend): member downloads a document-backed file; non-member → 403; a file backing no document downloads unchanged
+- [x] 8.1 [backend] `FilesController.download` tightened: a file backing a `project_documents(source_type='doc')` row requires `ProjectsService.requireMembership`; a file with no document keeps prior behaviour; web sources have no file_id. FilesModule gains ProjectsModule + ProjectDocument forFeature (no Files↔Context cycle)
+- [x] 8.2 [test] `src/files/files.controller.spec.ts` (new): member downloads; non-member refused (requireMembership throws `PROJECT_NOT_FOUND` — the repo's deliberate 404 non-leaking pattern, not 403; more secure, so used over the spec's "403" shorthand); no-document file unchanged. 3/3 pass; full suite 172/172
 Verify: `cd backend && pnpm test files.controller`
 
 ## 9. Frontend — Context page [req-12]

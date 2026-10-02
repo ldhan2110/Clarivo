@@ -13,9 +13,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { ApiBody, ApiConsumes, ApiCookieAuth } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import type { Request, Response } from 'express';
+import { ProjectDocument } from '../context/project-document.entity';
+import { ProjectsService } from '../projects/projects.service';
 import { SESSION_COOKIE } from '../auth/auth.constants';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { User } from '../users/user.entity';
@@ -47,7 +51,12 @@ export function contentDisposition(file: FileEntity): string {
 
 @Controller('files')
 export class FilesController {
-  constructor(private readonly files: FilesService) {}
+  constructor(
+    private readonly files: FilesService,
+    @InjectRepository(ProjectDocument)
+    private readonly documents: Repository<ProjectDocument>,
+    private readonly projects: ProjectsService,
+  ) {}
 
   /**
    * Upload a file. Multipart, field name `file`.
@@ -93,9 +102,20 @@ export class FilesController {
   @UseGuards(JwtAuthGuard)
   async download(
     @Param('id', ParseUUIDPipe) id: string,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<StreamableFile> {
     const file = await this.files.findById(id);
+
+    // A file backing a project document is members-only. A file that backs no
+    // document keeps the prior behaviour (any authenticated user). Web sources
+    // have no file_id, so they never reach this path.
+    const document = await this.documents.findOne({
+      where: { fileId: id, sourceType: 'doc' },
+    });
+    if (document) {
+      await this.projects.requireMembership(document.projectId, (req.user as User).id);
+    }
 
     const stream = this.files.createStream(file);
 

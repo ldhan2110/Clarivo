@@ -6,6 +6,8 @@ import { diskStorage } from 'multer';
 import { join } from 'node:path';
 import type { EnvironmentVariables } from '../config/env.validation';
 import { FileEntity } from './file.entity';
+import { ProjectDocument } from '../context/project-document.entity';
+import { ProjectsModule } from '../projects/projects.module';
 import { FilesController } from './files.controller';
 import { MAX_FILE_SIZE_BYTES, MIME_EXTENSIONS, TMP_DIR } from './files.constants';
 import { FileErrors } from './files.errors';
@@ -16,7 +18,8 @@ import { FilesService } from './files.service';
     // The ONLY thing that registers FileEntity: app.module.ts passes
     // entities: [] + autoLoadEntities: true on purpose, so registering the
     // entity anywhere else is a silent no-op.
-    TypeOrmModule.forFeature([FileEntity]),
+    TypeOrmModule.forFeature([FileEntity, ProjectDocument]),
+    ProjectsModule,
     MulterModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

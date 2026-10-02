@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ChatOpenAI } from '@langchain/openai';
+import type { EnvironmentVariables } from '../config/env.validation';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 
@@ -48,13 +49,13 @@ export class AiClient {
   private readonly strong: ChatOpenAI;
   private readonly parser = new StringOutputParser();
 
-  constructor(config: ConfigService) {
-    const baseURL = config.get('AI_BASE_URL', { infer: true }) as string;
-    const apiKey = config.get('AI_API_KEY', { infer: true }) as string;
+  constructor(config: ConfigService<EnvironmentVariables, true>) {
+    const baseURL = config.get('AI_BASE_URL', { infer: true });
+    const apiKey = config.get('AI_API_KEY', { infer: true });
     const mk = (model: string) =>
       new ChatOpenAI({ apiKey, model, temperature: 0.2, configuration: { baseURL } });
-    this.fast = mk(config.get('AI_MODEL_FAST', { infer: true }) as string);
-    this.strong = mk(config.get('AI_MODEL_STRONG', { infer: true }) as string);
+    this.fast = mk(config.get('AI_MODEL_FAST', { infer: true }));
+    this.strong = mk(config.get('AI_MODEL_STRONG', { infer: true }));
   }
 
   /**
