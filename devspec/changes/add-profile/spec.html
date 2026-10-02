@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>add-profile · spec</title>
+<style>
+  :root{--fg:#16213D;--mut:#5b647a;--bd:#e3e7ef;--bg:#f4f6fb;--card:#fff;--pri:#3A75FD;--ok:#1f9d57;--bad:#d23f3f;--rad:12px}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font:14.5px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:920px;margin:0 auto;padding:28px 20px 80px}
+  h1{font-size:24px;margin:0 0 4px}
+  h2{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--mut);margin:34px 0 12px;border-bottom:1px solid var(--bd);padding-bottom:6px}
+  h3{font-size:16px;margin:18px 0 6px}
+  code{background:#eef1f8;padding:1px 6px;border-radius:5px;font-size:12.5px}
+  pre{background:#0f1830;color:#dfe7fb;padding:14px 16px;border-radius:10px;overflow:auto;font-size:12.5px;line-height:1.5}
+  .card{background:var(--card);border:1px solid var(--bd);border-radius:var(--rad);padding:16px 18px;margin:12px 0}
+  table{border-collapse:collapse;width:100%;font-size:13.5px}
+  th,td{border:1px solid var(--bd);padding:7px 9px;text-align:left;vertical-align:top}
+  th{background:#eef1f8}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600}
+  .pill.ok{background:#e4f6ec;color:var(--ok)}.pill.doing{background:#e8eefc;color:var(--pri)}
+  .banner{border-radius:10px;padding:12px 16px;font-weight:600;margin:14px 0}
+  .banner.ok{background:#e4f6ec;color:var(--ok);border:1px solid #bfe6cf}
+  .req{border-left:3px solid var(--pri);padding-left:12px;margin:14px 0}
+  .req .tag{font-family:ui-monospace,monospace;font-size:12px;color:var(--pri)}
+  .scn{margin:6px 0 6px 2px;font-size:13.5px;color:#28324a}
+  .scn b{color:var(--mut);font-weight:600}
+  ul{margin:6px 0 6px 0;padding-left:20px}
+  li{margin:3px 0}
+  .layer{display:inline-block;font-family:ui-monospace,monospace;font-size:11px;background:#eef1f8;color:#39507e;border-radius:4px;padding:1px 5px;margin-right:4px}
+  .verify{color:var(--ok);font-size:12.5px;margin-top:6px;font-family:ui-monospace,monospace}
+  .toc{position:sticky;top:0;background:var(--bg);padding:10px 0;font-size:13px;border-bottom:1px solid var(--bd);z-index:5}
+  .toc a{color:var(--pri);text-decoration:none;margin-right:14px}
+  iframe{width:100%;height:560px;border:1px solid var(--bd);border-radius:10px;background:#fff}
+  .meta{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--mut)}
+  .chk{color:var(--ok)}
+</style>
+</head>
+<body><div class="wrap">
+
+<h1>add-profile</h1>
+<div class="meta">
+  <span><span class="pill doing">pending → plan</span></span>
+  <span>depends_on: <code>[]</code></span>
+  <span>skills: frontend-design, typeorm</span>
+  <span>approved_by: LE AN · 2026-10-02</span>
+</div>
+
+<div class="toc">
+  <a href="#proposal">Proposal</a><a href="#arch">Architecture</a><a href="#impact">Impact</a>
+  <a href="#backend">Backend</a><a href="#frontend">Frontend</a><a href="#spec">Spec</a>
+  <a href="#tasks">Tasks</a><a href="#coverage">Coverage</a><a href="#db">DB</a>
+</div>
+
+<h2 id="proposal">Proposal</h2>
+<div class="card">
+<p>A signed-in user has no way to manage their own account. The nav-user dropdown already shows a disabled "Profile · Soon" placeholder; this change makes it real.</p>
+<p><b>Delivers</b>: a single <b>Profile modal</b> from the nav-user dropdown — section 1 photo + display name, section 2 change password — plus a nullable <code>users.avatar_file_id</code>, <code>UserDto.avatarFileId</code>, and a Next rewrite proxy so an <code>&lt;img&gt;</code> can load the cookie-guarded file endpoint same-origin.</p>
+<p><b>Out</b>: no page (modal only) · no role field · no email change · no resize/crop · no cleanup of replaced avatar files (orphans accepted, repo precedent) · no session invalidation on password change (stateless JWT).</p>
+</div>
+
+<h2 id="arch">Architecture</h2>
+<pre>Avatar display:
+  nav-user &lt;AvatarImage src="/api/files/{avatarFileId}"&gt;
+     → Next rewrite /api/files/:id → NEXT_PUBLIC_API_URL/files/:id  (cookie forwarded)
+     → FilesController.download → JwtAuthGuard → stream bytes
+
+Writes (all JwtAuthGuard, req.user = current user):
+  Profile modal
+   ├─ name     → PATCH /users/me          → ProfileController → UsersService.rename → UserDto
+   ├─ avatar   → PATCH /users/me/avatar    → ProfileController(FileInterceptor 5MB/img)
+   │              → FilesService.store(file,userId) → UsersService.setAvatarFile → UserDto
+   └─ password → POST  /users/me/password  → ProfileService.changePassword
+                  → verifyPassword(current) | ProfileErrors.INVALID_CURRENT_PASSWORD
+                  → hashPassword(new) → UsersService.setPasswordHash → {success:true}
+
+Module graph:  ProfileModule → UsersModule, FilesModule   (leaf; no cycle)</pre>
+<p style="font-size:12.5px;color:var(--mut)">Rendered from design.md ## Architecture (ASCII fallback; archify not installed).</p>
+
+<h2 id="impact">Impact Area</h2>
+<div class="card">
+<h3>Decision Defaults (worker resolves gray areas, no stall)</h3>
+<table>
+<tr><th>#</th><th>Default</th></tr>
+<tr><td>1</td><td>New-password min = 8 chars (login enforces only non-empty; a new password may demand more). current = non-empty.</td></tr>
+<tr><td>2</td><td>Wrong current pw → 401 <code>PROFILE_INVALID_CURRENT_PASSWORD</code> (own domain error, not AuthErrors — user already authed, no oracle).</td></tr>
+<tr><td>3</td><td>Password response <code>{success:true}</code> 200; no new token (session stays valid).</td></tr>
+<tr><td>4</td><td>Avatar MIME = png/jpeg/webp/gif (raster subset of files.constants). SVG excluded. Reuse <code>FileErrors.UNSUPPORTED_TYPE</code>.</td></tr>
+<tr><td>5</td><td>Oversize/invalid avatar → multer reject mapped by existing <code>UploadErrorInterceptor</code>.</td></tr>
+<tr><td>6</td><td>Avatar cap = 5 MB constant in profile.constants (not env).</td></tr>
+<tr><td>7</td><td>Name = non-empty, ≤255, trimmed.</td></tr>
+<tr><td>8</td><td><code>avatarFileId</code> serialises as bare id; frontend builds the <code>/api/files/</code> path.</td></tr>
+<tr><td>9</td><td>Replaced avatar orphans old file row — accepted, no cleanup.</td></tr>
+<tr><td>10</td><td>Timing: avatar on pick · name on Save · password on Update password (3 submits).</td></tr>
+<tr><td>11</td><td>Password mutation defines own onError → inline banner, global toast stood down (useLogin mechanism). Avatar+name use global toast.</td></tr>
+<tr><td>12</td><td>Rewrite scoped to <code>/api/files/:path*</code> only.</td></tr>
+</table>
+<h3>Blast radius</h3>
+<ul>
+<li><code>users/user.entity.ts</code>, <code>users/dto/user.dto.ts</code> (shared response — flows through /auth/me + /auth/login), <code>users/users.service.ts</code> (+3 methods), <code>app.module.ts</code> (+1 import).</li>
+<li><code>auth/**</code> — <b>not touched</b> (validate + its oracle spec stay).</li>
+<li><code>sidebar/nav-user.tsx</code> (high-touch: disabled→live item + AvatarImage), <code>next.config.ts</code> (rewrites), <code>types/api/**</code> (regenerated).</li>
+</ul>
+<h3>Risk / reversibility</h3>
+<p>DB additive nullable, reverts clean. Security-sensitive = password path, mitigated tests-first + validate untouched (argon2id). Reversible end-to-end: drop migration, delete profile/, revert 2 shared edits.</p>
+</div>
+
+<h2 id="backend">Backend</h2>
+<div class="card">
+<table>
+<tr><th>Endpoint</th><th>Body</th><th>Returns</th></tr>
+<tr><td><code>PATCH /users/me</code></td><td><code>{ name }</code> (non-empty ≤255)</td><td><code>UserDto</code></td></tr>
+<tr><td><code>POST /users/me/password</code></td><td><code>{ currentPassword, newPassword≥8 }</code></td><td><code>{success:true}</code> / 401 PROFILE_INVALID_CURRENT_PASSWORD</td></tr>
+<tr><td><code>PATCH /users/me/avatar</code></td><td>multipart <code>file</code> (img ≤5 MB)</td><td><code>UserDto</code> / 4xx FILE_UNSUPPORTED_TYPE</td></tr>
+</table>
+<p>New module <code>backend/src/profile/</code>: controller <code>@Controller('users/me')</code>, ProfileService, ProfileErrors, dtos, profile.constants. Password helper <code>users/password.ts</code> (hash/verify, argon2id). <code>UserDto</code> gains <code>@Expose() avatarFileId</code>. All guarded by <code>JwtAuthGuard</code>.</p>
+</div>
+
+<h2 id="frontend">Frontend</h2>
+<div class="card">
+<p><b>Mockup</b> — <code>mockups/profile.html</code> (approved 2026-10-02 by LE AN). One Profile modal, two sections, single dropdown item.</p>
+<iframe src="mockups/profile.html" title="profile modal mockup"></iframe>
+<p><a href="mockups/profile.html" target="_blank">open standalone</a></p>
+<p>Reuse: Dialog/Input/Label/Button/Avatar(AvatarImage) + DropdownMenuItem + <code>initialsOf</code>. New: <code>components/profile/profile-dialog.tsx</code>, <code>services/users.ts</code>, <code>hooks/use-profile.ts</code>, <code>next.config.ts</code> rewrite. rhf+zod, never <code>watch()</code>.</p>
+</div>
+
+<h2 id="spec">Spec (requirements → scenarios)</h2>
+<div class="card">
+<div class="req"><h3>avatar column on users <span class="tag">[req-1]</span></h3>
+<div class="scn"><b>migration applies</b> → <code>avatar_file_id uuid</code> NULL, FK files(id) RESTRICT, existing rows NULL</div>
+<div class="scn"><b>reverts clean</b> → back to 5 columns, no FK</div></div>
+<div class="req"><h3>response exposes avatarFileId <span class="tag">[req-2]</span></h3>
+<div class="scn"><b>me returns</b> <code>avatarFileId:null</code>, no passwordHash · <b>avatar set reflected</b></div></div>
+<div class="req"><h3>update display name <span class="tag">[req-3]</span></h3>
+<div class="scn"><b>valid</b> → UserDto updated · <b>empty</b> → 400 · <b>unauthed</b> → 401</div></div>
+<div class="req"><h3>change password <span class="tag">[req-4]</span></h3>
+<div class="scn"><b>correct current</b> → 200, hash rotated · <b>wrong current</b> → 401 PROFILE_INVALID_CURRENT_PASSWORD, unchanged · <b>too short</b> → 400</div></div>
+<div class="req"><h3>upload avatar <span class="tag">[req-5]</span></h3>
+<div class="scn"><b>valid image</b> → stored, avatar_file_id set, UserDto · <b>oversize</b> → 4xx unchanged · <b>disallowed type</b> → FILE_UNSUPPORTED_TYPE unchanged</div></div>
+<div class="req"><h3>avatar viewable from frontend origin <span class="tag">[req-6]</span></h3>
+<div class="scn"><b>same-origin request</b> <code>/api/files/&lt;id&gt;</code> → proxied with cookie → image bytes</div></div>
+<div class="req"><h3>profile modal <span class="tag">[req-7]</span></h3>
+<div class="scn"><b>open from dropdown</b> · <b>avatar persists on pick</b> · <b>name save</b> · <b>mismatch blocks submit</b> · <b>wrong current inline</b> · <b>uploaded avatar renders in nav</b></div></div>
+</div>
+
+<h2 id="tasks">Tasks (by section)</h2>
+<div class="card">
+<p><span class="layer">1</span>[db] Avatar column + migration <span class="tag">[req-1]</span> <span class="verify">Verify: migration run/revert/run round-trips; build green</span></p>
+<p><span class="layer">2</span>[backend] Expose avatarFileId <span class="tag">[req-2]</span> <span class="verify">Verify: pnpm test (DTO spec)</span></p>
+<p><span class="layer">3</span>[backend] Password helper users/password.ts <span class="tag">[req-4]</span> <span class="verify">Verify: pnpm test</span></p>
+<p><span class="layer">4</span>[service] UsersService rename/setAvatarFile/setPasswordHash <span class="tag">[req-3][req-4][req-5]</span> <span class="verify">Verify: pnpm test</span></p>
+<p><span class="layer">5</span>[backend] Profile module: name + password endpoints <span class="tag">[req-3][req-4]</span> <span class="verify">Verify: pnpm test (profile service spec)</span></p>
+<p><span class="layer">6</span>[backend] Profile module: avatar endpoint <span class="tag">[req-5]</span> <span class="verify">Verify: pnpm test && pnpm build</span></p>
+<p><span class="layer">7</span>[frontend] Regenerate API types <span class="tag">[req-2..5]</span> <span class="verify">Verify: pnpm build</span></p>
+<p><span class="layer">8</span>[frontend] Next rewrite proxy <span class="tag">[req-6]</span> <span class="verify">Verify: pnpm build; curl /api/files proxies</span></p>
+<p><span class="layer">9</span>[frontend] services/users.ts + hooks/use-profile.ts <span class="tag">[req-3][req-4][req-5]</span> <span class="verify">Verify: pnpm build && lint</span></p>
+<p><span class="layer">10</span>[frontend] Profile modal + nav-user wiring <span class="tag">[req-7]</span> <span class="verify">Verify: /devspec-verify add-profile (agent-browser)</span></p>
+</div>
+
+<h2 id="coverage">Coverage</h2>
+<div class="banner ok">✓ Every requirement is covered. req-1 → §1 · req-2 → §2,§7 · req-3 → §4,§5,§7,§9,§10 · req-4 → §3,§4,§5,§7,§9,§10 · req-5 → §4,§6,§7,§9,§10 · req-6 → §8 · req-7 → §10. No orphan sections.</div>
+
+<h2 id="db">DB</h2>
+<div class="card">
+<p><b>Source</b>: postgres live (10.0.68.250:5437), read 2026-10-02. <b>Verdict</b>: purely additive — one nullable <code>avatar_file_id uuid</code> + FK <code>files(id)</code> ON DELETE RESTRICT on <code>users</code>. No backfill (2 rows → NULL), reverts clean, no destructive op. Creates a cycle-safe FK (nullable) with the existing <code>files.uploaded_by → users</code>. Full grid in <code>db.md</code>.</p>
+</div>
+
+</div></body></html>

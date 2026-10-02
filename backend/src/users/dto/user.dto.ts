@@ -11,4 +11,9 @@ export class UserDto extends AuditDto {
 
   @Expose()
   name: string;
+
+  /** File id of the user's avatar, or null. The frontend builds the image URL
+   *  from it; the bare id keeps the server ignorant of the frontend proxy path. */
+  @Expose()
+  avatarFileId: string | null;
 }

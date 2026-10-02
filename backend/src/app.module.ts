@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AiModule } from './ai/ai.module';
 import { AuthModule } from './auth/auth.module';
+import { ContextModule } from './context/context.module';
 import { databaseOptions } from './config/database.config';
 import { FilesModule } from './files/files.module';
+import { ProfileModule } from './profile/profile.module';
 import { ProjectsModule } from './projects/projects.module';
 import { validate } from './config/env.validation';
 import { UsersModule } from './users/users.module';
@@ -25,8 +28,11 @@ import { UsersModule } from './users/users.module';
     }),
     UsersModule,
     AuthModule,
+    AiModule,
     FilesModule,
     ProjectsModule,
+    ContextModule,
+    ProfileModule,
   ],
 })
 export class AppModule {}

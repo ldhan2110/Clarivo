@@ -42,4 +42,20 @@ export class UsersService {
       this.users.create({ email, passwordHash: input.passwordHash, name: input.name }),
     );
   }
+
+  /** Callers pass the id of the authenticated user, so existence is already
+   *  guaranteed by the guard; these writes do not re-check it. */
+  async rename(userId: string, name: string): Promise<User> {
+    await this.users.update(userId, { name });
+    return this.users.findOneOrFail({ where: { id: userId } });
+  }
+
+  async setAvatarFile(userId: string, fileId: string): Promise<User> {
+    await this.users.update(userId, { avatarFileId: fileId });
+    return this.users.findOneOrFail({ where: { id: userId } });
+  }
+
+  async setPasswordHash(userId: string, passwordHash: string): Promise<void> {
+    await this.users.update(userId, { passwordHash });
+  }
 }

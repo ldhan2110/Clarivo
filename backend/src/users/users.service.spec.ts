@@ -33,4 +33,35 @@ describe('UsersService', () => {
     expect(create).not.toHaveBeenCalled();
     expect(result).toMatchObject({ id: 'u1', passwordHash: 'new', name: 'New' });
   });
+
+  it('rename updates the name and returns the reloaded user', async () => {
+    const update = vi.fn().mockResolvedValue(undefined);
+    const findOneOrFail = vi.fn().mockResolvedValue({ id: 'u1', name: 'New Name' });
+    const service = new UsersService({ update, findOneOrFail } as never);
+
+    const result = await service.rename('u1', 'New Name');
+
+    expect(update).toHaveBeenCalledWith('u1', { name: 'New Name' });
+    expect(result).toMatchObject({ name: 'New Name' });
+  });
+
+  it('setPasswordHash writes only the hash', async () => {
+    const update = vi.fn().mockResolvedValue(undefined);
+    const service = new UsersService({ update } as never);
+
+    await service.setPasswordHash('u1', 'new-hash');
+
+    expect(update).toHaveBeenCalledWith('u1', { passwordHash: 'new-hash' });
+  });
+
+  it('setAvatarFile points the user at the file id', async () => {
+    const update = vi.fn().mockResolvedValue(undefined);
+    const findOneOrFail = vi.fn().mockResolvedValue({ id: 'u1', avatarFileId: 'f1' });
+    const service = new UsersService({ update, findOneOrFail } as never);
+
+    const result = await service.setAvatarFile('u1', 'f1');
+
+    expect(update).toHaveBeenCalledWith('u1', { avatarFileId: 'f1' });
+    expect(result).toMatchObject({ avatarFileId: 'f1' });
+  });
 });

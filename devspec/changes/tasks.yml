@@ -282,8 +282,8 @@ changes:
     tasks_md: changes/add-project-context/tasks.md
     depends_on: []
     skills: [frontend-design, typeorm]
-    status: pending
-    owner: ""
+    status: doing
+    owner: "worker-local"
     notes: >-
       Approved by LE AN on 2026-10-01. Artifacts complete: proposal.md, design.md,
       spec.md, tasks.md, ui.md, db.md (live-schema grounded, read from psql not
@@ -418,3 +418,69 @@ changes:
       the context pack is a separate job. summary.md is also stale — it claims
       zero domain entities and zero migrations; four tables and three migrations
       exist, and this change makes it seven and four.
+  add-profile:
+    title: profile modal — avatar upload, display name, change password
+    tasks_md: changes/add-profile/tasks.md
+    depends_on: []
+    skills: [frontend-design, typeorm]
+    status: doing
+    owner: "worker-local"
+    notes: >-
+      Approved by LE AN on 2026-10-02. Artifacts complete: proposal.md, design.md,
+      spec.md (req-1..req-7), tasks.md (10 sections, every section a runnable
+      Verify: line, NO MANUAL gate), ui.md, db.md (live-schema grounded, read from
+      psql not migration files), 1 approved mockup (profile.html, 5 states), spec.html.
+      Req coverage clean — req-1 → s1, req-2 → s2+s7, req-3 → s4/5/7/9/10,
+      req-4 → s3/4/5/7/9/10, req-5 → s4/6/7/9/10, req-6 → s8, req-7 → s10. No orphans.
+      `depends_on: []` on purpose. Everything consumed is already built and in the
+      working tree: the `users` table + JwtAuthGuard + SESSION_COOKIE (add-login),
+      FilesService + the `files` table + the exported multer config (add-file-storage),
+      the global MutationCache toast + confirm provider (add-feedback-layer), and the
+      nav-user dropdown (add-app-shell). Nothing waits on anything.
+      THE ONE ARCHITECTURAL TRAP IS A CIRCULAR MODULE IMPORT, and design.md's chosen
+      approach exists to avoid it. The import chain is already
+      FilesModule → ProjectsModule → UsersModule, so putting the avatar endpoint on a
+      UsersController inside UsersModule (which would need FilesModule for multer +
+      FilesService) closes the cycle Users→Files→Projects→Users and forces forwardRef.
+      Instead a NEW leaf `backend/src/profile/` module imports UsersModule + FilesModule;
+      routes still live at `/users/me` because `@Controller('users/me')` is just a path
+      string. Do not "simplify" this back into UsersModule.
+      `AuthService.validate` IS DELIBERATELY NOT TOUCHED. It is the credential path with
+      an oracle test (auth.service.spec asserts unknown-email == bad-password, identical
+      error). Password change gets its own tiny `users/password.ts` helper
+      (hashPassword/verifyPassword, argon2id) used only by the new path — this is the
+      FIRST place the app hashes a password (seed hashes externally). Editing validate or
+      its spec is out of scope and a regression risk.
+      SECTION 1 ADDS THE 5TH MIGRATION, purely additive: one nullable
+      `users.avatar_file_id uuid` + FK → files(id) ON DELETE RESTRICT. No backfill (2 user
+      rows → NULL), reverts clean, NO destructive op anywhere. It creates a cycle in the FK
+      graph with the existing files.uploaded_by → users edge; this is SAFE ONLY BECAUSE the
+      column is nullable (user row inserts with NULL avatar, file uploaded after, then the
+      id is set). A NOT NULL avatar column would be unsatisfiable — keep it nullable.
+      `pnpm migration:*` builds first and runs against `dist/`, so compile clean before
+      generating or a TS error surfaces as a confusing migration failure.
+      THE AVATAR DISPLAY NEEDS A NEXT REWRITE PROXY, not a new endpoint. `GET /files/:id`
+      is cookie-guarded; a cross-origin `<img>` from :3001 sends no cookie → 401. next.config
+      rewrites `/api/files/:path*` → `${NEXT_PUBLIC_API_URL}/files/:path*` (reuses the
+      existing env, NO new var) so the image loads same-origin with the cookie forwarded
+      server-side. A second public/unguarded avatar route was rejected — files.controller.ts
+      explicitly warns against a duplicate bytes-serving path.
+      Entity registration is the same trap every prior change documented: app.module.ts
+      passes entities: [] + autoLoadEntities: true, so the User entity's new column needs no
+      forFeature change; FilesModule already registers FileEntity. ProfileModule registers no
+      entity of its own.
+      TWO SHARED SURFACES are where a reviewer should look hardest: `users/dto/user.dto.ts`
+      gains `@Expose() avatarFileId` (flows through /auth/me AND /auth/login via toUserDto —
+      regenerate frontend types with `pnpm api:types`), and `components/sidebar/nav-user.tsx`
+      flips the disabled "Profile / Soon" item to a live modal trigger and adds <AvatarImage>.
+      Known/accepted (design.md scope-out, do NOT build): replacing an avatar orphans the old
+      files row (files has no delete path, uploaded_by RESTRICT — matches the "rejected blocks
+      accumulate" precedent); no resize/crop; no session invalidation on password change (JWT
+      is a stateless cookie with no revocation list); no role field (nav-user keeps hardcoded
+      "BA"); no email change.
+      Do NOT run `pnpm test:e2e` and do not touch `backend/test/app.e2e-spec.ts` (pre-existing
+      failure, out of scope — devspec/report/blockers.md). `pnpm test` is the backend gate.
+      conventions.md is STALE for the frontend — `frontend/CLAUDE.md` is authoritative:
+      `@/*` resolves from the frontend root, and it carries the layer law
+      (component → hooks/ → services/ → lib/api), the react-hook-form + zod rule and the
+      never-`watch()` constraint.
