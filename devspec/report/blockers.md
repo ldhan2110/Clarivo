@@ -43,3 +43,26 @@ needs: A one-clause amendment to `spec.md` [req-3] — `original_name` stores th
   change is committed. Measured output is in
   devspec/changes/add-file-storage/verify/results.md.
 status: open
+
+## add-project-context · 9-10. Live UI verify · 2026-10-02T13:55:00Z
+what: Sections 9-10 (frontend Context page, nav, overview count) are built and
+  COMPILE-verified — `cd frontend && npx tsc --noEmit`, `pnpm lint`, `pnpm build`
+  all clean; the route `/projects/[id]/context` is in the build output; the
+  backend boots live with all 7 context routes (hot-reloaded on :3000) and
+  `pnpm api:types` regenerated cleanly. The section `Verify:` is
+  `/devspec-verify add-project-context`, a LIVE agent-browser run.
+tried: The live run was not executed. It needs (a) the frontend dev server on
+  :3001 and (b) REAL `AI_API_KEY` + `TAVILY_API_KEY` in `backend/.env` — the
+  current values are `change-me` placeholders (added so the process boots). With
+  placeholders the page renders (empty/unprocessed states, nav, tiles, Sources
+  panel, research dialog open) but the AI path fails, so the devspec-verify
+  assertion "a rendered mermaid node is visible (from a real process→summary
+  run)" and the research-returns-pages assertion cannot pass. Faking a green was
+  declined per the worker's no-fake-verify rule.
+needs: A human with real provider keys: set AI_* + TAVILY_API_KEY in
+  `backend/.env`, run `cd frontend && pnpm dev` (+ backend on :3000), then
+  `/devspec-verify add-project-context`. On green, reset the board
+  `status: blocked → done` and re-run the worker (it will commit + archive).
+  Everything else in the change is built, unit-tested (backend 172/172) and
+  compile-verified.
+status: open

@@ -282,9 +282,10 @@ changes:
     tasks_md: changes/add-project-context/tasks.md
     depends_on: []
     skills: [frontend-design, typeorm]
-    status: doing
+    status: blocked
     owner: "worker-local"
     notes: >-
+      BLOCKED on the live UI verify only (sections 9-10). All code built; backend 172/172 unit tests; frontend tsc/eslint/build clean; backend boots live with all 7 routes. The `/devspec-verify` live agent-browser run needs real AI_API_KEY/TAVILY_API_KEY + the dev server — see devspec/report/blockers.md. Reset to pending/done after a human runs it with real keys.
       Approved by LE AN on 2026-10-02. RE-SPEC — supersedes the reverted
       block/proposal/review build (DropProjectContext migration ran; src/context
       was removed; verify/ screenshots are of the OLD UI). Artifacts rewritten:
