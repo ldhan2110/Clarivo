@@ -171,137 +171,6 @@ export type AddMemberDto = {
     email: string;
 };
 
-export type ProjectDocumentDto = {
-    title: string;
-    originalName: string;
-    mimeType: string;
-    sizeBytes: number;
-    /**
-     * The file id, so a citation chip can link straight at GET /files/:id.
-     */
-    fileId: string;
-    status: 'archived' | 'pending' | 'parsing' | 'summarizing' | 'proposing' | 'ready' | 'failed';
-    error: string | null;
-    /**
-     * Accepted blocks sourced from this document.
-     */
-    blockCount: number;
-    id: string;
-    createdAt: string;
-    updatedAt: string;
-};
-
-export type RenameDocumentDto = {
-    title: string;
-};
-
-export type KnowledgeRefDto = {
-    id: string;
-    documentId: string;
-    title: string;
-    /**
-     * So a chip can link straight at GET /files/:id.
-     */
-    fileId: string;
-    locator: string | null;
-    quote: string;
-};
-
-export type KnowledgeBlockDto = {
-    section: 'overview' | 'scope' | 'stakeholders' | 'process' | 'data_model' | 'constraints' | 'integrations' | 'glossary' | 'open_questions';
-    position: number;
-    statement: string;
-    confidence: 'stated' | 'implied' | 'uncertain';
-    origin: 'ai' | 'human';
-    state: 'proposed' | 'accepted' | 'rejected' | 'superseded';
-    kind: 'update' | 'add' | 'conflict';
-    supersedesId: string | null;
-    sourceDocumentId: string | null;
-    /**
-     * Set means a human owns this wording; no document can silently replace it.
-     */
-    editedAt: string | null;
-    authorName: string | null;
-    refs: Array<KnowledgeRefDto>;
-    id: string;
-    createdAt: string;
-    updatedAt: string;
-};
-
-export type KnowledgeSectionDto = {
-    section: 'overview' | 'scope' | 'stakeholders' | 'process' | 'data_model' | 'constraints' | 'integrations' | 'glossary' | 'open_questions';
-    blocks: Array<KnowledgeBlockDto>;
-};
-
-export type KnowledgePageDto = {
-    sections: Array<KnowledgeSectionDto>;
-    /**
-     * Documents that became ready after the current brief was written.
-     */
-    briefStaleCount: number;
-};
-
-export type CitationDto = {
-    documentId: string;
-    locator?: string | null;
-    quote: string;
-};
-
-export type CreateBlockDto = {
-    section: 'overview' | 'scope' | 'stakeholders' | 'process' | 'data_model' | 'constraints' | 'integrations' | 'glossary' | 'open_questions';
-    statement: string;
-    confidence: 'stated' | 'implied' | 'uncertain';
-    /**
-     * A human block needs no citation — the author is the source.
-     */
-    refs?: Array<CitationDto>;
-};
-
-export type UpdateBlockDto = {
-    statement?: string;
-    confidence?: 'stated' | 'implied' | 'uncertain';
-    refs?: Array<CitationDto>;
-};
-
-export type ProposalItemDto = {
-    section: 'overview' | 'scope' | 'stakeholders' | 'process' | 'data_model' | 'constraints' | 'integrations' | 'glossary' | 'open_questions';
-    position: number;
-    statement: string;
-    confidence: 'stated' | 'implied' | 'uncertain';
-    origin: 'ai' | 'human';
-    state: 'proposed' | 'accepted' | 'rejected' | 'superseded';
-    kind: 'update' | 'add' | 'conflict';
-    supersedesId: string | null;
-    sourceDocumentId: string | null;
-    /**
-     * Set means a human owns this wording; no document can silently replace it.
-     */
-    editedAt: string | null;
-    authorName: string | null;
-    refs: Array<KnowledgeRefDto>;
-    id: string;
-    createdAt: string;
-    updatedAt: string;
-    /**
-     * The block this proposal updates or disagrees with, when it has one.
-     */
-    target: KnowledgeBlockDto | null;
-};
-
-export type ProposalGroupDto = {
-    documentId: string;
-    documentTitle: string;
-    proposals: Array<ProposalItemDto>;
-};
-
-export type ResolveConflictDto = {
-    resolution?: 'keep_existing' | 'use_new' | 'write_own';
-    /**
-     * Required for write_own: the wording the human wants instead of both.
-     */
-    statement?: string;
-};
-
 export type UpdateProfileDto = {
     name: string;
 };
@@ -309,6 +178,77 @@ export type UpdateProfileDto = {
 export type ChangePasswordDto = {
     currentPassword: string;
     newPassword: string;
+};
+
+export type SourceDto = {
+    id: string;
+    sourceType: 'doc' | 'web';
+    title: string;
+    url: string | null;
+    status: string;
+    failureReason: string | null;
+    processedAt: string | null;
+};
+
+export type ResearchRequestDto = {
+    companyName?: string;
+    url?: string;
+    /**
+     * Optional hint about what they are building, to sharpen the search.
+     */
+    building?: string;
+};
+
+export type ResearchPageViewDto = {
+    title: string;
+    url: string;
+    extract: string;
+};
+
+export type ResearchDraftDto = {
+    findings_md: string;
+    pages: Array<ResearchPageViewDto>;
+};
+
+export type ResearchPageDto = {
+    title: string;
+    url: string;
+    extract: string;
+};
+
+export type AcceptResearchDto = {
+    pages: Array<ResearchPageDto>;
+};
+
+export type CoverageDto = {
+    covered: number;
+    total: number;
+};
+
+export type ContextDto = {
+    summaryMd: string;
+    edited: boolean;
+    generatedAt: string | null;
+    /**
+     * True while a Process-all run is in flight (the frontend polls on it).
+     */
+    processing: boolean;
+    coverage: CoverageDto;
+    sources: Array<SourceDto>;
+};
+
+export type UpdateSummaryDto = {
+    /**
+     * The full markdown summary. May be empty to clear it.
+     */
+    summaryMd: string;
+};
+
+export type RegenerateDto = {
+    /**
+     * Overwrite a human-edited summary. Omitted/false respects the edit.
+     */
+    force?: boolean;
 };
 
 export type AuthControllerLoginData = {
@@ -516,204 +456,6 @@ export type ProjectsControllerRemoveMemberResponses = {
 
 export type ProjectsControllerRemoveMemberResponse = ProjectsControllerRemoveMemberResponses[keyof ProjectsControllerRemoveMemberResponses];
 
-export type ContextControllerListDocumentsData = {
-    body?: never;
-    path: {
-        projectId: string;
-    };
-    query?: never;
-    url: '/projects/{projectId}/documents';
-};
-
-export type ContextControllerListDocumentsResponses = {
-    200: Array<ProjectDocumentDto>;
-};
-
-export type ContextControllerListDocumentsResponse = ContextControllerListDocumentsResponses[keyof ContextControllerListDocumentsResponses];
-
-export type ContextControllerUploadData = {
-    body: {
-        file: Blob | File;
-    };
-    path: {
-        projectId: string;
-    };
-    query?: never;
-    url: '/projects/{projectId}/documents';
-};
-
-export type ContextControllerUploadResponses = {
-    201: ProjectDocumentDto;
-};
-
-export type ContextControllerUploadResponse = ContextControllerUploadResponses[keyof ContextControllerUploadResponses];
-
-export type ContextControllerRenameData = {
-    body: RenameDocumentDto;
-    path: {
-        projectId: string;
-        documentId: string;
-    };
-    query?: never;
-    url: '/projects/{projectId}/documents/{documentId}';
-};
-
-export type ContextControllerRenameResponses = {
-    200: ProjectDocumentDto;
-};
-
-export type ContextControllerRenameResponse = ContextControllerRenameResponses[keyof ContextControllerRenameResponses];
-
-export type ContextControllerRereadData = {
-    body?: never;
-    path: {
-        projectId: string;
-        documentId: string;
-    };
-    query?: never;
-    url: '/projects/{projectId}/documents/{documentId}/reread';
-};
-
-export type ContextControllerRereadResponses = {
-    201: ProjectDocumentDto;
-};
-
-export type ContextControllerRereadResponse = ContextControllerRereadResponses[keyof ContextControllerRereadResponses];
-
-export type ContextControllerArchiveData = {
-    body?: never;
-    path: {
-        projectId: string;
-        documentId: string;
-    };
-    query?: never;
-    url: '/projects/{projectId}/documents/{documentId}/archive';
-};
-
-export type ContextControllerArchiveResponses = {
-    201: ProjectDocumentDto;
-};
-
-export type ContextControllerArchiveResponse = ContextControllerArchiveResponses[keyof ContextControllerArchiveResponses];
-
-export type KnowledgeControllerRegenerateBriefData = {
-    body?: never;
-    path: {
-        projectId: string;
-    };
-    query?: never;
-    url: '/projects/{projectId}/knowledge/brief/regenerate';
-};
-
-export type KnowledgeControllerRegenerateBriefResponses = {
-    201: unknown;
-};
-
-export type KnowledgeControllerGetPageData = {
-    body?: never;
-    path: {
-        projectId: string;
-    };
-    query?: never;
-    url: '/projects/{projectId}/knowledge';
-};
-
-export type KnowledgeControllerGetPageResponses = {
-    200: KnowledgePageDto;
-};
-
-export type KnowledgeControllerGetPageResponse = KnowledgeControllerGetPageResponses[keyof KnowledgeControllerGetPageResponses];
-
-export type KnowledgeControllerCreateBlockData = {
-    body: CreateBlockDto;
-    path: {
-        projectId: string;
-    };
-    query?: never;
-    url: '/projects/{projectId}/knowledge/blocks';
-};
-
-export type KnowledgeControllerCreateBlockResponses = {
-    201: KnowledgeBlockDto;
-};
-
-export type KnowledgeControllerCreateBlockResponse = KnowledgeControllerCreateBlockResponses[keyof KnowledgeControllerCreateBlockResponses];
-
-export type KnowledgeControllerDeleteBlockData = {
-    body?: never;
-    path: {
-        projectId: string;
-        blockId: string;
-    };
-    query?: never;
-    url: '/projects/{projectId}/knowledge/blocks/{blockId}';
-};
-
-export type KnowledgeControllerDeleteBlockResponses = {
-    204: void;
-};
-
-export type KnowledgeControllerDeleteBlockResponse = KnowledgeControllerDeleteBlockResponses[keyof KnowledgeControllerDeleteBlockResponses];
-
-export type KnowledgeControllerUpdateBlockData = {
-    body: UpdateBlockDto;
-    path: {
-        projectId: string;
-        blockId: string;
-    };
-    query?: never;
-    url: '/projects/{projectId}/knowledge/blocks/{blockId}';
-};
-
-export type KnowledgeControllerUpdateBlockResponses = {
-    200: KnowledgeBlockDto;
-};
-
-export type KnowledgeControllerUpdateBlockResponse = KnowledgeControllerUpdateBlockResponses[keyof KnowledgeControllerUpdateBlockResponses];
-
-export type KnowledgeControllerListProposalsData = {
-    body?: never;
-    path: {
-        projectId: string;
-    };
-    query?: never;
-    url: '/projects/{projectId}/knowledge/proposals';
-};
-
-export type KnowledgeControllerListProposalsResponses = {
-    200: Array<ProposalGroupDto>;
-};
-
-export type KnowledgeControllerListProposalsResponse = KnowledgeControllerListProposalsResponses[keyof KnowledgeControllerListProposalsResponses];
-
-export type KnowledgeControllerAcceptData = {
-    body: ResolveConflictDto;
-    path: {
-        projectId: string;
-        blockId: string;
-    };
-    query?: never;
-    url: '/projects/{projectId}/knowledge/proposals/{blockId}/accept';
-};
-
-export type KnowledgeControllerAcceptResponses = {
-    201: unknown;
-};
-
-export type KnowledgeControllerRejectData = {
-    body?: never;
-    path: {
-        projectId: string;
-        blockId: string;
-    };
-    query?: never;
-    url: '/projects/{projectId}/knowledge/proposals/{blockId}/reject';
-};
-
-export type KnowledgeControllerRejectResponses = {
-    201: unknown;
-};
-
 export type ProfileControllerUpdateProfileData = {
     body: UpdateProfileDto;
     path?: never;
@@ -752,3 +494,123 @@ export type ProfileControllerUploadAvatarResponses = {
 };
 
 export type ProfileControllerUploadAvatarResponse = ProfileControllerUploadAvatarResponses[keyof ProfileControllerUploadAvatarResponses];
+
+export type ContextControllerListSourcesData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/projects/{id}/documents';
+};
+
+export type ContextControllerListSourcesResponses = {
+    200: Array<SourceDto>;
+};
+
+export type ContextControllerListSourcesResponse = ContextControllerListSourcesResponses[keyof ContextControllerListSourcesResponses];
+
+export type ContextControllerUploadData = {
+    body: {
+        file: Blob | File;
+    };
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/projects/{id}/documents';
+};
+
+export type ContextControllerUploadResponses = {
+    201: SourceDto;
+};
+
+export type ContextControllerUploadResponse = ContextControllerUploadResponses[keyof ContextControllerUploadResponses];
+
+export type ContextControllerResearchData = {
+    body: ResearchRequestDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/projects/{id}/research';
+};
+
+export type ContextControllerResearchResponses = {
+    200: ResearchDraftDto;
+};
+
+export type ContextControllerResearchResponse = ContextControllerResearchResponses[keyof ContextControllerResearchResponses];
+
+export type ContextControllerAcceptResearchData = {
+    body: AcceptResearchDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/projects/{id}/research/accept';
+};
+
+export type ContextControllerAcceptResearchResponses = {
+    201: Array<SourceDto>;
+};
+
+export type ContextControllerAcceptResearchResponse = ContextControllerAcceptResearchResponses[keyof ContextControllerAcceptResearchResponses];
+
+export type ContextControllerProcessData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/projects/{id}/context/process';
+};
+
+export type ContextControllerProcessResponses = {
+    201: unknown;
+};
+
+export type ContextControllerGetData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/projects/{id}/context';
+};
+
+export type ContextControllerGetResponses = {
+    200: ContextDto;
+};
+
+export type ContextControllerGetResponse = ContextControllerGetResponses[keyof ContextControllerGetResponses];
+
+export type ContextControllerEditSummaryData = {
+    body: UpdateSummaryDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/projects/{id}/context/summary';
+};
+
+export type ContextControllerEditSummaryResponses = {
+    200: ContextDto;
+};
+
+export type ContextControllerEditSummaryResponse = ContextControllerEditSummaryResponses[keyof ContextControllerEditSummaryResponses];
+
+export type ContextControllerRegenerateData = {
+    body: RegenerateDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/projects/{id}/context/regenerate';
+};
+
+export type ContextControllerRegenerateResponses = {
+    201: ContextDto;
+};
+
+export type ContextControllerRegenerateResponse = ContextControllerRegenerateResponses[keyof ContextControllerRegenerateResponses];

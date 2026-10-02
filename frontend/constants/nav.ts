@@ -1,6 +1,7 @@
 import {
   CalendarDays,
   CircleHelp,
+  FileText,
   FolderKanban,
   LayoutDashboard,
   ListChecks,
@@ -33,6 +34,7 @@ export function projectNavItems(id: string, isOwner: boolean): NavItemDef[] {
   const base = `/projects/${id}`;
   const items: NavItemDef[] = [
     { group: "Plan", label: "Overview", href: base, icon: SquareKanban, disabled: false },
+    { group: "Plan", label: "Context", href: `${base}/context`, icon: FileText, disabled: false },
     { group: "Plan", label: "Discovery Plan", href: `${base}/discovery`, icon: ListChecks, disabled: true },
     { group: "Run", label: "Meetings", href: `${base}/meetings`, icon: CalendarDays, disabled: true },
     { group: "Output", label: "Requirements", href: `${base}/requirements`, icon: ListChecks, disabled: true },

@@ -61,15 +61,15 @@ Verify: `cd backend && pnpm test context.controller`
 Verify: `cd backend && pnpm test files.controller`
 
 ## 9. Frontend — Context page [req-12]
-- [ ] 9.1 [frontend] Add shadcn primitives by hand into `app/components/ui/` (CLI hangs — per conventions): `button`, `card`, `input`, `label`, `badge`, `progress`. Install any radix dep with pnpm
-- [ ] 9.2 [frontend] `app/lib/context-api.ts` (through the shared `app/lib/api.ts` axios) + TanStack Query hooks (`app/hooks/use-context.ts`): get context, list sources (poll via `refetchInterval` while any source non-terminal), upload, research, accept, process-all, edit, regenerate
-- [ ] 9.3 [frontend] `app/(app)/projects/[id]/context/page.tsx` — build to `mockups/context.html`: metric tiles, two-column summary + Sources panel (Documents/Web split), header actions (Research / Edit / Regenerate / Process all), states empty/unprocessed/processing/failed. Semantic tokens only, no raw hex
-- [ ] 9.4 [frontend] Render `summary_md` as markdown with ```mermaid blocks via the `mermaid` dep (`pnpm add mermaid`); `[Edit]` swaps to a raw-markdown `<textarea>`; `[Regenerate]` on an edited summary shows a confirm that resends `force:true`
-- [ ] 9.5 [frontend] Research flow: a dialog/section with company-name OR url + optional "building" input → draft findings + pages list → "Add to summary" posts accept
-- [ ] 9.6 [frontend] After a backend API change, rerun `pnpm api:types` (backend up) so `app/types/api/` matches
-Verify: `/devspec-verify add-project-context` (agent-browser on :3001/:3000 — tiles + summary + Sources regions exist, a rendered mermaid node is visible (not raw ```mermaid text), one "Process all" action (not per-row), research dialog opens, styling tokened not browser-default)
+- [x] 9.1 [frontend] shadcn primitives already present at `components/ui/` (my ui.md wrongly said absent — they're at the frontend root, not `app/`): button, card, input, label, badge, textarea, dialog, skeleton reused. No `progress` primitive → spinner/div per mockup (ponytail). `mermaid` added
+- [x] 9.2 [frontend] `services/context.ts` (via `lib/api`) + `hooks/use-context.ts` (`useProjectContext`/`useSources` poll via `refetchInterval` while non-terminal, upload/research/accept/process/edit/regenerate mutations)
+- [x] 9.3 [frontend] `app/(app)/projects/[id]/context/page.tsx` to the mockup: metric tiles (Sources/Sections/Diagrams/Coverage ring), two-col summary + Sources panel (Documents/Web split), header actions, empty/processing/failed states. Semantic tokens only
+- [x] 9.4 [frontend] `components/context/summary-view.tsx`: minimal markdown render + lazy `mermaid` for ```mermaid fences (fallback shows source, never blank); `[Edit]` → raw-markdown `<textarea>`; `[Regenerate]` on edited shows a `useConfirm` that resends `force:true`
+- [x] 9.5 [frontend] `components/context/research-dialog.tsx`: react-hook-form + zod (name OR url, +building) → draft findings + pages list → "Add to summary" posts accept
+- [x] 9.6 [frontend] `pnpm api:types` regenerated (backend live); service/hooks switched to the generated `@/types/api` DTOs; interim `types/context.ts` removed
+Verify: `/devspec-verify add-project-context` — **compile-verified (tsc + eslint + build all clean; backend boots live with all 7 context routes; api:types matches). LIVE agent-browser run BLOCKED: needs the frontend dev server + real AI_API_KEY/TAVILY_API_KEY to exercise process→summary→mermaid and research (current keys are `change-me` placeholders, which render the page but fail the AI path). See blockers.md.**
 
 ## 10. Frontend — sidebar + overview count [req-12]
-- [ ] 10.1 [frontend] Enable the `Context` sidebar row in `app/(app)/layout.tsx` (was `disabled: true`) → links to `/projects/:id/context`
-- [ ] 10.2 [frontend] Overview stage 1 reads the real source count from `GET /projects/:id/documents` instead of the `0 files` constant; the other three stages stay honest zeros
-Verify: `/devspec-verify add-project-context` (Context nav row navigates; Overview stage 1 shows a real count)
+- [x] 10.1 [frontend] Added the `Context` row to `projectNavItems` (`constants/nav.ts`, group Plan, enabled, `${base}/context`) — it wasn't present at all, so added rather than un-disabled
+- [x] 10.2 [frontend] Overview (`app/(app)/projects/[id]/page.tsx`) calls `projectStages(sources?.length ?? 0)` via `useSources`; the other three stages stay honest zeros
+Verify: `/devspec-verify add-project-context` — compile-verified (tsc/eslint/build clean). LIVE nav-navigation + count assertions need the running frontend; folded into the §9 blocker.
