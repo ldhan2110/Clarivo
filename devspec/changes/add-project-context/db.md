@@ -28,7 +28,7 @@ change needs — `application/pdf`, `…wordprocessingml.document` (.docx), `tex
 | project_id | uuid | no | — | **add** · FK → `projects(id)` **ON DELETE CASCADE** · `@Index()` — every query starts "documents of this project" |
 | file_id | uuid | no | — | **add** · FK → `files(id)` **ON DELETE RESTRICT** · **UNIQUE** — one file backs at most one document row |
 | title | varchar(255) | no | — | **add** · seeded from `files.original_name`, editable afterwards |
-| status | varchar(16) | no | `'pending'` | **add** · CHECK `IN ('pending','parsing','summarizing','proposing','ready','failed')` |
+| status | varchar(16) | no | `'pending'` | **add** · CHECK `IN ('pending','parsing','summarizing','proposing','ready','failed','archived')`. *(worker correction: `'archived'` was missing here — design.md Default 25 makes archiving a status change, and req-14 needs it)* |
 | error | text | yes | — | **add** · failure reason, shown in the UI; null unless `status='failed'` |
 | char_count | integer | yes | — | **add** · extracted plain-text length. `integer`, not `bigint` (TypeORM returns bigint as a JS string) |
 | digest | text | yes | — | **add** · the map-reduce document summary. The expensive artifact — stored so a re-propose costs no AI call |
@@ -47,7 +47,7 @@ table plus a separate audit table would hold the same rows in three shapes.
 | id | uuid | no | — | PK, uuid v7 in the app. **Stable id is what the whole design rests on** — it lets AI patch one block instead of rewriting the page |
 | created_at / updated_at | timestamptz | no | `now()` | `BaseEntity` |
 | project_id | uuid | no | — | **add** · FK → `projects(id)` **ON DELETE CASCADE** |
-| section | varchar(16) | no | — | **add** · CHECK `IN ('scope','stakeholders','process','constraints','integrations','glossary','open_questions')` |
+| section | varchar(16) | no | — | **add** · CHECK `IN ('overview','scope','stakeholders','process','data_model','constraints','integrations','glossary','open_questions')`. *(worker correction: this row listed seven; design.md and tasks.md 2.2 both say the nine above)* |
 | position | integer | no | `0` | **add** · order within a section |
 | statement | text | no | — | **add** · markdown, one assertion |
 | confidence | varchar(16) | no | — | **add** · CHECK `IN ('stated','implied','uncertain')` |

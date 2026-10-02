@@ -33,7 +33,7 @@ export default function DashboardPage() {
   const empty = !isPending && !isError && data.items.length === 0;
 
   return (
-    <div className="px-5 pt-4 pb-10 md:px-6.5 md:pt-0">
+    <div className="flex h-full min-h-0 flex-col px-5 pt-4 pb-5 md:px-6.5 md:pt-0 md:pb-3">
       <div className="hidden h-[58px] items-center md:flex">
         <span className="text-sm font-semibold">Dashboard</span>
         <Button
@@ -103,7 +103,7 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          <Card>
+          <Card className={cn(empty && "flex min-h-0 flex-1 flex-col")}>
             <CardHeader>
               <CardTitle>Recent Projects</CardTitle>
               {!empty && (
@@ -112,7 +112,7 @@ export default function DashboardPage() {
                 </Link>
               )}
             </CardHeader>
-            <CardContent className="px-2 pb-2">
+            <CardContent className={cn("px-2 pb-2", empty && "grid flex-1 place-items-center")}>
               {isPending ? (
                 <div className="grid gap-1.5 p-1">
                   {Array.from({ length: 3 }).map((_, i) => (

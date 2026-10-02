@@ -40,7 +40,7 @@ The shape is intentionally conservative: this is infrastructure other changes wi
 ### Out
 
 - **Any consumer.** No project-document table, no transcript upload, no screen. Nothing in the frontend calls these endpoints yet. The first feature that needs files adds its own `file_id` column pointing at `files`.
-- **Per-file authorization.** Any authenticated user can download any file by id. There is no ownership model yet to authorize against — the first consumer introduces one, and that is when a per-resource check becomes meaningful and possible.
+- **Per-file authorization.** ~~Any authenticated user can download any file by id.~~ **CLOSED by add-project-context (2026-10-01):** that change gave files owners, so `GET /files/:id` now requires membership of the owning project when the file has a `project_documents` row. A file with no such row keeps the original behaviour, which is why the pre-existing orphan rows needed no data fix. See `backend/src/files/download-authorisation.spec.ts`.
 - **Object storage.** Local disk only. No S3, no MinIO, no storage-driver abstraction behind an interface with one implementation.
 - **Image processing.** No thumbnails, no resizing, no EXIF stripping.
 - **Versioning, deduplication, checksums, virus scanning, quotas, orphan sweeping.** Each is a real concern and none has a requirement behind it yet.

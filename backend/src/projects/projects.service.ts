@@ -94,8 +94,12 @@ export class ProjectsService {
    * which is exactly the leak membership scoping prevents. A member who is not
    * the owner gets 403, because they can already read the project — it tells
    * them something true and actionable without revealing anything new.
+   *
+   * Public so ContextModule can apply the same gate. Deliberately NOT copied
+   * there: a second implementation is a second place for the 404-vs-403 rule
+   * to drift.
    */
-  private async requireMembership(
+  async requireMembership(
     projectId: string,
     viewerId: string,
     options: { owner?: boolean } = {},
@@ -108,6 +112,16 @@ export class ProjectsService {
       throw ProjectErrors.NOT_OWNER({ id: projectId });
     }
     return membership;
+  }
+
+  /**
+   * Membership gate plus the project row, for modules that need both. The
+   * context module reads `status` to refuse writes on an archived project, and
+   * going through here means it cannot accidentally skip the gate.
+   */
+  async requireProject(projectId: string, viewerId: string): Promise<Project> {
+    await this.requireMembership(projectId, viewerId);
+    return this.loadProject(projectId);
   }
 
   private async loadProject(id: string): Promise<Project> {

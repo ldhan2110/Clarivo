@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { ChevronsUpDown, LogOut, User } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ProfileDialog } from "@/components/profile/profile-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +30,7 @@ export function NavUser({ collapsed = false }: { collapsed?: boolean }) {
   const user = useUser();
   const logout = useLogout();
   const confirm = useConfirm();
+  const [profileOpen, setProfileOpen] = useState(false);
 
   if (!user) return <NavUserSkeleton collapsed={collapsed} />;
 
@@ -37,7 +39,9 @@ export function NavUser({ collapsed = false }: { collapsed?: boolean }) {
   const role = "BA";
 
   return (
-    <DropdownMenu>
+    <>
+      <ProfileDialog open={profileOpen} onOpenChange={setProfileOpen} />
+      <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
@@ -48,6 +52,13 @@ export function NavUser({ collapsed = false }: { collapsed?: boolean }) {
           )}
         >
           <Avatar className="bg-linear-140 from-chart-3 to-chart-1">
+            {user.avatarFileId && (
+              <AvatarImage
+                src={`/api/files/${user.avatarFileId}`}
+                alt=""
+                className="object-cover"
+              />
+            )}
             <AvatarFallback className="bg-transparent text-primary-foreground">
               {initialsOf(user.name) || <User className="size-4" />}
             </AvatarFallback>
@@ -72,12 +83,9 @@ export function NavUser({ collapsed = false }: { collapsed?: boolean }) {
           </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem disabled>
+        <DropdownMenuItem onSelect={() => setProfileOpen(true)}>
           <User />
           Profile
-          <Badge variant="outline" className="ml-auto text-[10px] tracking-wide uppercase">
-            Soon
-          </Badge>
         </DropdownMenuItem>
         <DropdownMenuItem
           variant="destructive"
@@ -104,7 +112,8 @@ export function NavUser({ collapsed = false }: { collapsed?: boolean }) {
           Sign out
         </DropdownMenuItem>
       </DropdownMenuContent>
-    </DropdownMenu>
+      </DropdownMenu>
+    </>
   );
 }
 

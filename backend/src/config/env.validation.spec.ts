@@ -9,6 +9,10 @@ const base = {
   DATABASE_NAME: 'db',
   JWT_SECRET: 's',
   FILE_STORAGE_PATH: '/tmp/clarivo-files',
+  AI_BASE_URL: 'https://ai.test/v1',
+  AI_API_KEY: 'k',
+  AI_MODEL_FAST: 'fast',
+  AI_MODEL_STRONG: 'strong',
   SEED_ADMIN_EMAIL: 'a@b.c',
   SEED_ADMIN_PASSWORD: 'p',
   SEED_ADMIN_NAME: 'N',
@@ -43,6 +47,14 @@ describe('validate', () => {
   it('has no default for FILE_STORAGE_PATH', () => {
     expect(validate(base).FILE_STORAGE_PATH).toBe('/tmp/clarivo-files');
     expect(() => validate({ ...base, FILE_STORAGE_PATH: '' })).toThrow(/FILE_STORAGE_PATH/);
+  });
+
+  it('refuses to boot without the AI provider contract', () => {
+    const keys = ['AI_BASE_URL', 'AI_API_KEY', 'AI_MODEL_FAST', 'AI_MODEL_STRONG'] as const;
+    for (const key of keys) {
+      const { [key]: _omitted, ...without } = base;
+      expect(() => validate(without)).toThrow(new RegExp(key));
+    }
   });
 });
 

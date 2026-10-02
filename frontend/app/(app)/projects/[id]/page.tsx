@@ -11,8 +11,9 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProjectNotFound } from "@/components/projects/project-not-found";
 import { confirmRestore } from "@/constants/confirm";
-import { CURRENT_STAGE, PROJECT_STAGES } from "@/constants/project-stages";
+import { CURRENT_STAGE, PROJECT_STAGES, projectStages } from "@/constants/project-stages";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useContextDocuments } from "@/hooks/use-context-documents";
 import { useProject, useRestoreProject } from "@/hooks/use-project";
 import { formatDay, relativeTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -33,6 +34,9 @@ export default function ProjectOverviewPage({ params }: { params: Promise<{ id: 
 function Overview({ project }: { project: ProjectDto }) {
   const confirm = useConfirm();
   const restore = useRestoreProject(project.id);
+  // Stage 1 reads the real document count; the other three stay honest zeros.
+  const documents = useContextDocuments(project.id);
+  const stages = projectStages(documents.data?.length ?? 0);
   const archived = project.status === "archived";
   const isOwner = project.viewerRole === "owner";
 
@@ -107,7 +111,7 @@ function Overview({ project }: { project: ProjectDto }) {
       </div>
 
       <div className="mt-5 mb-5 grid grid-cols-2 gap-3 md:mb-6 md:grid-cols-4 md:gap-3.5">
-        {PROJECT_STAGES.map((stage) => (
+        {stages.map((stage) => (
           <Card key={stage.tile} className="flex items-start gap-2.5 p-3.5 md:p-4">
             <div>
               <div className="text-[22px] leading-tight font-bold tracking-tight md:text-[26px]">
@@ -140,7 +144,7 @@ function Overview({ project }: { project: ProjectDto }) {
               />
             </div>
 
-            {PROJECT_STAGES.map((stage, i) => (
+            {stages.map((stage, i) => (
               <div
                 key={stage.label}
                 className={cn(

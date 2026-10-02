@@ -83,6 +83,30 @@ export class EnvironmentVariables {
   @IsNotEmpty()
   FILE_STORAGE_PATH: string;
 
+  /**
+   * OpenAI-compatible AI provider. Required with no code default: a missing
+   * key must kill the boot rather than surface as a 502 on the first upload.
+   * AI_BASE_URL is the API root without a trailing slash — the client appends
+   * `/chat/completions`.
+   */
+  @IsString()
+  @IsNotEmpty()
+  AI_BASE_URL: string;
+
+  @IsString()
+  @IsNotEmpty()
+  AI_API_KEY: string;
+
+  /** Cheap model for the map step, which carries the bulk of the tokens. */
+  @IsString()
+  @IsNotEmpty()
+  AI_MODEL_FAST: string;
+
+  /** Stronger model for reduce, propose and brief — once each, quality shows. */
+  @IsString()
+  @IsNotEmpty()
+  AI_MODEL_STRONG: string;
+
   /** Seed account, created by `pnpm seed`. Never read at runtime. */
   @IsString()
   @IsNotEmpty()

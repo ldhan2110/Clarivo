@@ -9,8 +9,9 @@ import { User } from '../users/user.entity';
  * There is deliberately no owner column. The first consuming domain table adds
  * its own `file_id` referencing this one — a real FK beats a polymorphic
  * owner_type/owner_id pair with no referential integrity.
- * ponytail: until a consumer exists, nothing here distinguishes a live row
- * from test leftovers. The consumer brings the ownership model.
+ * The consumer arrived: `project_documents.file_id` is that FK. A file with a
+ * project_documents row is downloadable only by a member of that project
+ * (FilesController.download); one without keeps the original behaviour.
  */
 @Entity('files')
 export class FileEntity extends BaseEntity {

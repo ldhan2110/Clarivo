@@ -90,7 +90,7 @@ export default function ProjectsPage() {
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col px-5 pt-4 pb-5 md:px-6.5 md:pt-0">
+    <div className="flex h-full min-h-0 flex-col px-5 pt-4 pb-5 md:px-6.5 md:pt-0 md:pb-3">
       <div className="hidden h-[58px] items-center md:flex">
         <span className="text-sm font-semibold">Projects</span>
         <Button
@@ -173,17 +173,19 @@ export default function ProjectsPage() {
         <Card
           className={cn(
             "flex flex-col overflow-hidden p-0",
-            !isPending && data.items.length > 0 && "min-h-0 flex-1",
+            !isPending && "min-h-0 flex-1",
           )}
         >
           {isPending ? (
             <ProjectRowsSkeleton />
           ) : data.items.length === 0 ? (
-            filtered ? (
-              <NoProjectsMatch term={query} onClear={clearFilters} />
-            ) : (
-              <NoProjectsYet action={<CreateProjectDialog />} />
-            )
+            <div className="grid flex-1 place-items-center">
+              {filtered ? (
+                <NoProjectsMatch term={query} onClear={clearFilters} />
+              ) : (
+                <NoProjectsYet action={<CreateProjectDialog />} />
+              )}
+            </div>
           ) : (
             <>
               <div className="min-h-0 flex-1 overflow-auto">
