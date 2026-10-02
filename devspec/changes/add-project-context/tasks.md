@@ -20,22 +20,22 @@ Verify: `cd backend && pnpm test env.validation`
 Verify: `cd backend && pnpm test context && pnpm migration:run && pnpm migration:revert` (applies and reverts clean on the dev DB)
 
 ## 3. Extraction — parsers [req-4][req-9]
-- [ ] 3.1 [service] `DocumentParser` (`src/context/document-parser.ts`): dispatch on mime — `pdf-parse` for PDF, `mammoth` for DOCX, UTF-8 read for TXT/MD → `{ text, locator? }`. Both deps already installed (CJS-safe)
-- [ ] 3.2 [service] Empty/zero-text extraction throws a typed `CONTEXT_UNREADABLE_SOURCE` error (`defineErrors('CONTEXT', …)`, `src/common/exceptions/domain-errors.ts` pattern) carrying a readable reason
-- [ ] 3.3 [test] `src/context/document-parser.spec.ts`: a TXT fixture extracts; an empty/zero-text input throws the readable error
+- [x] 3.1 [service] `DocumentParser` (`src/context/document-parser.ts`): mime dispatch — `pdf-parse` v2 (`new PDFParse({data}).getText()`) for PDF, `mammoth.extractRawText` for DOCX, UTF-8 for TXT/MD → `{ text, locator }`
+- [x] 3.2 [service] Empty extraction throws `CONTEXT_UNREADABLE_SOURCE`, unsupported mime throws `CONTEXT_UNSUPPORTED_TYPE` (`src/context/context.errors.ts`, `defineErrors('CONTEXT', …)`)
+- [x] 3.3 [test] `src/context/document-parser.spec.ts`: TXT + MD extract; empty → UNREADABLE; unsupported → UNSUPPORTED. 4/4 pass
 Verify: `cd backend && pnpm test document-parser`
 
 ## 4. AI client — summarise [req-5]
-- [ ] 4.1 [service] `AiClient` (`src/context/ai-client.ts`): wrap LangChain `ChatOpenAI` (`@langchain/openai`) — `configuration.baseURL`=`AI_BASE_URL`, `apiKey`=`AI_API_KEY`, one instance per model (`AI_MODEL_FAST`/`AI_MODEL_STRONG`) from `ConfigService`. OpenAI-compatible, so OpenRouter/Omniroute/direct all work
-- [ ] 4.2 [service] `summarise(sources)`: split each source with a LangChain text splitter, map each segment through the FAST model, reduce with the STRONG model into one markdown — fixed `##` sections, a `Sources:` line per section, inline `⚠ Sources differ` on contradiction, and ```mermaid blocks for process/context where supported. Single-group source skips the map. Use a LangChain output parser to enforce the section shape
-- [ ] 4.3 [service] `// ponytail:` comment marking in-process background + the job-queue ceiling
-- [ ] 4.4 [test] `src/context/ai-client.spec.ts`: model calls mocked (LangChain `FakeChatModel` or mocked invoke) — map/reduce use the right model ids; output parses to markdown; a malformed mermaid block is preserved, not fatal
+- [x] 4.1 [service] `AiClient` (`src/context/ai-client.ts`): two `ChatOpenAI` instances (FAST/STRONG) from `ConfigService`, `configuration.baseURL`=AI_BASE_URL, apiKey=AI_API_KEY
+- [x] 4.2 [service] `summarise(input)`: `RecursiveCharacterTextSplitter` → FAST map per segment → STRONG reduce into the 9 fixed `##` sections, per-section `Sources:` line, `⚠ Sources differ` note, ```mermaid blocks; single short source skips the map; `StringOutputParser` on each chain
+- [x] 4.3 [service] `// ponytail:` comment on the background-run / job-queue ceiling
+- [x] 4.4 [test] `src/context/ai-client.spec.ts`: ChatOpenAI mocked — STRONG reduces, FAST maps a large source, reduce runs last, malformed mermaid passes through. 3/3 pass
 Verify: `cd backend && pnpm test ai-client`
 
 ## 5. Web research — Tavily [req-2]
-- [ ] 5.1 [service] `WebResearch` (`src/context/web-research.ts`): wrap LangChain `TavilySearch` (`@langchain/tavily`, `TAVILY_API_KEY` from config); `search(companyName|url, building?)` → `{ findings_md, pages: [{title, url, extract}] }`. This is the same tool the LangGraph discovery agent will reuse
-- [ ] 5.2 [service] Zero results → `{ findings_md: '', pages: [] }` (no throw)
-- [ ] 5.3 [test] `src/context/web-research.spec.ts`: TavilySearch mocked — name/url builds the query; zero results returns empty, not an error
+- [x] 5.1 [service] `WebResearch` (`src/context/web-research.ts`): wraps `TavilySearch` (`includeRawContent`, maxResults 5); `search({companyName|url, building?})` → `{ findings_md, pages:[{title,url,extract}] }`
+- [x] 5.2 [service] Zero results → `{ findings_md: '', pages: [] }` (no throw)
+- [x] 5.3 [test] `src/context/web-research.spec.ts`: TavilySearch mocked — query built from name+building, url-only path, hits→pages, empty result. 4/4 pass
 Verify: `cd backend && pnpm test web-research`
 
 ## 6. Context service — process-all, regenerate, sweep [req-4][req-5][req-8][req-9]
